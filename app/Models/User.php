@@ -139,7 +139,7 @@ class User extends Authenticatable
 
     public function getRewardPerTask(): float
     {
-        return $this->getCurrentPlan()?->reward_per_task ?? 50;
+        return $this->getCurrentPlan()?->reward_per_task ?? 3; // Default TZS 3 (profitable!)
     }
 
     public function getMinWithdrawal(): float
