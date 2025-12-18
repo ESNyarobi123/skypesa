@@ -194,11 +194,10 @@ class PaymentController extends Controller
         $subscription = $user->subscriptions()->create([
             'plan_id' => $plan->id,
             'starts_at' => now(),
-            'expires_at' => now()->addDays($plan->duration_days),
+            'expires_at' => $plan->duration_days ? now()->addDays($plan->duration_days) : null,
             'status' => 'active',
             'amount_paid' => $amount,
             'payment_reference' => $orderId,
-            'payment_method' => 'zenopay',
         ]);
 
         // Create transaction record

@@ -32,6 +32,16 @@ class SubscriptionController extends Controller
                 ->with('success', 'Umejiunga na mpango wa ' . $plan->display_name);
         }
         
+        // Check if test mode is enabled (for development/testing)
+        $testMode = config('app.env') === 'local' || $request->has('test');
+        
+        if ($testMode) {
+            // Direct activation for testing (skip payment)
+            $this->activateSubscription($user, $plan, true);
+            return redirect()->route('subscriptions.index')
+                ->with('success', 'Hongera! Umejiunga na mpango wa ' . $plan->display_name . ' (Test Mode)');
+        }
+        
         // For paid plans, redirect to ZenoPay payment
         return redirect()->route('payments.subscription', $plan);
     }
@@ -49,19 +59,22 @@ class SubscriptionController extends Controller
             // Deactivate current subscription
             $user->subscriptions()->where('status', 'active')->update(['status' => 'expired']);
             
+            // Calculate expiry date (null for unlimited/free plans)
+            $expiresAt = $plan->duration_days ? now()->addDays($plan->duration_days) : null;
+            
             // Create new subscription
             $subscription = $user->subscriptions()->create([
                 'plan_id' => $plan->id,
                 'starts_at' => now(),
-                'expires_at' => now()->addDays($plan->duration_days),
+                'expires_at' => $expiresAt,
                 'status' => 'active',
                 'amount_paid' => $plan->price,
                 'payment_reference' => 'TEST_' . strtoupper(\Str::random(10)),
             ]);
             
-            // Debit from wallet if has balance
+            // Debit from wallet if has balance (optional)
             $wallet = $user->wallet;
-            if ($wallet->balance >= $plan->price) {
+            if ($wallet && $wallet->balance >= $plan->price) {
                 $wallet->debit($plan->price, 'subscription', $subscription, 'Malipo ya ' . $plan->display_name);
             }
             
@@ -72,11 +85,17 @@ class SubscriptionController extends Controller
                 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Kuna tatizo la malipo. Jaribu tena.');
+            \Log::error('Subscription payment error', [
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return back()->with('error', 'Kuna tatizo la malipo: ' . $e->getMessage());
         }
     }
 
-    protected function activateSubscription($user, $plan)
+    protected function activateSubscription($user, $plan, bool $isPaid = false)
     {
         // Deactivate current subscriptions
         $user->subscriptions()->where('status', 'active')->update(['status' => 'expired']);
@@ -87,7 +106,8 @@ class SubscriptionController extends Controller
             'starts_at' => now(),
             'expires_at' => $plan->duration_days ? now()->addDays($plan->duration_days) : null,
             'status' => 'active',
-            'amount_paid' => 0,
+            'amount_paid' => $isPaid ? $plan->price : 0,
+            'payment_reference' => $isPaid ? 'TEST_' . strtoupper(\Str::random(10)) : null,
         ]);
     }
 }
