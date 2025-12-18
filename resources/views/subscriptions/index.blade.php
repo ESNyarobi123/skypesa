@@ -47,7 +47,7 @@
 
 <!-- All Plans -->
 <h3 class="mb-6">Mipango Yote</h3>
-<div class="grid grid-4">
+<div class="grid grid-5">
     @foreach($plans as $plan)
     <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }} {{ $currentSubscription?->plan_id == $plan->id ? 'current' : '' }}">
         @if($currentSubscription?->plan_id == $plan->id)
@@ -57,7 +57,7 @@
         @endif
         
         <div style="font-size: 0.75rem; color: {{ $plan->badge_color }}; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2); margin-top: {{ $currentSubscription?->plan_id == $plan->id ? 'var(--space-6)' : '0' }};">
-            {{ $plan->name == 'free' ? 'Bure' : ($plan->name == 'phase1' ? 'Hatua 1' : ($plan->name == 'phase2' ? 'Hatua 2' : 'Premium')) }}
+            {{ strtoupper($plan->display_name) }}
         </div>
         
         <div class="plan-name">{{ $plan->display_name }}</div>

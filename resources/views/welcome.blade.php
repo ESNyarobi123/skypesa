@@ -171,34 +171,30 @@
             <p>Anza bure au upgrade kwa faida zaidi</p>
         </div>
         
-        <div class="grid grid-4">
+        <div class="grid grid-5">
             <!-- Free Plan -->
             <div class="plan-card">
                 <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">Bure</div>
-                <div class="plan-name">Free</div>
+                <div class="plan-name">Bure</div>
                 <div class="plan-price">TZS 0</div>
-                <p style="font-size: 0.875rem; margin-top: var(--space-2);">Anza bila kulipa chochote</p>
+                <p style="font-size: 0.875rem; margin-top: var(--space-2);">Jaribu bila kulipa</p>
                 
                 <ul class="plan-features">
                     <li>
                         <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Tasks 5 kwa siku
+                        Tasks 20 kwa siku
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        TZS 50 kwa task
+                        <i data-lucide="coins" style="width: 18px; height: 18px;"></i>
+                        TZS 3 kwa task
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Min. Withdrawal: TZS 10,000
+                        <i data-lucide="banknote" style="width: 18px; height: 18px;"></i>
+                        Min: TZS 5,000
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                        <i data-lucide="percent" style="width: 18px; height: 18px;"></i>
                         Fee: 20%
-                    </li>
-                    <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Processing: Siku 7
                     </li>
                 </ul>
                 
@@ -207,81 +203,104 @@
                 </a>
             </div>
             
-            <!-- Phase 1 -->
+            <!-- Starter -->
             <div class="plan-card">
-                <div style="font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">Hatua 1</div>
-                <div class="plan-name">Phase 1</div>
-                <div class="plan-price">TZS 5,000<span>/mwezi</span></div>
-                <p style="font-size: 0.875rem; margin-top: var(--space-2);">Panda ngazi ya kwanza</p>
+                <div style="font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">Starter</div>
+                <div class="plan-name">Starter</div>
+                <div class="plan-price">TZS 2,000<span>/mwezi</span></div>
+                <p style="font-size: 0.875rem; margin-top: var(--space-2);">Anzisha safari yako</p>
                 
                 <ul class="plan-features">
                     <li>
                         <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Tasks 15 kwa siku
+                        Tasks 40 kwa siku
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        TZS 75 kwa task
+                        <i data-lucide="coins" style="width: 18px; height: 18px;"></i>
+                        TZS 4 kwa task
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Min. Withdrawal: TZS 5,000
+                        <i data-lucide="banknote" style="width: 18px; height: 18px;"></i>
+                        Min: TZS 3,000
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Fee: 10%
-                    </li>
-                    <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Processing: Siku 3
+                        <i data-lucide="percent" style="width: 18px; height: 18px;"></i>
+                        Fee: 15%
                     </li>
                 </ul>
                 
                 <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">
-                    Chagua Phase 1
+                    Chagua Starter
                 </a>
             </div>
             
-            <!-- Phase 2 -->
+            <!-- Silver -->
             <div class="plan-card featured">
-                <div style="font-size: 0.75rem; color: #8b5cf6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">Hatua 2</div>
-                <div class="plan-name">Phase 2</div>
-                <div class="plan-price">TZS 15,000<span>/mwezi</span></div>
-                <p style="font-size: 0.875rem; margin-top: var(--space-2);">Mapato makubwa zaidi</p>
+                <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">Bora</div>
+                <div class="plan-name">Silver</div>
+                <div class="plan-price">TZS 5,000<span>/mwezi</span></div>
+                <p style="font-size: 0.875rem; margin-top: var(--space-2);">Mapato mazuri zaidi</p>
                 
                 <ul class="plan-features">
                     <li>
                         <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Tasks 30 kwa siku
+                        Tasks 60 kwa siku
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        TZS 100 kwa task
+                        <i data-lucide="coins" style="width: 18px; height: 18px;"></i>
+                        TZS 5 kwa task
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Min. Withdrawal: TZS 3,000
+                        <i data-lucide="banknote" style="width: 18px; height: 18px;"></i>
+                        Min: TZS 2,000
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Fee: 5%
-                    </li>
-                    <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Processing: Saa 24
+                        <i data-lucide="percent" style="width: 18px; height: 18px;"></i>
+                        Fee: 10%
                     </li>
                 </ul>
                 
                 <a href="{{ route('register') }}" class="btn btn-primary" style="width: 100%;">
-                    Chagua Phase 2
+                    Chagua Silver
                 </a>
             </div>
             
-            <!-- Premium -->
+            <!-- Gold -->
             <div class="plan-card">
-                <div style="font-size: 0.75rem; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">Premium</div>
-                <div class="plan-name">Premium</div>
-                <div class="plan-price">TZS 30,000<span>/mwezi</span></div>
+                <div style="font-size: 0.75rem; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">Dhahabu</div>
+                <div class="plan-name">Gold</div>
+                <div class="plan-price">TZS 10,000<span>/mwezi</span></div>
+                <p style="font-size: 0.875rem; margin-top: var(--space-2);">Mapato makubwa!</p>
+                
+                <ul class="plan-features">
+                    <li>
+                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                        Tasks 100 kwa siku
+                    </li>
+                    <li>
+                        <i data-lucide="coins" style="width: 18px; height: 18px;"></i>
+                        TZS 7 kwa task
+                    </li>
+                    <li>
+                        <i data-lucide="banknote" style="width: 18px; height: 18px;"></i>
+                        Min: TZS 1,500
+                    </li>
+                    <li>
+                        <i data-lucide="percent" style="width: 18px; height: 18px;"></i>
+                        Fee: 7%
+                    </li>
+                </ul>
+                
+                <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">
+                    Chagua Gold
+                </a>
+            </div>
+            
+            <!-- VIP -->
+            <div class="plan-card">
+                <div style="font-size: 0.75rem; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--space-2);">VIP</div>
+                <div class="plan-name">VIP</div>
+                <div class="plan-price">TZS 25,000<span>/mwezi</span></div>
                 <p style="font-size: 0.875rem; margin-top: var(--space-2);">Bila mipaka!</p>
                 
                 <ul class="plan-features">
@@ -290,25 +309,21 @@
                         Tasks UNLIMITED
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        TZS 150 kwa task
+                        <i data-lucide="coins" style="width: 18px; height: 18px;"></i>
+                        TZS 10 kwa task
                     </li>
                     <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Min. Withdrawal: TZS 2,000
-                    </li>
-                    <li>
-                        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                        Fee: 2% tu!
+                        <i data-lucide="banknote" style="width: 18px; height: 18px;"></i>
+                        Min: TZS 1,000
                     </li>
                     <li>
                         <i data-lucide="zap" style="width: 18px; height: 18px;"></i>
-                        Processing: PAPO HAPO!
+                        Fee: 5% tu!
                     </li>
                 </ul>
                 
                 <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">
-                    Chagua Premium
+                    Chagua VIP
                 </a>
             </div>
         </div>
