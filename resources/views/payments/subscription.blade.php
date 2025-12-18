@@ -85,10 +85,17 @@
             Lipia na Mobile Money
         </h4>
         
+        @if(empty(config('zenopay.api_key')))
+        <div class="alert alert-warning mb-4" style="font-size: 0.875rem;">
+            <i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i>
+            <strong>DEMO MODE:</strong> ZenoPay API haijawekwa. Malipo yatasimuliwa kwa testing.
+        </div>
+        @else
         <div class="alert alert-success mb-4" style="font-size: 0.875rem;">
             <i data-lucide="info" style="width: 18px; height: 18px;"></i>
             Utapokea PUSH notification kwenye simu yako baada ya kubonyeza "Lipia"
         </div>
+        @endif
         
         <div class="form-group">
             <label class="form-label">Namba ya Simu ya Kulipa <span style="color: var(--error);">*</span></label>

@@ -34,6 +34,30 @@ class ZenoPayService
         // Format phone number (ensure 07XXXXXXXX format)
         $phone = $this->formatPhoneNumber($buyerPhone);
         
+        // Demo mode when API key is not set
+        if (empty($this->apiKey)) {
+            Log::info('ZenoPay Demo Mode - Payment initiated', [
+                'order_id' => $orderId,
+                'amount' => $amount,
+                'phone' => $phone,
+            ]);
+            
+            // Store demo payment in cache for status checking
+            \Cache::put("demo_payment_{$orderId}", [
+                'status' => 'PENDING',
+                'created_at' => now()->timestamp,
+                'amount' => $amount,
+                'phone' => $phone,
+            ], 600); // 10 minutes
+            
+            return [
+                'success' => true,
+                'order_id' => $orderId,
+                'message' => '[DEMO] Malipo yako yanasimuliwa. Subiri sekunde 5...',
+                'demo_mode' => true,
+            ];
+        }
+        
         try {
             $response = Http::timeout($this->timeout)
                 ->withHeaders([
@@ -93,6 +117,62 @@ class ZenoPayService
      */
     public function checkStatus(string $orderId): array
     {
+        // Demo mode - check cached demo payment
+        $demoPayment = \Cache::get("demo_payment_{$orderId}");
+        if ($demoPayment) {
+            $secondsElapsed = now()->timestamp - $demoPayment['created_at'];
+            
+            // After 5 seconds, mark as completed (simulating successful payment)
+            if ($secondsElapsed >= 5) {
+                \Cache::forget("demo_payment_{$orderId}");
+                
+                Log::info('ZenoPay Demo Mode - Payment completed', [
+                    'order_id' => $orderId,
+                    'seconds_elapsed' => $secondsElapsed,
+                ]);
+                
+                return [
+                    'success' => true,
+                    'order_id' => $orderId,
+                    'status' => 'COMPLETED',
+                    'is_completed' => true,
+                    'is_pending' => false,
+                    'is_failed' => false,
+                    'transaction_id' => 'DEMO_' . strtoupper(\Str::random(10)),
+                    'channel' => 'M-Pesa',
+                    'reference' => 'DEMO_REF_' . time(),
+                    'amount' => $demoPayment['amount'],
+                    'demo_mode' => true,
+                ];
+            }
+            
+            // Still pending
+            return [
+                'success' => true,
+                'order_id' => $orderId,
+                'status' => 'PENDING',
+                'is_completed' => false,
+                'is_pending' => true,
+                'is_failed' => false,
+                'demo_mode' => true,
+                'seconds_remaining' => 5 - $secondsElapsed,
+            ];
+        }
+        
+        // If no demo payment and no API key, return not found
+        if (empty($this->apiKey)) {
+            return [
+                'success' => false,
+                'order_id' => $orderId,
+                'status' => 'NOT_FOUND',
+                'is_completed' => false,
+                'is_pending' => false,
+                'is_failed' => true,
+                'message' => 'Order haipo.',
+                'demo_mode' => true,
+            ];
+        }
+
         try {
             $response = Http::timeout($this->timeout)
                 ->withHeaders([
