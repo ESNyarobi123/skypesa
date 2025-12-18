@@ -32,17 +32,7 @@ class SubscriptionController extends Controller
                 ->with('success', 'Umejiunga na mpango wa ' . $plan->display_name);
         }
         
-        // Check if test mode is enabled (for development/testing)
-        $testMode = config('app.env') === 'local' || $request->has('test');
-        
-        if ($testMode) {
-            // Direct activation for testing (skip payment)
-            $this->activateSubscription($user, $plan, true);
-            return redirect()->route('subscriptions.index')
-                ->with('success', 'Hongera! Umejiunga na mpango wa ' . $plan->display_name . ' (Test Mode)');
-        }
-        
-        // For paid plans, redirect to ZenoPay payment
+        // For paid plans, redirect to payment page with phone form
         return redirect()->route('payments.subscription', $plan);
     }
 
