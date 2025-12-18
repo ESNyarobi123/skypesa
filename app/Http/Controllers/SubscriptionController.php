@@ -32,8 +32,8 @@ class SubscriptionController extends Controller
                 ->with('success', 'Umejiunga na mpango wa ' . $plan->display_name);
         }
         
-        // For paid plans, redirect to payment
-        return view('subscriptions.payment', compact('plan'));
+        // For paid plans, redirect to ZenoPay payment
+        return redirect()->route('payments.subscription', $plan);
     }
 
     public function processPayment(Request $request, SubscriptionPlan $plan)

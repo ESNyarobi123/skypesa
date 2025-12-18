@@ -229,13 +229,62 @@ MONETAG_ENABLE_IPN=false
 | `app/Services/MonetagService.php` | Helper service class |
 | `resources/views/partials/monetag.blade.php` | Script injection partial |
 
+## 💳 ZenoPay Integration
+
+SKYpesa uses ZenoPay API for mobile money payments (M-Pesa, Tigo Pesa, Airtel Money, Halo Pesa).
+
+### Configuration
+
+Add to your `.env`:
+
+```env
+ZENOPAY_API_KEY=your_zenopay_api_key_here
+ZENOPAY_BASE_URL=https://zenoapi.com
+```
+
+### Features
+
+- **Subscription Payments** - Users can pay for plan upgrades
+- **Wallet Deposits** - Users can top-up their wallet balance
+- **Status Polling** - Real-time payment status checking (no webhook needed)
+- **All Mobile Money** - M-Pesa, Tigo Pesa, Airtel Money, Halo Pesa supported
+
+### How It Works
+
+1. User initiates payment
+2. ZenoPay sends USSD push to user's phone
+3. User enters PIN to confirm
+4. System polls for payment status
+5. On success, subscription is activated or wallet is credited
+
+### Files
+
+| File | Purpose |
+|------|---------|
+| `config/zenopay.php` | API configuration |
+| `app/Services/ZenoPayService.php` | Payment service class |
+| `app/Http/Controllers/PaymentController.php` | Payment handling |
+| `resources/views/payments/subscription.blade.php` | Subscription payment UI |
+| `resources/views/payments/deposit.blade.php` | Wallet deposit UI |
+
+### Routes
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/pay/subscription/{plan}` | Show subscription payment page |
+| POST | `/pay/subscription/{plan}` | Initiate subscription payment |
+| GET | `/pay/deposit` | Show deposit page |
+| POST | `/pay/deposit` | Initiate deposit payment |
+| GET | `/pay/status` | Check payment status (polling) |
+
 ## 📝 TODO / Future Features
 
-- [ ] ZenoPay Integration for deposits
-- [ ] ZenoPay Integration for automatic withdrawals
+- [x] ZenoPay Integration for deposits ✅
+- [x] ZenoPay Integration for subscriptions ✅
 - [x] Monetag Integration ✅
 - [x] Adsterra API Integration ✅
 - [x] Push Notifications (via Monetag) ✅
+- [ ] Automatic Withdrawal via ZenoPay
 - [ ] Mobile App (Flutter)
 - [ ] Multi-language (Swahili/English toggle)
 - [ ] Analytics Dashboard

@@ -13,6 +13,10 @@
             <div class="wallet-label">Salio Lako</div>
             <div class="wallet-balance">TZS {{ number_format($wallet->balance ?? 0, 0) }}</div>
             <div class="flex gap-4 mt-4">
+                <a href="{{ route('payments.deposit') }}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
+                    <i data-lucide="plus"></i>
+                    Weka Pesa
+                </a>
                 <a href="{{ route('withdrawals.create') }}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
                     <i data-lucide="send"></i>
                     Toa Pesa

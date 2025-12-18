@@ -7,6 +7,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminTaskController;
@@ -62,6 +63,13 @@ Route::middleware(['auth'])->group(function () {
     
     // Referrals
     Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
+    
+    // Payments (ZenoPay)
+    Route::get('/pay/subscription/{plan}', [PaymentController::class, 'subscriptionPayment'])->name('payments.subscription');
+    Route::post('/pay/subscription/{plan}', [PaymentController::class, 'initiateSubscriptionPayment'])->name('payments.subscription.initiate');
+    Route::get('/pay/deposit', [PaymentController::class, 'depositPage'])->name('payments.deposit');
+    Route::post('/pay/deposit', [PaymentController::class, 'initiateDeposit'])->name('payments.deposit.initiate');
+    Route::get('/pay/status', [PaymentController::class, 'checkPaymentStatus'])->name('payments.status');
     
     // Admin routes
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
