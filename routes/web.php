@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminTaskController;
 use App\Http\Controllers\Admin\AdminWithdrawalController;
 use App\Http\Controllers\Admin\AdminAdsterraController;
+use App\Http\Controllers\Admin\AdminPlanController;
+use App\Http\Controllers\Admin\AdminDirectLinkController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,8 +46,12 @@ Route::middleware(['auth'])->group(function () {
     
     // Tasks
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks/activity-status', [TaskController::class, 'activityStatus'])->name('tasks.activity-status');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
+    Route::post('/tasks/{task}/start', [TaskController::class, 'start'])->name('tasks.start');
+    Route::post('/tasks/{task}/status', [TaskController::class, 'status'])->name('tasks.status');
     Route::post('/tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+    Route::post('/tasks/cancel', [TaskController::class, 'cancel'])->name('tasks.cancel');
     
     // Wallet
     Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
@@ -73,14 +79,50 @@ Route::middleware(['auth'])->group(function () {
     
     // Admin routes
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/analytics', [AdminDashboardController::class, 'analytics'])->name('analytics');
+        Route::get('/live-stats', [AdminDashboardController::class, 'liveStats'])->name('live-stats');
+        Route::get('/referrals', [AdminDashboardController::class, 'referrals'])->name('referrals');
+        Route::get('/transactions', [AdminDashboardController::class, 'transactions'])->name('transactions');
+        Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('settings');
         
-        // Users
+        // Users Management (Full CRUD)
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+        Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+        Route::get('/users/export', [AdminUserController::class, 'export'])->name('users.export');
         Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
         Route::patch('/users/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('users.toggle-status');
+        Route::post('/users/{user}/adjust-balance', [AdminUserController::class, 'adjustBalance'])->name('users.adjust-balance');
+        Route::post('/users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
         
-        // Tasks
+        // Subscription Plans Management
+        Route::get('/plans', [AdminPlanController::class, 'index'])->name('plans.index');
+        Route::get('/plans/create', [AdminPlanController::class, 'create'])->name('plans.create');
+        Route::post('/plans', [AdminPlanController::class, 'store'])->name('plans.store');
+        Route::get('/plans/{plan}/edit', [AdminPlanController::class, 'edit'])->name('plans.edit');
+        Route::put('/plans/{plan}', [AdminPlanController::class, 'update'])->name('plans.update');
+        Route::delete('/plans/{plan}', [AdminPlanController::class, 'destroy'])->name('plans.destroy');
+        Route::patch('/plans/{plan}/toggle-status', [AdminPlanController::class, 'toggleStatus'])->name('plans.toggle-status');
+        Route::post('/plans/reorder', [AdminPlanController::class, 'reorder'])->name('plans.reorder');
+        
+        // Direct Links / Ads Management
+        Route::get('/directlinks', [AdminDirectLinkController::class, 'index'])->name('directlinks.index');
+        Route::get('/directlinks/create', [AdminDirectLinkController::class, 'create'])->name('directlinks.create');
+        Route::post('/directlinks', [AdminDirectLinkController::class, 'store'])->name('directlinks.store');
+        Route::get('/directlinks/{directlink}/edit', [AdminDirectLinkController::class, 'edit'])->name('directlinks.edit');
+        Route::put('/directlinks/{directlink}', [AdminDirectLinkController::class, 'update'])->name('directlinks.update');
+        Route::delete('/directlinks/{directlink}', [AdminDirectLinkController::class, 'destroy'])->name('directlinks.destroy');
+        Route::patch('/directlinks/{directlink}/toggle-status', [AdminDirectLinkController::class, 'toggleStatus'])->name('directlinks.toggle-status');
+        Route::post('/directlinks/{directlink}/duplicate', [AdminDirectLinkController::class, 'duplicate'])->name('directlinks.duplicate');
+        Route::get('/directlinks/{directlink}/analytics', [AdminDirectLinkController::class, 'analytics'])->name('directlinks.analytics');
+        Route::post('/directlinks/bulk-toggle', [AdminDirectLinkController::class, 'bulkToggle'])->name('directlinks.bulk-toggle');
+        
+        // Tasks (existing - for compatibility)
         Route::resource('tasks', AdminTaskController::class)->except(['show']);
         
         // Withdrawals

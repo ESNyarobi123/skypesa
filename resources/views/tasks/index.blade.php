@@ -5,6 +5,41 @@
 @section('page-subtitle', 'Kamilisha kazi na upate malipo!')
 
 @section('content')
+<!-- Active Task Warning -->
+@if($activitySummary['has_active_task'])
+<div class="card mb-8" style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(245, 158, 11, 0.1)); border: 2px solid var(--warning); padding: var(--space-6);">
+    <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: var(--space-4);">
+        <div class="flex items-center gap-4">
+            <div style="width: 60px; height: 60px; background: var(--warning); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
+                <i data-lucide="clock" style="color: white; width: 30px; height: 30px;"></i>
+            </div>
+            <div>
+                <h4 style="color: var(--warning); margin-bottom: 0.25rem;">
+                    ⚠️ Una Kazi Inayoendelea!
+                </h4>
+                <p style="font-size: 0.875rem; margin-bottom: 0.25rem;">
+                    <strong>{{ $activitySummary['active_task']['task']->title }}</strong>
+                </p>
+                <p style="font-size: 0.875rem; color: var(--text-muted);">
+                    Sekunde {{ $activitySummary['active_task']['remaining_seconds'] }} zimebaki. Kamilisha kwanza!
+                </p>
+            </div>
+        </div>
+        <a href="{{ route('tasks.show', $activitySummary['active_task']['task']) }}" class="btn btn-warning btn-lg">
+            <i data-lucide="arrow-right"></i>
+            Endelea na Kazi
+        </a>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+</style>
+@endif
+
 <!-- Stats Row -->
 <div class="grid grid-3 mb-8">
     <div class="card card-body flex items-center gap-4">

@@ -12,6 +12,11 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         
+        // Redirect admin to admin dashboard
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+        
         // Get available tasks
         $tasks = Task::available()
             ->orderBy('is_featured', 'desc')

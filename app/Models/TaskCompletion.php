@@ -14,17 +14,25 @@ class TaskCompletion extends Model
         'task_id',
         'reward_earned',
         'duration_spent',
+        'required_duration',
         'ip_address',
         'user_agent',
         'device_fingerprint',
         'metadata',
         'status',
         'rejection_reason',
+        'started_at',
+        'completed_at',
+        'is_locked',
+        'lock_token',
     ];
 
     protected $casts = [
         'reward_earned' => 'decimal:2',
         'metadata' => 'array',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'is_locked' => 'boolean',
     ];
 
     public function user()

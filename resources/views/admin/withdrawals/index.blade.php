@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Manage Withdrawals')
 @section('page-title', 'Maombi ya Kutoa Pesa')

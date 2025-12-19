@@ -105,6 +105,12 @@ class PaymentController extends Controller
         // Check status with ZenoPay
         $status = $this->zenoPay->checkStatus($orderId);
 
+        \Log::info('Payment status check', [
+            'order_id' => $orderId,
+            'status' => $status,
+            'paymentInfo' => $paymentInfo,
+        ]);
+
         if ($status['is_completed']) {
             // Process the payment
             $processed = $this->processCompletedPayment($orderId, $paymentInfo, $status);
@@ -118,6 +124,13 @@ class PaymentController extends Controller
                     'status' => 'COMPLETED',
                     'message' => 'Malipo yamekamilika! Umejiunga na mpango.',
                     'redirect' => route('subscriptions.index'),
+                ]);
+            } else {
+                // Return error from processing
+                return response()->json([
+                    'success' => false,
+                    'status' => 'PROCESSING_ERROR',
+                    'message' => $processed['message'] ?? 'Tatizo la ku-process malipo.',
                 ]);
             }
         }
@@ -187,6 +200,12 @@ class PaymentController extends Controller
         $user = \App\Models\User::findOrFail($userId);
         $plan = SubscriptionPlan::findOrFail($planId);
 
+        \Log::info('Processing subscription payment', [
+            'user_id' => $userId,
+            'plan_id' => $planId,
+            'amount' => $amount,
+        ]);
+
         // Deactivate current subscription
         $user->subscriptions()->where('status', 'active')->update(['status' => 'expired']);
 
@@ -200,24 +219,31 @@ class PaymentController extends Controller
             'payment_reference' => $orderId,
         ]);
 
-        // Create transaction record
-        $user->wallet->transactions()->create([
-            'user_id' => $user->id,
-            'wallet_id' => $user->wallet->id,
-            'reference' => 'SUB' . strtoupper(\Str::random(10)),
-            'type' => 'debit',
-            'category' => 'subscription',
-            'amount' => $amount,
-            'balance_before' => $user->wallet->balance,
-            'balance_after' => $user->wallet->balance,
-            'description' => 'Malipo ya ' . $plan->display_name,
-            'transactionable_type' => UserSubscription::class,
-            'transactionable_id' => $subscription->id,
-            'metadata' => [
-                'zenopay_order_id' => $orderId,
-                'zenopay_transaction_id' => $statusData['transaction_id'] ?? null,
-            ],
+        \Log::info('Subscription created', [
+            'subscription_id' => $subscription->id,
+            'plan' => $plan->display_name,
         ]);
+
+        // Create transaction record only if wallet exists
+        if ($user->wallet) {
+            $user->wallet->transactions()->create([
+                'user_id' => $user->id,
+                'wallet_id' => $user->wallet->id,
+                'reference' => 'SUB' . strtoupper(\Str::random(10)),
+                'type' => 'debit',
+                'category' => 'subscription',
+                'amount' => $amount,
+                'balance_before' => $user->wallet->balance,
+                'balance_after' => $user->wallet->balance,
+                'description' => 'Malipo ya ' . $plan->display_name,
+                'transactionable_type' => UserSubscription::class,
+                'transactionable_id' => $subscription->id,
+                'metadata' => [
+                    'zenopay_order_id' => $orderId,
+                    'zenopay_transaction_id' => $statusData['transaction_id'] ?? null,
+                ],
+            ]);
+        }
     }
 
     /**

@@ -39,6 +39,11 @@ class AuthController extends Controller
             // Record login
             auth()->user()->recordLogin($request->ip());
             
+            // Redirect admin to admin dashboard, regular users to user dashboard
+            if (auth()->user()->isAdmin()) {
+                return redirect()->intended(route('admin.dashboard'));
+            }
+            
             return redirect()->intended(route('dashboard'));
         }
 

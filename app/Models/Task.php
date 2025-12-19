@@ -106,6 +106,7 @@ class Task extends Model
         return $this->completions()
             ->where('user_id', $user->id)
             ->whereDate('created_at', today())
+            ->where('status', 'completed')
             ->count();
     }
 

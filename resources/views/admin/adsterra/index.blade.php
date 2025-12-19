@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Adsterra Integration')
 @section('page-title', 'Adsterra Integration')
@@ -201,20 +201,67 @@
 
 @else
 <!-- Not Connected -->
-<div class="card card-body text-center">
-    <i data-lucide="unplug" style="width: 64px; height: 64px; color: var(--text-muted); margin: 0 auto var(--space-6);"></i>
-    <h3 class="mb-2">Hakuna Muunganisho</h3>
-    <p class="mb-6">Weka ADSTERRA_API_KEY kwenye faili ya .env yako</p>
-    
-    <div class="card" style="background: var(--bg-dark); padding: var(--space-4); text-align: left; max-width: 500px; margin: 0 auto;">
-        <code style="font-size: 0.875rem;">
-            ADSTERRA_API_KEY=af010595347dd08420ff2070362e0d1e
-        </code>
+<div class="card card-body">
+    <div class="text-center mb-6">
+        <i data-lucide="unplug" style="width: 64px; height: 64px; color: var(--error); margin: 0 auto var(--space-4);"></i>
+        <h3 class="mb-2">Tatizo la Muunganisho</h3>
+        <p style="color: var(--error);">{{ $connectionTest['message'] ?? 'Imeshindwa kuunganisha na Adsterra' }}</p>
     </div>
     
-    <p class="mt-6" style="font-size: 0.875rem; color: var(--text-muted);">
-        Baada ya kuweka API key, endesha <code>php artisan config:clear</code> na usasishe page hii.
-    </p>
+    @if(str_contains($connectionTest['message'] ?? '', '403'))
+    <!-- 403 Error - Token Expired -->
+    <div class="alert alert-error mb-6">
+        <i data-lucide="alert-triangle"></i>
+        <div>
+            <strong>Error 403: Token Si Halali Tena</strong>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem;">Kulingana na Adsterra API: <em>"The token is no longer valid. Please generate a new token."</em></p>
+            <p style="margin-top: 0.25rem; font-size: 0.875rem; color: var(--warning);">⚠️ Adsterra inaruhusu token MOjA tu kwa wakati mmoja. Token yako ya zamani imefutwa.</p>
+        </div>
+    </div>
+    
+    <div class="grid grid-2" style="gap: var(--space-6);">
+        <div class="card" style="background: var(--bg-dark); padding: var(--space-4);">
+            <h5 class="mb-3"><i data-lucide="key" style="width: 16px; height: 16px; display: inline;"></i> Hatua 1: Generate Token Mpya</h5>
+            <ol style="font-size: 0.875rem; color: var(--text-muted); list-style: decimal; margin-left: 1rem;">
+                <li>Ingia <a href="https://publishers.adsterra.com/" target="_blank" style="color: var(--primary);">Adsterra Publisher Dashboard</a></li>
+                <li>Bonyeza <strong>API</strong> kutoka menu ya kushoto</li>
+                <li>Bonyeza <strong>"Generate new token"</strong></li>
+                <li>Copy token mpya</li>
+            </ol>
+        </div>
+        
+        <div class="card" style="background: var(--bg-dark); padding: var(--space-4);">
+            <h5 class="mb-3"><i data-lucide="file-text" style="width: 16px; height: 16px; display: inline;"></i> Hatua 2: Weka kwenye .env</h5>
+            <div style="background: var(--bg-darker); padding: var(--space-3); border-radius: var(--radius-md); margin-bottom: var(--space-3);">
+                <code style="font-size: 0.75rem; color: var(--primary);">ADSTERRA_API_KEY=token_mpya_kutoka_adsterra</code>
+            </div>
+            <p style="font-size: 0.875rem; color: var(--text-muted);">Kisha endesha:</p>
+            <div style="background: var(--bg-darker); padding: var(--space-3); border-radius: var(--radius-md);">
+                <code style="font-size: 0.75rem;">php artisan config:clear</code>
+            </div>
+        </div>
+    </div>
+    @else
+    <!-- Other Connection Issues -->
+    <div class="card" style="background: var(--bg-dark); padding: var(--space-4); text-align: left; max-width: 600px; margin: 0 auto;">
+        <h5 class="mb-3">Weka ADSTERRA_API_KEY kwenye .env</h5>
+        <div style="background: var(--bg-darker); padding: var(--space-3); border-radius: var(--radius-md); margin-bottom: var(--space-3);">
+            <code style="font-size: 0.875rem;">ADSTERRA_API_KEY=your_api_key_here</code><br>
+            <code style="font-size: 0.875rem;">ADSTERRA_BASE_URL=https://api3.adsterratools.com</code>
+        </div>
+        
+        <p style="font-size: 0.875rem; color: var(--text-muted);">
+            Baada ya kuweka API key, endesha <code>php artisan config:clear</code> na usasishe page hii.
+        </p>
+    </div>
+    @endif
+    
+    <div class="text-center mt-6">
+        <a href="https://publishers.adsterra.com/" target="_blank" class="btn btn-secondary">
+            <i data-lucide="external-link"></i>
+            Fungua Adsterra Dashboard
+        </a>
+    </div>
 </div>
 @endif
 @endsection

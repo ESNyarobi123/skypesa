@@ -347,6 +347,8 @@
     function checkStatus() {
         if (!orderId) return;
         
+        console.log('Checking status for order:', orderId);
+        
         fetch(statusUrl + '?order_id=' + orderId, {
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -354,14 +356,27 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'COMPLETED') {
+            console.log('Status response:', data);
+            
+            if (data.success && data.status === 'COMPLETED') {
                 stopPolling();
                 clearInterval(countdownInterval);
                 showSuccessState();
-            } else if (data.status === 'FAILED' || data.status === 'CANCELLED' || data.status === 'EXPIRED') {
+                
+                // Redirect after 2 seconds
+                if (data.redirect) {
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 2000);
+                }
+            } else if (data.status === 'PROCESSING_ERROR') {
                 stopPolling();
                 clearInterval(countdownInterval);
-                showError('Malipo yameshindwa au yameghairiwa. Jaribu tena.');
+                showError(data.message || 'Tatizo la ku-process subscription.');
+            } else if (data.status === 'FAILED' || data.status === 'CANCELLED' || data.status === 'EXPIRED' || data.status === 'NOT_FOUND') {
+                stopPolling();
+                clearInterval(countdownInterval);
+                showError(data.message || 'Malipo yameshindwa au yameghairiwa. Jaribu tena.');
             } else {
                 document.getElementById('statusMessage').innerHTML = 
                     '<i data-lucide="smartphone" style="width: 16px; height: 16px; display: inline;"></i> ' +
