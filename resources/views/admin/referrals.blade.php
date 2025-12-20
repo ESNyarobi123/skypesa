@@ -45,7 +45,9 @@
             <div class="chart-subtitle">New referrals over the last 6 months</div>
         </div>
     </div>
-    <canvas id="referralChart" height="100"></canvas>
+    <div style="height: 300px; max-height: 300px; position: relative;">
+        <canvas id="referralChart"></canvas>
+    </div>
 </div>
 
 <!-- Top Referrers Table -->

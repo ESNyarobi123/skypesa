@@ -24,7 +24,9 @@
                 <div class="chart-subtitle">New registrations over time</div>
             </div>
         </div>
-        <canvas id="userGrowthChart" height="100"></canvas>
+        <div style="height: 250px; max-height: 250px; position: relative;">
+            <canvas id="userGrowthChart"></canvas>
+        </div>
     </div>
     
     <!-- Revenue Chart -->
@@ -35,7 +37,9 @@
                 <div class="chart-subtitle">Rewards paid to users</div>
             </div>
         </div>
-        <canvas id="earningsChart" height="200"></canvas>
+        <div style="height: 250px; max-height: 250px; position: relative;">
+            <canvas id="earningsChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -47,7 +51,9 @@
             <div class="chart-subtitle">Task completions by hour of day</div>
         </div>
     </div>
-    <canvas id="peakHoursChart" height="60"></canvas>
+    <div style="height: 200px; max-height: 200px; position: relative;">
+        <canvas id="peakHoursChart"></canvas>
+    </div>
 </div>
 
 <!-- Tables Row -->

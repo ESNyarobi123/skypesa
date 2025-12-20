@@ -27,7 +27,7 @@ class TaskController extends Controller
             ->orderBy('sort_order');
         
         // Filter by provider if specified
-        if ($provider && in_array($provider, ['monetag', 'adsterra', 'bitlabs'])) {
+        if ($provider && in_array($provider, ['monetag', 'adsterra'])) {
             $query->where('provider', $provider);
         }
         
@@ -41,7 +41,6 @@ class TaskController extends Controller
             'all' => Task::available()->count(),
             'monetag' => Task::available()->where('provider', 'monetag')->count(),
             'adsterra' => Task::available()->where('provider', 'adsterra')->count(),
-            'bitlabs' => Task::available()->where('provider', 'bitlabs')->count(),
         ];
         
         return view('tasks.index', compact('tasks', 'activitySummary', 'provider', 'providerCounts'));

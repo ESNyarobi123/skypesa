@@ -10,7 +10,6 @@ use App\Http\Controllers\Api\WithdrawalController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\ReferralController;
 use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\SurveyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -268,25 +267,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{notification}', [NotificationController::class, 'destroy']);
         });
         
-        /*
-        |--------------------------------------------------------------------------
-        | Surveys (BitLabs)
-        |--------------------------------------------------------------------------
-        */
-        
-        Route::prefix('surveys')->group(function () {
-            // Get Available Surveys
-            Route::get('/', [SurveyController::class, 'index']);
-            
-            // Get Survey Statistics
-            Route::get('/stats', [SurveyController::class, 'stats']);
-            
-            // Get Survey History
-            Route::get('/history', [SurveyController::class, 'history']);
-            
-            // Demo Survey Complete (Testing only)
-            Route::post('/demo/{id}/complete', [SurveyController::class, 'demoComplete'])->name('surveys.demo.complete');
-        });
+
     });
     
     /*
@@ -305,41 +286,7 @@ Route::prefix('v1')->group(function () {
         // Monetag Postback
         Route::post('/monetag', [TaskController::class, 'monetagPostback'])->name('api.webhooks.monetag');
         
-        // BitLabs Survey Callback
-        Route::match(['get', 'post'], '/bitlabs', [SurveyController::class, 'postback'])->name('api.webhooks.bitlabs');
-        
-        // 🧪 BitLabs Test Endpoint (Development Only)
-        Route::get('/test-bitlabs-callback', function () {
-            if (!app()->environment('local') && !config('bitlabs.demo_mode')) {
-                abort(404);
-            }
-            
-            $userId = request('user_id', 1);
-            $tx = 'test_' . time() . '_' . rand(1000, 9999);
-            
-            // Build test callback data
-            $testData = [
-                'tx' => $tx,
-                'user_id' => $userId,
-                'survey_id' => 'test_survey_' . rand(1000, 9999),
-                'loi' => request('loi', 5),
-                'value' => request('value', 0.50),
-                'status' => request('status', 'complete'),
-                'ip' => request()->ip(),
-            ];
-            
-            // Simulate BitLabs callback
-            $bitLabsService = app(\App\Services\BitLabsService::class);
-            $result = $bitLabsService->handleCallback($testData);
-            
-            return response()->json([
-                'test_mode' => true,
-                'message' => 'BitLabs Callback Test Simulated',
-                'input' => $testData,
-                'result' => $result,
-                'user_wallet_after' => \App\Models\User::find($userId)?->wallet?->balance ?? 0,
-            ]);
-        })->name('api.webhooks.test-bitlabs');
+
     });
 });
 
@@ -368,10 +315,6 @@ Route::prefix('v0')->group(function () {
 */
 
 Route::prefix('webhooks')->group(function () {
-    // BitLabs Survey Callback (Primary - used by BitLabs dashboard)
-    Route::match(['get', 'post'], '/bitlabs', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
-        ->name('bitlabs.callback');
-    
     // ZenoPay Payment Callback
     Route::post('/zenopay', [\App\Http\Controllers\Api\SubscriptionController::class, 'zenoPayCallback'])
         ->name('zenopay.callback');
@@ -384,16 +327,3 @@ Route::prefix('webhooks')->group(function () {
     Route::match(['get', 'post'], '/monetag', [\App\Http\Controllers\Api\TaskController::class, 'monetagPostback'])
         ->name('monetag.postback');
 });
-
-/*
-|--------------------------------------------------------------------------
-| Direct BitLabs Callback Route
-|--------------------------------------------------------------------------
-| This route is at /api/bitlabs for BitLabs dashboard
-| Callback URL: https://skypesa.hosting.hollyn.online/api/bitlabs
-|--------------------------------------------------------------------------
-*/
-
-Route::match(['get', 'post'], '/bitlabs', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
-    ->name('bitlabs.callback.direct');
-

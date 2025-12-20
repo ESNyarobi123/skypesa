@@ -89,12 +89,7 @@
                         Referrals
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('surveys.index') }}" class="sidebar-link {{ request()->routeIs('surveys.*') ? 'active' : '' }}">
-                        <i data-lucide="message-circle"></i>
-                        SkyOpinions™
-                    </a>
-                </li>
+
                 
                 @if(auth()->user()->isAdmin())
                 <li style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -215,10 +210,7 @@
             <i data-lucide="wallet"></i>
             <span>Wallet</span>
         </a>
-        <a href="{{ route('surveys.index') }}" class="bottom-nav-item {{ request()->routeIs('surveys.*') ? 'active' : '' }}">
-            <i data-lucide="message-circle"></i>
-            <span>Maoni</span>
-        </a>
+
         <a href="{{ route('subscriptions.index') }}" class="bottom-nav-item {{ request()->routeIs('subscriptions.*') ? 'active' : '' }}">
             <i data-lucide="crown"></i>
             <span>VIP</span>

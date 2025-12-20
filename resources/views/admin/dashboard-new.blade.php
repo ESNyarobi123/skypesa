@@ -110,7 +110,9 @@
                 <button class="chart-btn" data-period="90">90 Days</button>
             </div>
         </div>
-        <canvas id="revenueChart" height="100"></canvas>
+        <div style="height: 300px; max-height: 300px; position: relative;">
+            <canvas id="revenueChart"></canvas>
+        </div>
     </div>
     
     <!-- Activity Feed -->
@@ -126,7 +128,7 @@
                 </button>
             </div>
         </div>
-        <div class="activity-feed">
+        <div class="activity-feed" style="max-height: 280px; overflow-y: auto;">
             @forelse($recentCompletions as $completion)
             <div class="activity-item">
                 <div class="activity-icon stat-icon green">
@@ -378,9 +380,11 @@
             <div class="chart-subtitle">User distribution by subscription plan</div>
         </div>
     </div>
-    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem; align-items: center;">
-        <canvas id="subscriptionChart" height="200"></canvas>
-        <div id="subscriptionLegend" style="display: grid; gap: 0.75rem;"></div>
+    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; align-items: center; max-height: 250px;">
+        <div style="height: 200px; max-height: 200px; position: relative;">
+            <canvas id="subscriptionChart"></canvas>
+        </div>
+        <div id="subscriptionLegend" style="display: grid; gap: 0.5rem; max-height: 200px; overflow-y: auto;"></div>
     </div>
 </div>
 
