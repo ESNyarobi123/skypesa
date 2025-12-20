@@ -361,3 +361,31 @@ Route::prefix('v0')->group(function () {
         ]);
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Webhook Routes (Root Level - No Version Prefix)
+|--------------------------------------------------------------------------
+| These webhooks are at /api/webhooks/* for external services that
+| don't support versioned URLs.
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('webhooks')->group(function () {
+    // CPX Research Survey Postback (Primary - used by CPX dashboard)
+    Route::match(['get', 'post'], '/cpx-research', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
+        ->name('cpx.postback');
+    
+    // ZenoPay Payment Callback
+    Route::post('/zenopay', [\App\Http\Controllers\Api\SubscriptionController::class, 'zenoPayCallback'])
+        ->name('zenopay.callback');
+    
+    // Adsterra Postback
+    Route::match(['get', 'post'], '/adsterra', [\App\Http\Controllers\Api\TaskController::class, 'adsterraPostback'])
+        ->name('adsterra.postback');
+    
+    // Monetag Postback
+    Route::match(['get', 'post'], '/monetag', [\App\Http\Controllers\Api\TaskController::class, 'monetagPostback'])
+        ->name('monetag.postback');
+});
+
