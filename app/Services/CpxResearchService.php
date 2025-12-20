@@ -298,20 +298,20 @@ class CpxResearchService
             $wallet = $user->wallet()->create(['balance' => 0]);
         }
 
-        // Add to wallet
-        $wallet->increment('balance', $completion->user_reward);
-
-        // Create transaction
-        Transaction::create([
-            'user_id' => $user->id,
-            'type' => 'survey_reward',
-            'amount' => $completion->user_reward,
-            'balance_after' => $wallet->balance,
-            'description' => "Survey {$completion->getTypeLabel()} - #{$completion->survey_id}",
-            'reference_type' => SurveyCompletion::class,
-            'reference_id' => $completion->id,
-            'status' => 'completed',
-        ]);
+        // Credit wallet using the wallet's credit method
+        // This properly creates the transaction with all required fields
+        $wallet->credit(
+            $completion->user_reward,
+            'survey_reward',
+            $completion,
+            "Survey {$completion->getTypeLabel()} - #{$completion->survey_id}",
+            [
+                'transaction_id' => $completion->transaction_id,
+                'survey_type' => $completion->survey_type,
+                'loi' => $completion->loi,
+                'vip_bonus' => $completion->vip_bonus,
+            ]
+        );
 
         // Update completion status
         $completion->update([
@@ -331,18 +331,17 @@ class CpxResearchService
             // Deduct from wallet
             $wallet = $user->wallet;
             if ($wallet && $wallet->balance >= $amount) {
-                $wallet->decrement('balance', $amount);
-
-                Transaction::create([
-                    'user_id' => $user->id,
-                    'type' => 'survey_reversal',
-                    'amount' => -$amount,
-                    'balance_after' => $wallet->balance,
-                    'description' => "Survey Reversal - #{$completion->survey_id}",
-                    'reference_type' => SurveyCompletion::class,
-                    'reference_id' => $completion->id,
-                    'status' => 'completed',
-                ]);
+                // Use wallet debit method for proper transaction creation
+                $wallet->debit(
+                    $amount,
+                    'survey_reversal',
+                    $completion,
+                    "Survey Reversal - #{$completion->survey_id}",
+                    [
+                        'transaction_id' => $transactionId,
+                        'original_reward' => $amount,
+                    ]
+                );
 
                 $completion->update(['status' => 'reversed']);
             }
