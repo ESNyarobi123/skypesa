@@ -155,15 +155,20 @@
 </div>
 
 <!-- Data Tables Grid -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-    @media (max-width: 1200px) {
-        <style>
-            @media (max-width: 1200px) {
-                .tables-grid { grid-template-columns: 1fr !important; }
-            }
-        </style>
+<style>
+    .data-tables-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
-    
+    @@media (max-width: 1200px) {
+        .data-tables-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<div class="data-tables-grid">
     <!-- Recent Users Table -->
     <div class="data-table-container">
         <div class="table-header">
