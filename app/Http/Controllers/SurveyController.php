@@ -16,53 +16,42 @@ class SurveyController extends Controller
     }
 
     /**
-     * Display available surveys for user
+     * Display CPX Research Survey Wall (Frame Integration)
      */
     public function index(Request $request)
     {
         $user = auth()->user();
 
-        // Get surveys from CPX API (may be empty if no matching surveys)
-        $result = $this->cpxService->getSurveys(
-            $user,
-            $request->ip(),
-            $request->userAgent()
-        );
-
-        $surveys = $result['surveys'] ?? [];
+        // Get user stats for display
         $stats = $this->cpxService->getUserStats($user);
-
-        // Categorize surveys
-        $shortSurveys = collect($surveys)->where('type', 'short')->values();
-        $mediumSurveys = collect($surveys)->where('type', 'medium')->values();
-        $longSurveys = collect($surveys)->where('type', 'long')->values();
 
         // Check if user is VIP
         $plan = $user->getCurrentPlan();
         $isVip = $plan && in_array($plan->name, config('cpx.vip_plans', []));
 
-        // Generate CPX Offerwall URL (iframe method)
+        // Generate CPX Offerwall URL (Frame Integration method)
+        // Parameters as per CPX Research documentation
         $appId = config('cpx.app_id');
         $secureHash = config('cpx.secure_hash');
         $extUserId = $user->id;
+        
+        // Generate secure hash: md5({unique_user_id}-{app_secure_hash})
         $secureHashMd5 = md5($extUserId . '-' . $secureHash);
         
+        // Build CPX Research iframe URL
         $cpxWallUrl = "https://offers.cpx-research.com/index.php?" . http_build_query([
             'app_id' => $appId,
             'ext_user_id' => $extUserId,
             'secure_hash' => $secureHashMd5,
             'username' => $user->name,
             'email' => $user->email,
+            'subid_1' => '', // Optional: can add tracking info
+            'subid_2' => '', // Optional: can add more tracking info
         ]);
 
         return view('surveys.index', compact(
-            'surveys',
-            'shortSurveys',
-            'mediumSurveys',
-            'longSurveys',
             'stats',
             'isVip',
-            'result',
             'cpxWallUrl'
         ));
     }
