@@ -1044,6 +1044,12 @@
                                 Adsterra API
                             </a>
                         </li>
+                        <li class="sidebar-nav-item">
+                            <a href="{{ route('admin.surveys.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.surveys.*') ? 'active' : '' }}">
+                                <i data-lucide="clipboard-check" class="nav-icon"></i>
+                                Surveys
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 

@@ -8,6 +8,7 @@ use App\Http\Controllers\WithdrawalController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminTaskController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Admin\AdminWithdrawalController;
 use App\Http\Controllers\Admin\AdminAdsterraController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminDirectLinkController;
+use App\Http\Controllers\Admin\SurveyController as AdminSurveyController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,6 +71,11 @@ Route::middleware(['auth'])->group(function () {
     
     // Referrals
     Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
+    
+    // Surveys
+    Route::get('/surveys', [SurveyController::class, 'index'])->name('surveys.index');
+    Route::get('/surveys/history', [SurveyController::class, 'history'])->name('surveys.history');
+    Route::post('/surveys/demo/{id}/complete', [SurveyController::class, 'demoComplete'])->name('surveys.demo.complete');
     
     // Payments (ZenoPay)
     Route::get('/pay/subscription/{plan}', [PaymentController::class, 'subscriptionPayment'])->name('payments.subscription');
@@ -137,5 +144,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/adsterra/import-placement', [AdminAdsterraController::class, 'importPlacement'])->name('adsterra.import-placement');
         Route::post('/adsterra/import-all', [AdminAdsterraController::class, 'importAll'])->name('adsterra.import-all');
         Route::post('/adsterra/sync', [AdminAdsterraController::class, 'sync'])->name('adsterra.sync');
+        
+        // Surveys (CPX Research)
+        Route::get('/surveys', [AdminSurveyController::class, 'index'])->name('surveys.index');
+        Route::get('/surveys/settings', [AdminSurveyController::class, 'settings'])->name('surveys.settings');
+        Route::get('/surveys/analytics', [AdminSurveyController::class, 'analytics'])->name('surveys.analytics');
+        Route::get('/surveys/{completion}', [AdminSurveyController::class, 'show'])->name('surveys.show');
+        Route::post('/surveys/{completion}/credit', [AdminSurveyController::class, 'credit'])->name('surveys.credit');
+        Route::post('/surveys/{completion}/reject', [AdminSurveyController::class, 'reject'])->name('surveys.reject');
+        Route::post('/surveys/{completion}/reverse', [AdminSurveyController::class, 'reverse'])->name('surveys.reverse');
     });
 });

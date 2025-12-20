@@ -17,19 +17,34 @@ class TaskController extends Controller
         $this->lockService = $lockService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
+        $provider = $request->query('provider');
         
-        $tasks = Task::available()
+        $query = Task::available()
             ->orderBy('is_featured', 'desc')
-            ->orderBy('sort_order')
-            ->get();
+            ->orderBy('sort_order');
+        
+        // Filter by provider if specified
+        if ($provider && in_array($provider, ['monetag', 'adsterra', 'cpx'])) {
+            $query->where('provider', $provider);
+        }
+        
+        $tasks = $query->get();
 
         // Get user's active task status
         $activitySummary = $this->lockService->getActivitySummary($user);
         
-        return view('tasks.index', compact('tasks', 'activitySummary'));
+        // Get task counts per provider
+        $providerCounts = [
+            'all' => Task::available()->count(),
+            'monetag' => Task::available()->where('provider', 'monetag')->count(),
+            'adsterra' => Task::available()->where('provider', 'adsterra')->count(),
+            'cpx' => Task::available()->where('provider', 'cpx')->count(),
+        ];
+        
+        return view('tasks.index', compact('tasks', 'activitySummary', 'provider', 'providerCounts'));
     }
 
     public function show(Task $task)
