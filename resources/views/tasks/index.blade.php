@@ -620,11 +620,147 @@
         @endif
     </h3>
     <span style="font-size: 0.85rem; color: var(--text-muted);">
-        {{ $tasks->count() }} kazi zinapatikana
+        @if($provider === 'cpx')
+            Surveys zinapatikana
+        @else
+            {{ $tasks->count() }} kazi zinapatikana
+        @endif
     </span>
 </div>
 
-<!-- Tasks Grid -->
+@if($provider === 'cpx')
+<!-- CPX Research Survey Wall (Frame Integration) -->
+<div class="card mb-6">
+    <div class="card-body" style="padding: var(--space-4);">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="bar-chart-3" style="width: 20px; height: 20px; color: white;"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0;">🌐 CPX Research Survey Wall</h4>
+                    <p style="color: var(--text-muted); font-size: 0.75rem; margin: 0;">Powered by CPX Research</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="badge badge-success" style="animation: pulse 2s infinite;">
+                    <i data-lucide="wifi" style="width: 12px; height: 12px;"></i>
+                    Live
+                </span>
+                <button onclick="refreshCpxWall()" class="btn btn-secondary" style="padding: 8px 12px;">
+                    <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="info-box mb-4" style="background: linear-gradient(135deg, rgba(155, 93, 229, 0.1), rgba(155, 93, 229, 0.05)); border-radius: var(--radius-lg); padding: var(--space-3); border: 1px solid rgba(155, 93, 229, 0.2);">
+            <div class="flex items-center gap-2">
+                <i data-lucide="info" style="width: 16px; height: 16px; color: #9B5DE5;"></i>
+                <span style="font-size: 0.875rem;">Bonyeza survey yoyote hapa chini. Ukimaliza, malipo yataongezwa kwenye wallet yako <strong>automaticly!</strong></span>
+            </div>
+        </div>
+        
+        @php
+            // Generate CPX Offerwall URL
+            $user = auth()->user();
+            $appId = config('cpx.app_id');
+            $secureHash = config('cpx.secure_hash');
+            $extUserId = $user->id;
+            $secureHashMd5 = md5($extUserId . '-' . $secureHash);
+            
+            $cpxWallUrl = "https://offers.cpx-research.com/index.php?" . http_build_query([
+                'app_id' => $appId,
+                'ext_user_id' => $extUserId,
+                'secure_hash' => $secureHashMd5,
+                'username' => $user->name,
+                'email' => $user->email,
+            ]);
+        @endphp
+        
+        <div class="cpx-frame-container" style="background: var(--bg-tertiary); border-radius: var(--radius-lg); overflow: hidden; position: relative; min-height: 600px;">
+            <!-- Loading Overlay -->
+            <div id="cpxFrameLoading" class="frame-loading" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-tertiary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+                <div class="loading-spinner" style="width: 40px; height: 40px; border: 3px solid var(--bg-dark); border-top-color: #9B5DE5; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p style="color: var(--text-muted); margin-top: var(--space-3);">Inapakia surveys...</p>
+            </div>
+            
+            <!-- CPX Research Frame Integration -->
+            <iframe 
+                id="cpxFrame"
+                width="100%" 
+                frameBorder="0" 
+                height="2000px"  
+                src="{{ $cpxWallUrl }}"
+                style="border: none; display: block;"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                onload="hideCpxLoading()">
+            </iframe>
+        </div>
+        
+        <div class="mt-4" style="display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: center;">
+            <a href="{{ $cpxWallUrl }}" target="_blank" class="btn btn-secondary">
+                <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
+                Fungua kwa Tab Mpya
+            </a>
+            <button onclick="refreshCpxWall()" class="btn btn-secondary">
+                <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                Refresh Surveys
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- CPX Reward Info -->
+<div class="card mb-6" style="background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%); border: none;">
+    <div class="card-body">
+        <h4 style="color: white; margin-bottom: var(--space-4);">💰 Malipo ya CPX Surveys</h4>
+        <div class="grid grid-3" style="gap: var(--space-4);">
+            <div style="background: rgba(255,255,255,0.1); padding: var(--space-4); border-radius: var(--radius-lg); text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: 800; color: white;">TZS 200+</div>
+                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.8);">Short (5-7 min)</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: var(--space-4); border-radius: var(--radius-lg); text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: 800; color: white;">TZS 300+</div>
+                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.8);">Medium (8-12 min)</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.15); padding: var(--space-4); border-radius: var(--radius-lg); text-align: center; border: 1px solid rgba(255,255,255,0.3);">
+                <div style="font-size: 1.5rem; font-weight: 800; color: #fbbf24;">TZS 500+</div>
+                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.8);">Long (15+ min)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function hideCpxLoading() {
+        const loading = document.getElementById('cpxFrameLoading');
+        if (loading) {
+            loading.style.display = 'none';
+        }
+    }
+    
+    function refreshCpxWall() {
+        const frame = document.getElementById('cpxFrame');
+        const loading = document.getElementById('cpxFrameLoading');
+        
+        if (loading) {
+            loading.style.display = 'flex';
+        }
+        
+        if (frame) {
+            frame.src = frame.src;
+        }
+    }
+    
+    // Auto-hide loading after timeout (fallback)
+    setTimeout(function() {
+        hideCpxLoading();
+    }, 5000);
+</script>
+
+@else
+<!-- Tasks Grid (for Monetag, Adsterra, or All) -->
 <div class="tasks-grid">
     @forelse($tasks as $task)
     <div class="task-card-enhanced {{ $task->is_featured ? 'featured' : '' }}">
@@ -715,4 +851,5 @@
     </div>
     @endforelse
 </div>
+@endif
 @endsection
