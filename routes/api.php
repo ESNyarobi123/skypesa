@@ -307,6 +307,43 @@ Route::prefix('v1')->group(function () {
         
         // CPX Research Survey Postback
         Route::match(['get', 'post'], '/cpx-research', [SurveyController::class, 'postback'])->name('api.webhooks.cpx');
+        
+        // 🧪 CPX Test Endpoint (Development Only)
+        Route::get('/test-cpx-postback', function () {
+            if (!app()->environment('local') && !config('cpx.demo_mode')) {
+                abort(404);
+            }
+            
+            $userId = request('user_id', 1);
+            $transId = 'test_' . time() . '_' . rand(1000, 9999);
+            $secureHash = config('cpx.secure_hash');
+            $hash = md5($transId . '-' . $secureHash);
+            
+            // Build test postback data
+            $testData = [
+                'trans_id' => $transId,
+                'ext_user_id' => $userId,
+                'survey_id' => 'test_survey_' . rand(1000, 9999),
+                'loi' => request('loi', 5),
+                'payout' => request('payout', 0.50),
+                'status' => request('status', 1), // 1=complete, 2=screenout
+                'hash' => $hash,
+                'ip_click' => request()->ip(),
+                'secret' => config('cpx.postback_secret'),
+            ];
+            
+            // Simulate CPX postback
+            $cpxService = app(\App\Services\CpxResearchService::class);
+            $result = $cpxService->handlePostback($testData);
+            
+            return response()->json([
+                'test_mode' => true,
+                'message' => 'CPX Postback Test Simulated',
+                'input' => $testData,
+                'result' => $result,
+                'user_wallet_after' => \App\Models\User::find($userId)?->wallet?->balance ?? 0,
+            ]);
+        })->name('api.webhooks.test-cpx');
     });
 });
 
