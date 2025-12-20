@@ -2,57 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\CpxResearchService;
+use App\Services\BitLabsService;
 use App\Models\SurveyCompletion;
 use Illuminate\Http\Request;
 
 class SurveyController extends Controller
 {
-    protected $cpxService;
+    protected $bitLabsService;
 
-    public function __construct(CpxResearchService $cpxService)
+    public function __construct(BitLabsService $bitLabsService)
     {
-        $this->cpxService = $cpxService;
+        $this->bitLabsService = $bitLabsService;
     }
 
     /**
-     * Display CPX Research Survey Wall (Frame Integration)
+     * Display BitLabs Survey Wall (Frame Integration)
      */
     public function index(Request $request)
     {
         $user = auth()->user();
 
         // Get user stats for display
-        $stats = $this->cpxService->getUserStats($user);
+        $stats = $this->bitLabsService->getUserStats($user);
 
         // Check if user is VIP
         $plan = $user->getCurrentPlan();
-        $isVip = $plan && in_array($plan->name, config('cpx.vip_plans', []));
+        $isVip = $plan && in_array(strtolower($plan->name), config('bitlabs.vip_plans', []));
 
-        // Generate CPX Offerwall URL (Frame Integration method)
-        // Parameters as per CPX Research documentation
-        $appId = config('cpx.app_id');
-        $secureHash = config('cpx.secure_hash');
-        $extUserId = $user->id;
+        // Generate BitLabs Offerwall URL (Frame Integration method)
+        $apiToken = config('bitlabs.api_token');
         
-        // Generate secure hash: md5({unique_user_id}-{app_secure_hash})
-        $secureHashMd5 = md5($extUserId . '-' . $secureHash);
-        
-        // Build CPX Research iframe URL
-        $cpxWallUrl = "https://offers.cpx-research.com/index.php?" . http_build_query([
-            'app_id' => $appId,
-            'ext_user_id' => $extUserId,
-            'secure_hash' => $secureHashMd5,
+        // Build BitLabs iframe URL
+        $bitlabsWallUrl = "https://web.bitlabs.ai?" . http_build_query([
+            'token' => $apiToken,
+            'uid' => $user->id,
             'username' => $user->name,
             'email' => $user->email,
-            'subid_1' => '', // Optional: can add tracking info
-            'subid_2' => '', // Optional: can add more tracking info
+            'country' => 'TZ',
         ]);
 
         return view('surveys.index', compact(
             'stats',
             'isVip',
-            'cpxWallUrl'
+            'bitlabsWallUrl'
         ));
     }
 
@@ -67,7 +59,7 @@ class SurveyController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        $stats = $this->cpxService->getUserStats($user);
+        $stats = $this->bitLabsService->getUserStats($user);
 
         return view('surveys.history', compact('completions', 'stats'));
     }
@@ -77,12 +69,12 @@ class SurveyController extends Controller
      */
     public function demoComplete(Request $request, string $id)
     {
-        if (!config('cpx.demo_mode')) {
+        if (!config('bitlabs.demo_mode')) {
             return redirect()->back()->with('error', 'Demo mode imezimwa');
         }
 
         $user = auth()->user();
-        $result = $this->cpxService->processDemoCompletion($user, $id);
+        $result = $this->bitLabsService->processDemoCompletion($user, $id);
 
         if ($result['success']) {
             return redirect()->route('surveys.index')

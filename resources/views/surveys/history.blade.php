@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Historia ya Surveys')
+@section('title', 'Historia - SkyOpinions™')
 
 @section('content')
 <div class="container">
@@ -8,11 +8,11 @@
     <div class="page-header" style="margin-bottom: var(--space-6);">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="page-title">📜 Historia ya Surveys</h1>
-                <p class="page-subtitle">Surveys zote ulizokamilisha</p>
+                <h1 class="page-title">📜 Historia - SkyOpinions™</h1>
+                <p class="page-subtitle">Kazi zote ulizokamilisha</p>
             </div>
             <a href="{{ route('surveys.index') }}" class="btn btn-primary">
-                ← Rudi Surveys
+                ← Rudi SkyOpinions™
             </a>
         </div>
     </div>
@@ -21,7 +21,7 @@
     <div class="grid grid-3 mb-6" style="gap: var(--space-4);">
         <div class="stat-card">
             <div class="stat-value">{{ $stats['total_completed'] ?? 0 }}</div>
-            <div class="stat-label">Jumla Surveys</div>
+            <div class="stat-label">Jumla Kazi</div>
         </div>
         <div class="stat-card" style="border-color: var(--success);">
             <div class="stat-value" style="color: var(--success);">TZS {{ number_format($stats['total_earned'] ?? 0, 0) }}</div>
@@ -29,21 +29,21 @@
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ $stats['today_completed'] ?? 0 }}</div>
-            <div class="stat-label">Surveys Leo</div>
+            <div class="stat-label">Kazi Leo</div>
         </div>
     </div>
 
     <!-- History Table -->
     <div class="card">
         <div class="card-body" style="padding-bottom: 0;">
-            <h4>Surveys Zilizokamilika</h4>
+            <h4>Kazi Zilizokamilika</h4>
         </div>
         
         @if($completions->count() > 0)
         <table class="table">
             <thead>
                 <tr>
-                    <th>Survey</th>
+                    <th>ID</th>
                     <th>Aina</th>
                     <th>Muda</th>
                     <th>Malipo</th>
@@ -103,13 +103,13 @@
         
         @else
         <div class="card-body text-center" style="padding: var(--space-12);">
-            <div style="font-size: 4rem; margin-bottom: var(--space-4);">📊</div>
+            <div style="font-size: 4rem; margin-bottom: var(--space-4);">💬</div>
             <h3 style="margin-bottom: var(--space-2);">Hakuna Historia</h3>
             <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto var(--space-6);">
-                Hujakamilisha survey yoyote bado. Anza sasa kupata pesa!
+                Hujakamilisha kazi yoyote bado. Anza sasa kupata malipo!
             </p>
             <a href="{{ route('surveys.index') }}" class="btn btn-primary">
-                Anza Survey
+                Anza Sasa
             </a>
         </div>
         @endif

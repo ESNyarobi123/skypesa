@@ -270,7 +270,7 @@ Route::prefix('v1')->group(function () {
         
         /*
         |--------------------------------------------------------------------------
-        | Surveys (CPX Research)
+        | Surveys (BitLabs)
         |--------------------------------------------------------------------------
         */
         
@@ -305,45 +305,41 @@ Route::prefix('v1')->group(function () {
         // Monetag Postback
         Route::post('/monetag', [TaskController::class, 'monetagPostback'])->name('api.webhooks.monetag');
         
-        // CPX Research Survey Postback
-        Route::match(['get', 'post'], '/cpx-research', [SurveyController::class, 'postback'])->name('api.webhooks.cpx');
+        // BitLabs Survey Callback
+        Route::match(['get', 'post'], '/bitlabs', [SurveyController::class, 'postback'])->name('api.webhooks.bitlabs');
         
-        // 🧪 CPX Test Endpoint (Development Only)
-        Route::get('/test-cpx-postback', function () {
-            if (!app()->environment('local') && !config('cpx.demo_mode')) {
+        // 🧪 BitLabs Test Endpoint (Development Only)
+        Route::get('/test-bitlabs-callback', function () {
+            if (!app()->environment('local') && !config('bitlabs.demo_mode')) {
                 abort(404);
             }
             
             $userId = request('user_id', 1);
-            $transId = 'test_' . time() . '_' . rand(1000, 9999);
-            $secureHash = config('cpx.secure_hash');
-            $hash = md5($transId . '-' . $secureHash);
+            $tx = 'test_' . time() . '_' . rand(1000, 9999);
             
-            // Build test postback data
+            // Build test callback data
             $testData = [
-                'trans_id' => $transId,
-                'ext_user_id' => $userId,
+                'tx' => $tx,
+                'user_id' => $userId,
                 'survey_id' => 'test_survey_' . rand(1000, 9999),
                 'loi' => request('loi', 5),
-                'payout' => request('payout', 0.50),
-                'status' => request('status', 1), // 1=complete, 2=screenout
-                'hash' => $hash,
-                'ip_click' => request()->ip(),
-                'secret' => config('cpx.postback_secret'),
+                'value' => request('value', 0.50),
+                'status' => request('status', 'complete'),
+                'ip' => request()->ip(),
             ];
             
-            // Simulate CPX postback
-            $cpxService = app(\App\Services\CpxResearchService::class);
-            $result = $cpxService->handlePostback($testData);
+            // Simulate BitLabs callback
+            $bitLabsService = app(\App\Services\BitLabsService::class);
+            $result = $bitLabsService->handleCallback($testData);
             
             return response()->json([
                 'test_mode' => true,
-                'message' => 'CPX Postback Test Simulated',
+                'message' => 'BitLabs Callback Test Simulated',
                 'input' => $testData,
                 'result' => $result,
                 'user_wallet_after' => \App\Models\User::find($userId)?->wallet?->balance ?? 0,
             ]);
-        })->name('api.webhooks.test-cpx');
+        })->name('api.webhooks.test-bitlabs');
     });
 });
 
@@ -372,9 +368,9 @@ Route::prefix('v0')->group(function () {
 */
 
 Route::prefix('webhooks')->group(function () {
-    // CPX Research Survey Postback (Primary - used by CPX dashboard)
-    Route::match(['get', 'post'], '/cpx-research', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
-        ->name('cpx.postback');
+    // BitLabs Survey Callback (Primary - used by BitLabs dashboard)
+    Route::match(['get', 'post'], '/bitlabs', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
+        ->name('bitlabs.callback');
     
     // ZenoPay Payment Callback
     Route::post('/zenopay', [\App\Http\Controllers\Api\SubscriptionController::class, 'zenoPayCallback'])
@@ -391,13 +387,13 @@ Route::prefix('webhooks')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Direct CPX Research Postback Route
+| Direct BitLabs Callback Route
 |--------------------------------------------------------------------------
-| This route is at /api/cpx-research for CPX Research dashboard
-| Postback URL: https://skypesa.hosting.hollyn.online/api/cpx-research
+| This route is at /api/bitlabs for BitLabs dashboard
+| Callback URL: https://skypesa.hosting.hollyn.online/api/bitlabs
 |--------------------------------------------------------------------------
 */
 
-Route::match(['get', 'post'], '/cpx-research', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
-    ->name('cpx.postback.direct');
+Route::match(['get', 'post'], '/bitlabs', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
+    ->name('bitlabs.callback.direct');
 

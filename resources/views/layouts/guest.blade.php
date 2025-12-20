@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SKYpesa - Pata Pesa Kwa Kutazama Matangazo')</title>
+    <title>@yield('title', 'SKYpesa - Pata Pesa Kwa Kutazama na Kukamilisha Task')</title>
     <meta name="description" content="@yield('description', 'SKYpesa ni jukwaa la kujipatia pesa mtandaoni kwa kukamilisha kazi rahisi. Tazama matangazo, shiriki links, na upate malipo halali.')">
     
     <!-- Fonts -->

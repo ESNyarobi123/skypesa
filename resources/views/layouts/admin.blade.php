@@ -1040,14 +1040,14 @@
                         </li>
                         <li class="sidebar-nav-item">
                             <a href="{{ route('admin.adsterra.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.adsterra.*') ? 'active' : '' }}">
-                                <i data-lucide="globe" class="nav-icon"></i>
-                                Adsterra API
+                                <i data-lucide="link" class="nav-icon"></i>
+                                SkyLinks Manager
                             </a>
                         </li>
                         <li class="sidebar-nav-item">
                             <a href="{{ route('admin.surveys.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.surveys.*') ? 'active' : '' }}">
-                                <i data-lucide="clipboard-check" class="nav-icon"></i>
-                                Surveys
+                                <i data-lucide="message-circle" class="nav-icon"></i>
+                                SkyOpinions™
                             </a>
                         </li>
                     </ul>

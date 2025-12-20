@@ -67,8 +67,8 @@
                 </li>
                 <li>
                     <a href="{{ route('surveys.index') }}" class="sidebar-link {{ request()->routeIs('surveys.*') ? 'active' : '' }}">
-                        <i data-lucide="bar-chart-3"></i>
-                        Surveys
+                        <i data-lucide="message-circle"></i>
+                        SkyOpinions™
                     </a>
                 </li>
                 
@@ -102,8 +102,8 @@
                 </li>
                 <li>
                     <a href="{{ route('admin.adsterra.index') }}" class="sidebar-link {{ request()->routeIs('admin.adsterra.*') ? 'active' : '' }}">
-                        <i data-lucide="globe"></i>
-                        Adsterra API
+                        <i data-lucide="link"></i>
+                        SkyLinks Manager
                     </a>
                 </li>
                 @endif

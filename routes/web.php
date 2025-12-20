@@ -145,7 +145,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/adsterra/import-all', [AdminAdsterraController::class, 'importAll'])->name('adsterra.import-all');
         Route::post('/adsterra/sync', [AdminAdsterraController::class, 'sync'])->name('adsterra.sync');
         
-        // Surveys (CPX Research)
+        // Surveys (BitLabs)
         Route::get('/surveys', [AdminSurveyController::class, 'index'])->name('surveys.index');
         Route::get('/surveys/settings', [AdminSurveyController::class, 'settings'])->name('surveys.settings');
         Route::get('/surveys/analytics', [AdminSurveyController::class, 'analytics'])->name('surveys.analytics');

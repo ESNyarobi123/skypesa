@@ -2,14 +2,14 @@
 
 @section('title', 'Survey Settings')
 @section('page-title', 'Survey Settings')
-@section('page-subtitle', 'CPX Research Configuration')
+@section('page-subtitle', 'BitLabs Configuration')
 
 @section('content')
 <div class="grid grid-2" style="gap: var(--space-6);">
     <!-- Configuration Status -->
     <div class="card">
         <div class="card-body">
-            <h4 class="mb-4">📊 CPX Research Status</h4>
+            <h4 class="mb-4">📊 BitLabs Status</h4>
             
             <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center" style="padding: var(--space-3); background: var(--bg-tertiary); border-radius: var(--radius-md);">
@@ -31,8 +31,8 @@
                 </div>
                 
                 <div class="flex justify-between items-center" style="padding: var(--space-3); background: var(--bg-tertiary); border-radius: var(--radius-md);">
-                    <span>App ID</span>
-                    <code>{{ $config['app_id'] ?: 'Not configured' }}</code>
+                    <span>API Token</span>
+                    <code>{{ Str::mask($config['api_token'] ?: 'Not configured', '*', 8, -8) }}</code>
                 </div>
                 
                 <div class="flex justify-between items-center" style="padding: var(--space-3); background: var(--bg-tertiary); border-radius: var(--radius-md);">
@@ -43,21 +43,21 @@
         </div>
     </div>
     
-    <!-- Postback URL -->
+    <!-- Callback URL -->
     <div class="card">
         <div class="card-body">
-            <h4 class="mb-4">🔗 Postback Configuration</h4>
+            <h4 class="mb-4">🔗 Callback Configuration</h4>
             <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: var(--space-4);">
-                Weka URL hii kwenye CPX Research dashboard yako chini ya "Postback URL":
+                Weka URL hii kwenye BitLabs dashboard yako chini ya "Reward Callback URL":
             </p>
             
             <div style="background: var(--bg-tertiary); padding: var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-4);">
                 <code style="font-size: 0.75rem; word-break: break-all; color: var(--primary);">
-                    {{ $config['postback_url'] }}?trans_id=[trans_id]&ext_user_id=[user_id]&survey_id=[survey_id]&loi=[loi]&payout=[payout_usd]&status=[status]
+                    {{ $config['callback_url'] }}?tx=[TX]&user_id=[USER_ID]&value=[REWARD_RAW]&status=[STATUS]&loi=[SURVEY_LOI]&hash=[HASH]
                 </code>
             </div>
             
-            <button onclick="navigator.clipboard.writeText('{{ $config['postback_url'] }}?trans_id=[trans_id]&ext_user_id=[user_id]&survey_id=[survey_id]&loi=[loi]&payout=[payout_usd]&status=[status]')" class="btn btn-sm btn-secondary">
+            <button onclick="navigator.clipboard.writeText('{{ $config['callback_url'] }}?tx=[TX]&user_id=[USER_ID]&value=[REWARD_RAW]&status=[STATUS]&loi=[SURVEY_LOI]&hash=[HASH]')" class="btn btn-sm btn-secondary">
                 📋 Copy URL
             </button>
         </div>
@@ -115,23 +115,24 @@
         
         <div style="background: #1a1a1a; padding: var(--space-4); border-radius: var(--radius-md); font-family: monospace; font-size: 0.8rem; color: #10b981;">
             <pre style="margin: 0; white-space: pre-wrap;">
-# CPX Research Surveys
-CPX_APP_ID=your_app_id_here
-CPX_SECURE_HASH=your_secure_hash_here
-CPX_POSTBACK_SECRET=your_secret_here
-CPX_ENABLED=true
-CPX_DEMO_MODE=false
+# BitLabs Surveys (by Prodege, LLC)
+BITLABS_API_TOKEN=your_api_token_here
+BITLABS_SECRET_KEY=your_secret_key_here
+BITLABS_S2S_KEY=your_s2s_key_here
+BITLABS_ENABLED=true
+BITLABS_DEMO_MODE=false
             </pre>
         </div>
         
         <div style="margin-top: var(--space-4); padding: var(--space-4); background: rgba(59, 130, 246, 0.1); border: 1px solid var(--info); border-radius: var(--radius-md);">
             <strong style="color: var(--info);">ℹ️ Jinsi ya Kupata Credentials:</strong>
             <ol style="margin-top: var(--space-2); padding-left: var(--space-4); font-size: 0.875rem; color: var(--text-secondary);">
-                <li>Nenda <a href="https://publisher.cpx-research.com" target="_blank" style="color: var(--primary);">publisher.cpx-research.com</a></li>
+                <li>Nenda <a href="https://dashboard.bitlabs.ai" target="_blank" style="color: var(--primary);">dashboard.bitlabs.ai</a></li>
                 <li>Jiandikishe au ingia kama tayari una akaunti</li>
-                <li>Tengeneza App mpya</li>
-                <li>Nakili App ID na Secure Hash</li>
-                <li>Weka Postback URL kwenye settings za App</li>
+                <li>Tengeneza App mpya au chagua iliyopo</li>
+                <li>Nenda kwenye "Integration" tab</li>
+                <li>Nakili App/API Token, Secret Key, na S2S Key</li>
+                <li>Weka Callback URL kwenye "Reward Callback" section</li>
             </ol>
         </div>
     </div>

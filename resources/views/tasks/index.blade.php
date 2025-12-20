@@ -140,8 +140,8 @@
         --tab-color: #00B4D8;
     }
     
-    .filter-tab.cpx:not(.active):hover,
-    .filter-tab.cpx.active {
+    .filter-tab.bitlabs:not(.active):hover,
+    .filter-tab.bitlabs.active {
         --tab-color: #9B5DE5;
     }
     
@@ -153,7 +153,7 @@
         background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%);
     }
     
-    .filter-tab.cpx.active {
+    .filter-tab.bitlabs.active {
         background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%);
     }
     
@@ -588,21 +588,21 @@
     </a>
     
     <a href="{{ route('tasks.index', ['provider' => 'monetag']) }}" class="filter-tab monetag {{ $provider === 'monetag' ? 'active' : '' }}">
-        <i data-lucide="play-circle" class="filter-icon"></i>
-        <span>Monetag</span>
+        <i data-lucide="rocket" class="filter-icon"></i>
+        <span>SkyBoost™</span>
         <span class="filter-count">{{ $providerCounts['monetag'] ?? 0 }}</span>
     </a>
     
     <a href="{{ route('tasks.index', ['provider' => 'adsterra']) }}" class="filter-tab adsterra {{ $provider === 'adsterra' ? 'active' : '' }}">
-        <i data-lucide="globe" class="filter-icon"></i>
-        <span>Adsterra</span>
+        <i data-lucide="link" class="filter-icon"></i>
+        <span>SkyLinks™</span>
         <span class="filter-count">{{ $providerCounts['adsterra'] ?? 0 }}</span>
     </a>
     
-    <a href="{{ route('tasks.index', ['provider' => 'cpx']) }}" class="filter-tab cpx {{ $provider === 'cpx' ? 'active' : '' }}">
-        <i data-lucide="bar-chart-3" class="filter-icon"></i>
-        <span>CPX Research</span>
-        <span class="filter-count">{{ $providerCounts['cpx'] ?? 0 }}</span>
+    <a href="{{ route('tasks.index', ['provider' => 'bitlabs']) }}" class="filter-tab bitlabs {{ $provider === 'bitlabs' ? 'active' : '' }}">
+        <i data-lucide="message-circle" class="filter-icon"></i>
+        <span>SkyOpinions™</span>
+        <span class="filter-count">{{ $providerCounts['bitlabs'] ?? 0 }}</span>
     </a>
 </div>
 
@@ -610,142 +610,664 @@
 <div class="flex justify-between items-center mb-6">
     <h3>
         @if($provider === 'monetag')
-            <span style="color: #FF6B35;">🎬 Monetag Tasks</span>
+            <span style="color: #FF6B35;">🚀 SkyBoost™</span>
         @elseif($provider === 'adsterra')
-            <span style="color: #00B4D8;">🌐 Adsterra Tasks</span>
-        @elseif($provider === 'cpx')
-            <span style="color: #9B5DE5;">📊 CPX Research</span>
+            <span style="color: #00B4D8;">🔗 SkyLinks™</span>
+        @elseif($provider === 'bitlabs')
+            <span style="color: #9B5DE5;">💬 SkyOpinions™</span>
         @else
             <span style="color: var(--primary);">📋 Kazi Zote</span>
         @endif
     </h3>
     <span style="font-size: 0.85rem; color: var(--text-muted);">
-        @if($provider === 'cpx')
-            Surveys zinapatikana
+        @if($provider === 'bitlabs')
+            Maoni zinapatikana
         @else
-            {{ $tasks->count() }} kazi zinapatikana
+            {{ $tasks->count() }} fursa zinapatikana
         @endif
     </span>
 </div>
 
-@if($provider === 'cpx')
-<!-- CPX Research Survey Wall (Frame Integration) -->
-<div class="card mb-6">
-    <div class="card-body" style="padding: var(--space-4);">
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i data-lucide="bar-chart-3" style="width: 20px; height: 20px; color: white;"></i>
-                </div>
-                <div>
-                    <h4 style="margin: 0;">🌐 CPX Research Survey Wall</h4>
-                    <p style="color: var(--text-muted); font-size: 0.75rem; margin: 0;">Powered by CPX Research</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="badge badge-success" style="animation: pulse 2s infinite;">
-                    <i data-lucide="wifi" style="width: 12px; height: 12px;"></i>
-                    Live
-                </span>
-                <button onclick="refreshCpxWall()" class="btn btn-secondary" style="padding: 8px 12px;">
-                    <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
-                </button>
-            </div>
+@if($provider === 'bitlabs')
+<!-- BitLabs Enhanced Section -->
+<style>
+    .cpx-hero {
+        background: linear-gradient(135deg, rgba(155, 93, 229, 0.15) 0%, rgba(123, 44, 191, 0.08) 50%, transparent 100%);
+        border-radius: var(--radius-2xl);
+        padding: var(--space-8);
+        margin-bottom: var(--space-6);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(155, 93, 229, 0.2);
+    }
+    
+    .cpx-hero::before {
+        content: '';
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(155, 93, 229, 0.25) 0%, transparent 70%);
+        animation: cpx-float 6s ease-in-out infinite;
+    }
+    
+    .cpx-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -40px;
+        left: -40px;
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(circle, rgba(155, 93, 229, 0.15) 0%, transparent 70%);
+        animation: cpx-float 8s ease-in-out infinite reverse;
+    }
+    
+    @keyframes cpx-float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-15px) rotate(5deg); }
+    }
+    
+    .cpx-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 35px rgba(155, 93, 229, 0.5);
+        animation: cpx-pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes cpx-pulse {
+        0%, 100% { box-shadow: 0 0 35px rgba(155, 93, 229, 0.5); }
+        50% { box-shadow: 0 0 50px rgba(155, 93, 229, 0.7); }
+    }
+    
+    .cpx-stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+    }
+    
+    @media (max-width: 768px) {
+        .cpx-stats-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .cpx-stat-card {
+        background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(26, 26, 26, 0.7));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(155, 93, 229, 0.2);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        transition: all 0.3s ease;
+    }
+    
+    .cpx-stat-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(155, 93, 229, 0.5);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(155, 93, 229, 0.15);
+    }
+    
+    .cpx-stat-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, rgba(155, 93, 229, 0.25), rgba(155, 93, 229, 0.1));
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .cpx-stat-icon svg {
+        width: 24px;
+        height: 24px;
+        color: #9B5DE5;
+    }
+    
+    .cpx-stat-value {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .cpx-stat-value.success { color: #10B981; }
+    .cpx-stat-value.purple { color: #9B5DE5; }
+    
+    .cpx-wall-container {
+        background: var(--bg-card);
+        border-radius: var(--radius-2xl);
+        border: 1px solid rgba(155, 93, 229, 0.15);
+        overflow: hidden;
+        margin-bottom: var(--space-6);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .cpx-wall-header {
+        background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%);
+        padding: var(--space-5) var(--space-6);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+    }
+    
+    .cpx-wall-header h3 {
+        color: white;
+        font-size: 1.15rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin: 0;
+    }
+    
+    .cpx-live-badge {
+        background: white;
+        color: #7B2CBF;
+        padding: 6px 14px;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .cpx-live-dot {
+        width: 8px;
+        height: 8px;
+        background: #10B981;
+        border-radius: 50%;
+        animation: cpx-blink 1s infinite;
+    }
+    
+    @keyframes cpx-blink {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    
+    .cpx-info-bar {
+        background: rgba(155, 93, 229, 0.08);
+        border-bottom: 1px solid rgba(155, 93, 229, 0.15);
+        padding: var(--space-4) var(--space-6);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+    
+    .cpx-info-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(155, 93, 229, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .cpx-frame-wrapper {
+        position: relative;
+        min-height: 650px;
+        background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    }
+    
+    .cpx-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: opacity 0.3s ease;
+    }
+    
+    .cpx-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(155, 93, 229, 0.2);
+        border-top-color: #9B5DE5;
+        border-radius: 50%;
+        animation: cpx-spin 1s linear infinite;
+    }
+    
+    @keyframes cpx-spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .cpx-wall-actions {
+        background: rgba(155, 93, 229, 0.05);
+        border-top: 1px solid rgba(155, 93, 229, 0.15);
+        padding: var(--space-5) var(--space-6);
+        display: flex;
+        justify-content: center;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+    }
+    
+    .cpx-action-btn {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-5);
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .cpx-action-btn.primary {
+        background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(155, 93, 229, 0.3);
+    }
+    
+    .cpx-action-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(155, 93, 229, 0.4);
+    }
+    
+    .cpx-action-btn.secondary {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        border: 1px solid rgba(155, 93, 229, 0.2);
+    }
+    
+    .cpx-action-btn.secondary:hover {
+        background: rgba(155, 93, 229, 0.15);
+        border-color: rgba(155, 93, 229, 0.4);
+    }
+    
+    .cpx-action-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .cpx-rewards-section {
+        background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%);
+        border-radius: var(--radius-2xl);
+        padding: var(--space-8);
+        margin-bottom: var(--space-6);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cpx-rewards-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    
+    .cpx-rewards-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-4);
+    }
+    
+    @media (max-width: 768px) {
+        .cpx-rewards-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .cpx-reward-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+    
+    .cpx-reward-card:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.18);
+    }
+    
+    .cpx-reward-card.premium {
+        border-color: #fbbf24;
+        background: rgba(255, 255, 255, 0.18);
+    }
+    
+    .cpx-reward-amount {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 4px;
+    }
+    
+    .cpx-reward-card.premium .cpx-reward-amount {
+        color: #fbbf24;
+    }
+    
+    .cpx-reward-duration {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: var(--space-3);
+    }
+    
+    .cpx-reward-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-full);
+        font-size: 0.7rem;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .cpx-reward-card.premium .cpx-reward-badge {
+        background: rgba(251, 191, 36, 0.3);
+        color: #fbbf24;
+    }
+    
+    .cpx-tips-section {
+        background: var(--bg-card);
+        border-radius: var(--radius-2xl);
+        padding: var(--space-6);
+        border: 1px solid rgba(155, 93, 229, 0.1);
+    }
+    
+    .cpx-tips-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-4);
+    }
+    
+    @media (max-width: 768px) {
+        .cpx-tips-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .cpx-tip-card {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-4);
+        padding: var(--space-4);
+        background: var(--bg-elevated);
+        border-radius: var(--radius-xl);
+        transition: all 0.3s ease;
+    }
+    
+    .cpx-tip-card:hover {
+        transform: translateX(4px);
+        background: rgba(155, 93, 229, 0.08);
+    }
+    
+    .cpx-tip-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, rgba(155, 93, 229, 0.2), rgba(155, 93, 229, 0.1));
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    
+    .cpx-tip-content h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+        color: var(--text-primary);
+    }
+    
+    .cpx-tip-content p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: 0;
+        line-height: 1.4;
+    }
+</style>
+
+<!-- SkyOpinions Hero Section -->
+<div class="cpx-hero">
+    <div class="flex items-center gap-5" style="position: relative; z-index: 10; flex-wrap: wrap;">
+        <div class="cpx-icon-wrapper">
+            <i data-lucide="message-circle" style="color: white; width: 35px; height: 35px;"></i>
         </div>
-        
-        <div class="info-box mb-4" style="background: linear-gradient(135deg, rgba(155, 93, 229, 0.1), rgba(155, 93, 229, 0.05)); border-radius: var(--radius-lg); padding: var(--space-3); border: 1px solid rgba(155, 93, 229, 0.2);">
-            <div class="flex items-center gap-2">
-                <i data-lucide="info" style="width: 16px; height: 16px; color: #9B5DE5;"></i>
-                <span style="font-size: 0.875rem;">Bonyeza survey yoyote hapa chini. Ukimaliza, malipo yataongezwa kwenye wallet yako <strong>automaticly!</strong></span>
-            </div>
-        </div>
-        
-        @php
-            // Generate CPX Offerwall URL
-            $user = auth()->user();
-            $appId = config('cpx.app_id');
-            $secureHash = config('cpx.secure_hash');
-            $extUserId = $user->id;
-            $secureHashMd5 = md5($extUserId . '-' . $secureHash);
-            
-            $cpxWallUrl = "https://offers.cpx-research.com/index.php?" . http_build_query([
-                'app_id' => $appId,
-                'ext_user_id' => $extUserId,
-                'secure_hash' => $secureHashMd5,
-                'username' => $user->name,
-                'email' => $user->email,
-            ]);
-        @endphp
-        
-        <div class="cpx-frame-container" style="background: var(--bg-tertiary); border-radius: var(--radius-lg); overflow: hidden; position: relative; min-height: 600px;">
-            <!-- Loading Overlay -->
-            <div id="cpxFrameLoading" class="frame-loading" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-tertiary); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
-                <div class="loading-spinner" style="width: 40px; height: 40px; border: 3px solid var(--bg-dark); border-top-color: #9B5DE5; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                <p style="color: var(--text-muted); margin-top: var(--space-3);">Inapakia surveys...</p>
-            </div>
-            
-            <!-- CPX Research Frame Integration -->
-            <iframe 
-                id="cpxFrame"
-                width="100%" 
-                frameBorder="0" 
-                height="2000px"  
-                src="{{ $cpxWallUrl }}"
-                style="border: none; display: block;"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                onload="hideCpxLoading()">
-            </iframe>
-        </div>
-        
-        <div class="mt-4" style="display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: center;">
-            <a href="{{ $cpxWallUrl }}" target="_blank" class="btn btn-secondary">
-                <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
-                Fungua kwa Tab Mpya
-            </a>
-            <button onclick="refreshCpxWall()" class="btn btn-secondary">
-                <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
-                Refresh Surveys
-            </button>
+        <div>
+            <h2 style="font-size: 1.5rem; margin-bottom: var(--space-2); color: var(--text-primary);">SkyOpinions™ 💬</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Shiriki maoni yako na upate malipo halisi moja kwa moja kwenye wallet yako!
+            </p>
         </div>
     </div>
 </div>
 
-<!-- CPX Reward Info -->
-<div class="card mb-6" style="background: linear-gradient(135deg, #9B5DE5 0%, #7B2CBF 100%); border: none;">
-    <div class="card-body">
-        <h4 style="color: white; margin-bottom: var(--space-4);">💰 Malipo ya CPX Surveys</h4>
-        <div class="grid grid-3" style="gap: var(--space-4);">
-            <div style="background: rgba(255,255,255,0.1); padding: var(--space-4); border-radius: var(--radius-lg); text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: 800; color: white;">TZS 200+</div>
-                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.8);">Short (5-7 min)</div>
+<!-- CPX Stats Row -->
+@php
+    $cpxUser = auth()->user();
+    $cpxTodayCompleted = \App\Models\SurveyCompletion::where('user_id', $cpxUser->id)->whereDate('created_at', today())->count();
+    $cpxTodayEarned = \App\Models\SurveyCompletion::where('user_id', $cpxUser->id)->whereDate('created_at', today())->where('status', 'completed')->sum('user_reward');
+    $cpxTotalEarned = \App\Models\SurveyCompletion::where('user_id', $cpxUser->id)->where('status', 'completed')->sum('user_reward');
+@endphp
+<div class="cpx-stats-row">
+    <div class="cpx-stat-card">
+        <div class="cpx-stat-icon">
+            <i data-lucide="check-circle"></i>
+        </div>
+        <div>
+            <div class="stat-label" style="font-size: 0.75rem; color: var(--text-muted);">Leo Umekamilisha</div>
+            <div class="cpx-stat-value">{{ $cpxTodayCompleted }}</div>
+        </div>
+    </div>
+    <div class="cpx-stat-card">
+        <div class="cpx-stat-icon">
+            <i data-lucide="coins"></i>
+        </div>
+        <div>
+            <div class="stat-label" style="font-size: 0.75rem; color: var(--text-muted);">Umepata Leo</div>
+            <div class="cpx-stat-value success">TZS {{ number_format($cpxTodayEarned, 0) }}</div>
+        </div>
+    </div>
+    <div class="cpx-stat-card">
+        <div class="cpx-stat-icon">
+            <i data-lucide="wallet"></i>
+        </div>
+        <div>
+            <div class="stat-label" style="font-size: 0.75rem; color: var(--text-muted);">Jumla Yote</div>
+            <div class="cpx-stat-value purple">TZS {{ number_format($cpxTotalEarned, 0) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- BitLabs Survey Wall Container -->
+@php
+    // Generate BitLabs Offerwall URL
+    $user = auth()->user();
+    $apiToken = config('bitlabs.api_token');
+    
+    $bitlabsWallUrl = "https://web.bitlabs.ai?" . http_build_query([
+        'token' => $apiToken,
+        'uid' => $user->id,
+        'username' => $user->name,
+        'email' => $user->email,
+        'country' => 'TZ',
+    ]);
+@endphp
+
+<div class="cpx-wall-container">
+    <div class="cpx-wall-header">
+        <h3>
+            <i data-lucide="message-circle" style="width: 22px; height: 22px;"></i>
+            SkyOpinions™ Portal
+        </h3>
+        <div class="flex items-center gap-3">
+            <div class="cpx-live-badge">
+                <span class="cpx-live-dot"></span>
+                LIVE
             </div>
-            <div style="background: rgba(255,255,255,0.1); padding: var(--space-4); border-radius: var(--radius-lg); text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: 800; color: white;">TZS 300+</div>
-                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.8);">Medium (8-12 min)</div>
+            <button onclick="refreshCpxWall()" class="cpx-action-btn secondary" style="padding: 8px 14px;">
+                <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="cpx-info-bar">
+        <div class="cpx-info-icon">
+            <i data-lucide="info" style="width: 18px; height: 18px; color: #9B5DE5;"></i>
+        </div>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
+            Bonyeza fursa yoyote hapa chini. Ukimaliza, malipo yataongezwa kwenye wallet yako <strong style="color: var(--text-primary);">automatically!</strong>
+        </p>
+    </div>
+    
+    <div class="cpx-frame-wrapper">
+        <!-- Loading Overlay -->
+        <div id="cpxFrameLoading" class="cpx-loading-overlay">
+            <div class="cpx-spinner"></div>
+            <p style="color: var(--text-muted); margin-top: var(--space-4); font-size: 0.9rem;">Inapakia fursa zilizo available...</p>
+        </div>
+        
+        <!-- BitLabs Frame Integration -->
+        <iframe 
+            id="bitlabsFrame"
+            width="100%" 
+            frameBorder="0" 
+            height="1800px"  
+            src="{{ $bitlabsWallUrl }}"
+            style="border: none; display: block;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            onload="hideBitlabsLoading()">
+        </iframe>
+    </div>
+    
+    <div class="cpx-wall-actions">
+        <a href="{{ $bitlabsWallUrl }}" target="_blank" class="cpx-action-btn secondary">
+            <i data-lucide="external-link"></i>
+            Fungua kwa Tab Mpya
+        </a>
+        <button onclick="refreshBitlabsWall()" class="cpx-action-btn secondary">
+            <i data-lucide="refresh-cw"></i>
+            Refresh
+        </button>
+        <a href="{{ route('surveys.history') }}" class="cpx-action-btn primary">
+            <i data-lucide="history"></i>
+            Historia
+        </a>
+    </div>
+</div>
+
+<!-- SkyOpinions Rewards Section -->
+<div class="cpx-rewards-section">
+    <h4 style="color: white; margin-bottom: var(--space-6); font-size: 1.1rem; display: flex; align-items: center; gap: var(--space-2);">
+        💰 Malipo ya SkyOpinions™
+    </h4>
+    <div class="cpx-rewards-grid">
+        <div class="cpx-reward-card">
+            <div class="cpx-reward-amount">TZS 200+</div>
+            <div class="cpx-reward-duration">Short (5-7 min)</div>
+            <span class="cpx-reward-badge">
+                <i data-lucide="clock" style="width: 10px; height: 10px;"></i>
+                Haraka
+            </span>
+        </div>
+        <div class="cpx-reward-card">
+            <div class="cpx-reward-amount">TZS 300+</div>
+            <div class="cpx-reward-duration">Medium (8-12 min)</div>
+            <span class="cpx-reward-badge">
+                <i data-lucide="trending-up" style="width: 10px; height: 10px;"></i>
+                Popular
+            </span>
+        </div>
+        <div class="cpx-reward-card premium">
+            <div class="cpx-reward-amount">TZS 500+</div>
+            <div class="cpx-reward-duration">Long (15+ min)</div>
+            <span class="cpx-reward-badge">
+                <i data-lucide="crown" style="width: 10px; height: 10px;"></i>
+                VIP Bonus
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- CPX Tips Section -->
+<div class="cpx-tips-section">
+    <h4 style="margin-bottom: var(--space-5); font-size: 1rem; display: flex; align-items: center; gap: var(--space-2);">
+        💡 Vidokezo vya Kupata Pesa Zaidi
+    </h4>
+    <div class="cpx-tips-grid">
+        <div class="cpx-tip-card">
+            <div class="cpx-tip-icon">✅</div>
+            <div class="cpx-tip-content">
+                <h4>Jibu kwa Uaminifu</h4>
+                <p>Majibu ya uongo yanaweza kusababisha survey kukataliwa.</p>
             </div>
-            <div style="background: rgba(255,255,255,0.15); padding: var(--space-4); border-radius: var(--radius-lg); text-align: center; border: 1px solid rgba(255,255,255,0.3);">
-                <div style="font-size: 1.5rem; font-weight: 800; color: #fbbf24;">TZS 500+</div>
-                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.8);">Long (15+ min)</div>
+        </div>
+        <div class="cpx-tip-card">
+            <div class="cpx-tip-icon">⏰</div>
+            <div class="cpx-tip-content">
+                <h4>Chukua Muda Wako</h4>
+                <p>Kumaliza haraka sana kunaweza kusababisha disqualification.</p>
+            </div>
+        </div>
+        <div class="cpx-tip-card">
+            <div class="cpx-tip-icon">📱</div>
+            <div class="cpx-tip-content">
+                <h4>Focus kwenye Survey</h4>
+                <p>Usifungue tabs nyingine wakati wa survey.</p>
+            </div>
+        </div>
+        <div class="cpx-tip-card">
+            <div class="cpx-tip-icon">🔄</div>
+            <div class="cpx-tip-content">
+                <h4>Jaribu Tena Baadaye</h4>
+                <p>Hakuna survey sasa? Rudi baadaye, zinaongezwa kila wakati!</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function hideCpxLoading() {
+    function hideBitlabsLoading() {
         const loading = document.getElementById('cpxFrameLoading');
         if (loading) {
-            loading.style.display = 'none';
+            loading.style.opacity = '0';
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 300);
         }
     }
     
-    function refreshCpxWall() {
-        const frame = document.getElementById('cpxFrame');
+    function refreshBitlabsWall() {
+        const frame = document.getElementById('bitlabsFrame');
         const loading = document.getElementById('cpxFrameLoading');
         
         if (loading) {
             loading.style.display = 'flex';
+            loading.style.opacity = '1';
         }
         
         if (frame) {
@@ -755,8 +1277,8 @@
     
     // Auto-hide loading after timeout (fallback)
     setTimeout(function() {
-        hideCpxLoading();
-    }, 5000);
+        hideBitlabsLoading();
+    }, 6000);
 </script>
 
 @else
@@ -768,15 +1290,18 @@
             <div>
                 <span class="task-provider-badge {{ $task->provider }}">
                     @if($task->provider === 'monetag')
-                        <i data-lucide="play-circle" style="width: 12px; height: 12px;"></i>
+                        <i data-lucide="rocket" style="width: 12px; height: 12px;"></i>
+                        SkyBoost™
                     @elseif($task->provider === 'adsterra')
-                        <i data-lucide="globe" style="width: 12px; height: 12px;"></i>
+                        <i data-lucide="link" style="width: 12px; height: 12px;"></i>
+                        SkyLinks™
                     @elseif($task->provider === 'cpx')
-                        <i data-lucide="bar-chart-3" style="width: 12px; height: 12px;"></i>
+                        <i data-lucide="message-circle" style="width: 12px; height: 12px;"></i>
+                        SkyOpinions™
                     @else
                         <i data-lucide="star" style="width: 12px; height: 12px;"></i>
+                        SkyTask™
                     @endif
-                    {{ ucfirst($task->provider ?? 'Custom') }}
                 </span>
             </div>
             <div class="task-reward-badge">

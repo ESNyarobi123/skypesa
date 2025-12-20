@@ -5,16 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SurveyCompletion;
 use App\Models\User;
-use App\Services\CpxResearchService;
+use App\Services\BitLabsService;
 use Illuminate\Http\Request;
 
 class SurveyController extends Controller
 {
-    protected $cpxService;
+    protected $bitLabsService;
 
-    public function __construct(CpxResearchService $cpxService)
+    public function __construct(BitLabsService $bitLabsService)
     {
-        $this->cpxService = $cpxService;
+        $this->bitLabsService = $bitLabsService;
     }
 
     /**
@@ -53,7 +53,7 @@ class SurveyController extends Controller
             'today_completions' => SurveyCompletion::whereDate('created_at', today())->count(),
             'total_credited' => SurveyCompletion::where('status', 'credited')->sum('user_reward'),
             'today_credited' => SurveyCompletion::where('status', 'credited')->whereDate('created_at', today())->sum('user_reward'),
-            'cpx_earnings' => SurveyCompletion::where('status', 'credited')->sum('cpx_payout'),
+            'bitlabs_earnings' => SurveyCompletion::where('status', 'credited')->sum('cpx_payout'),
             'pending_count' => SurveyCompletion::where('status', 'pending')->count(),
             'by_type' => [
                 'short' => SurveyCompletion::where('survey_type', 'short')->where('status', 'credited')->count(),
@@ -64,10 +64,10 @@ class SurveyController extends Controller
 
         // Configuration status
         $config = [
-            'enabled' => config('cpx.enabled'),
-            'demo_mode' => config('cpx.demo_mode'),
-            'is_configured' => $this->cpxService->isConfigured(),
-            'postback_url' => route('api.webhooks.cpx'),
+            'enabled' => config('bitlabs.enabled'),
+            'demo_mode' => config('bitlabs.demo_mode'),
+            'is_configured' => $this->bitLabsService->isConfigured(),
+            'callback_url' => route('api.webhooks.bitlabs'),
         ];
 
         return view('admin.surveys.index', compact('completions', 'stats', 'config'));
@@ -88,12 +88,12 @@ class SurveyController extends Controller
     public function settings()
     {
         $config = [
-            'enabled' => config('cpx.enabled'),
-            'demo_mode' => config('cpx.demo_mode'),
-            'app_id' => config('cpx.app_id'),
-            'daily_limit' => config('cpx.daily_limit_per_user'),
-            'rewards' => config('cpx.rewards'),
-            'postback_url' => route('api.webhooks.cpx'),
+            'enabled' => config('bitlabs.enabled'),
+            'demo_mode' => config('bitlabs.demo_mode'),
+            'api_token' => config('bitlabs.api_token'),
+            'daily_limit' => config('bitlabs.daily_limit_per_user'),
+            'rewards' => config('bitlabs.rewards'),
+            'callback_url' => route('api.webhooks.bitlabs'),
         ];
 
         return view('admin.surveys.settings', compact('config'));

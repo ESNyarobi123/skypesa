@@ -9,7 +9,7 @@
     <meta property="og:title" content="SKYpesa - Pata Pesa Kwa Kutazama Matangazo">
     <meta property="og:description" content="Jiunge na maelfu ya Watanzania wanaopata pesa kila siku kwa kukamilisha kazi rahisi.">
     <meta property="og:type" content="website">
-    <title>SKYpesa - Pata Pesa Kwa Kutazama Matangazo | Tanzania</title>
+    <title>SKYpesa -  Kutazama Matangazo | Tanzania</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -895,7 +895,7 @@
                         Jukwaa Halali la Tanzania
                     </div>
 
-                    <h1>Pata Pesa Kwa<br><span>Kutazama Matangazo</span></h1>
+                    <h1>Pata Pesa Kwa<br><span>Tazama Maudhui, Jipatie Rewards</span></h1>
 
                     <p>
                         Jiunge na maelfu ya Watanzania wanaopata pesa kila siku kwa kukamilisha 

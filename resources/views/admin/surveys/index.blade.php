@@ -1,8 +1,8 @@
 @extends('layouts.admin')
 
-@section('title', 'Surveys - CPX Research')
+@section('title', 'Surveys - BitLabs')
 @section('page-title', 'Surveys')
-@section('page-subtitle', 'Usimamizi wa CPX Research Surveys')
+@section('page-subtitle', 'Usimamizi wa BitLabs Surveys')
 
 @section('content')
 <!-- Configuration Alert -->
@@ -15,8 +15,8 @@
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
         <div>
-            <strong>CPX Research Haijasanidiwa!</strong><br>
-            <span style="font-size: 0.875rem;">Tafadhali weka <code>CPX_APP_ID</code> na <code>CPX_SECURE_HASH</code> kwenye <code>.env</code> file</span>
+            <strong>BitLabs Haijasanidiwa!</strong><br>
+            <span style="font-size: 0.875rem;">Tafadhali weka <code>BITLABS_API_TOKEN</code> na <code>BITLABS_SECRET_KEY</code> kwenye <code>.env</code> file</span>
         </div>
     </div>
 </div>
@@ -82,12 +82,12 @@
 <!-- Postback URL Info -->
 <div class="card mb-6">
     <div class="card-body">
-        <h4 class="mb-4">🔗 CPX Research Postback URL</h4>
+        <h4 class="mb-4">🔗 BitLabs Callback URL</h4>
         <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: var(--space-3);">
-            Weka URL hii kwenye CPX Research dashboard yako kama "Postback URL":
+            Weka URL hii kwenye BitLabs dashboard yako kama "Reward Callback URL":
         </p>
         <div style="background: var(--bg-tertiary); padding: var(--space-3); border-radius: var(--radius-md); font-family: monospace; font-size: 0.875rem; word-break: break-all;">
-            {{ $config['postback_url'] }}?trans_id=[trans_id]&ext_user_id=[user_id]&survey_id=[survey_id]&loi=[loi]&payout=[payout_usd]&status=[status]
+            {{ $config['callback_url'] }}?tx=[TX]&user_id=[USER_ID]&value=[REWARD_RAW]&status=[STATUS]&loi=[SURVEY_LOI]&hash=[HASH]
         </div>
     </div>
 </div>
@@ -257,15 +257,15 @@
                 <div style="font-size: 2rem; font-weight: 800; color: white;">TZS {{ number_format($stats['total_credited'], 0) }}</div>
             </div>
             <div>
-                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.7);">CPX Earnings (USD)</div>
-                <div style="font-size: 2rem; font-weight: 800; color: white;">${{ number_format($stats['cpx_earnings'], 2) }}</div>
+                <div style="font-size: 0.875rem; color: rgba(255,255,255,0.7);">BitLabs Earnings (USD)</div>
+                <div style="font-size: 2rem; font-weight: 800; color: white;">${{ number_format($stats['bitlabs_earnings'], 2) }}</div>
             </div>
             <div>
                 <div style="font-size: 0.875rem; color: rgba(255,255,255,0.7);">Profit Margin</div>
                 @php
-                    $cpxEarningsTzs = $stats['cpx_earnings'] * 2500; // Approximate TZS/USD rate
-                    $profit = $cpxEarningsTzs - $stats['total_credited'];
-                    $profitPercentage = $cpxEarningsTzs > 0 ? ($profit / $cpxEarningsTzs) * 100 : 0;
+                    $bitlabsEarningsTzs = $stats['bitlabs_earnings'] * 2500; // Approximate TZS/USD rate
+                    $profit = $bitlabsEarningsTzs - $stats['total_credited'];
+                    $profitPercentage = $bitlabsEarningsTzs > 0 ? ($profit / $bitlabsEarningsTzs) * 100 : 0;
                 @endphp
                 <div style="font-size: 2rem; font-weight: 800; color: white;">{{ number_format($profitPercentage, 1) }}%</div>
             </div>
