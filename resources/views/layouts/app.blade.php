@@ -65,6 +65,12 @@
                         Referrals
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('surveys.index') }}" class="sidebar-link {{ request()->routeIs('surveys.*') ? 'active' : '' }}">
+                        <i data-lucide="bar-chart-3"></i>
+                        Surveys
+                    </a>
+                </li>
                 
                 @if(auth()->user()->isAdmin())
                 <li style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">

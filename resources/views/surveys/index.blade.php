@@ -185,21 +185,43 @@
     @endif
 
     @else
-    <!-- No Surveys Available -->
-    <div class="card">
-        <div class="card-body text-center" style="padding: var(--space-12);">
-            <div style="font-size: 4rem; margin-bottom: var(--space-4);">📊</div>
-            <h3 style="margin-bottom: var(--space-2);">Hakuna Surveys kwa Sasa</h3>
-            <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto var(--space-6);">
-                @if(isset($result['status']) && $result['status'] === 'limit_reached')
-                    Umefika kikomo cha surveys kwa leo. Rudi kesho!
-                @else
-                    Surveys mpya zinaongezwa mara kwa mara. Jaribu tena baadaye.
-                @endif
+    <!-- CPX Offerwall Iframe (when API returns no specific surveys) -->
+    <div class="card mb-6">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-4">
+                <h4 style="margin: 0;">🌐 CPX Research Surveys</h4>
+                <span class="badge badge-info">Live Wall</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: var(--space-4);">
+                Bonyeza surveys zilizo available hapa chini. Ukimaliza, malipo yataongezwa kwenye wallet yako automaticly!
             </p>
-            <a href="{{ route('tasks.index') }}" class="btn btn-primary">
-                Fanya Tasks Badala yake
-            </a>
+            
+            @if(isset($cpxWallUrl))
+            <div style="background: var(--bg-tertiary); border-radius: var(--radius-lg); overflow: hidden; position: relative;">
+                <iframe 
+                    src="{{ $cpxWallUrl }}" 
+                    style="width: 100%; height: 600px; border: none;"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            
+            <div class="mt-4" style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+                <a href="{{ $cpxWallUrl }}" target="_blank" class="btn btn-secondary">
+                    <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
+                    Fungua kwa Tab Mpya
+                </a>
+                <button onclick="document.querySelector('iframe').src = '{{ $cpxWallUrl }}'" class="btn btn-secondary">
+                    <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                    Refresh Surveys
+                </button>
+            </div>
+            @else
+            <div class="text-center" style="padding: var(--space-8);">
+                <div style="font-size: 3rem; margin-bottom: var(--space-4);">⚙️</div>
+                <p style="color: var(--text-muted);">Survey wall haijawekwa vizuri. Wasiliana na msaada.</p>
+            </div>
+            @endif
         </div>
     </div>
     @endif

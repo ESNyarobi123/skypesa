@@ -22,7 +22,7 @@ class SurveyController extends Controller
     {
         $user = auth()->user();
 
-        // Get surveys from CPX
+        // Get surveys from CPX API (may be empty if no matching surveys)
         $result = $this->cpxService->getSurveys(
             $user,
             $request->ip(),
@@ -41,6 +41,20 @@ class SurveyController extends Controller
         $plan = $user->getCurrentPlan();
         $isVip = $plan && in_array($plan->name, config('cpx.vip_plans', []));
 
+        // Generate CPX Offerwall URL (iframe method)
+        $appId = config('cpx.app_id');
+        $secureHash = config('cpx.secure_hash');
+        $extUserId = $user->id;
+        $secureHashMd5 = md5($extUserId . '-' . $secureHash);
+        
+        $cpxWallUrl = "https://offers.cpx-research.com/index.php?" . http_build_query([
+            'app_id' => $appId,
+            'ext_user_id' => $extUserId,
+            'secure_hash' => $secureHashMd5,
+            'username' => $user->name,
+            'email' => $user->email,
+        ]);
+
         return view('surveys.index', compact(
             'surveys',
             'shortSurveys',
@@ -48,7 +62,8 @@ class SurveyController extends Controller
             'longSurveys',
             'stats',
             'isVip',
-            'result'
+            'result',
+            'cpxWallUrl'
         ));
     }
 
