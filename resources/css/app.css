@@ -1002,10 +1002,36 @@ a:hover {
     padding: var(--space-8);
 }
 
+/* ================================
+   RESPONSIVE DESIGN SYSTEM
+   ================================ */
+
+/* Desktop Large (1400px+) */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1400px;
+    }
+
+    .wallet-balance {
+        font-size: 3.5rem;
+    }
+
+    .stat-value {
+        font-size: 2.75rem;
+    }
+}
+
+/* Desktop (1024px - 1399px) - Default styles apply */
+
+/* Tablet Landscape (768px - 1024px) */
 @media (max-width: 1024px) {
     .sidebar {
+        position: fixed;
         transform: translateX(-100%);
         transition: transform var(--transition-base);
+        z-index: 1000;
+        width: 280px;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
     }
 
     .sidebar.open {
@@ -1014,5 +1040,821 @@ a:hover {
 
     .main-content {
         margin-left: 0;
+        padding: var(--space-6);
+        padding-bottom: 100px;
+        /* Space for bottom nav */
+    }
+
+    /* Overlay when sidebar is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity var(--transition-base);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .wallet-balance {
+        font-size: 2.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+    }
+
+    .plan-price {
+        font-size: 2rem;
+    }
+}
+
+/* Tablet Portrait (640px - 768px) */
+@media (max-width: 768px) {
+    :root {
+        --space-8: 1.5rem;
+        --space-6: 1rem;
+    }
+
+    .main-content {
+        padding: var(--space-4);
+        padding-bottom: 90px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    h4 {
+        font-size: 1rem;
+    }
+
+    .wallet-card {
+        padding: var(--space-6);
+        border-radius: var(--radius-xl);
+    }
+
+    .wallet-balance {
+        font-size: 1.75rem;
+    }
+
+    .wallet-label {
+        font-size: 0.75rem;
+    }
+
+    .card-body {
+        padding: var(--space-4);
+    }
+
+    .stat-card {
+        padding: var(--space-4);
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .plan-card {
+        padding: var(--space-6);
+    }
+
+    .plan-name {
+        font-size: 1.25rem;
+    }
+
+    .plan-price {
+        font-size: 1.75rem;
+    }
+
+    .btn {
+        padding: var(--space-3) var(--space-4);
+        font-size: 0.8rem;
+    }
+
+    .btn-lg {
+        padding: var(--space-3) var(--space-6);
+        font-size: 0.9rem;
+    }
+
+    .btn-sm {
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.7rem;
+    }
+
+    /* Responsive Tables */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 calc(-1 * var(--space-4));
+        padding: 0 var(--space-4);
+    }
+
+    .table {
+        min-width: 600px;
+    }
+
+    .table th,
+    .table td {
+        padding: var(--space-3);
+        font-size: 0.8rem;
+    }
+
+    /* Card Table Alternative for Mobile */
+    .table-cards {
+        display: block;
+    }
+
+    .table-cards thead {
+        display: none;
+    }
+
+    .table-cards tbody {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .table-cards tr {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-elevated);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .table-cards td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .table-cards td:last-child {
+        border-bottom: none;
+    }
+
+    .table-cards td::before {
+        content: attr(data-label);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    /* Badge adjustments */
+    .badge {
+        font-size: 0.65rem;
+        padding: 2px var(--space-2);
+    }
+
+    /* Alert adjustments */
+    .alert {
+        padding: var(--space-3) var(--space-4);
+        font-size: 0.85rem;
+    }
+
+    /* Task cards mobile */
+    .task-card-body,
+    .task-card-header {
+        padding: var(--space-4);
+    }
+
+    .task-reward {
+        font-size: 0.8rem;
+        padding: var(--space-1) var(--space-2);
+    }
+
+    /* Form controls */
+    .form-control {
+        padding: var(--space-3);
+        font-size: 16px;
+        /* Prevent zoom on iOS */
+    }
+
+    /* Progress bar */
+    .progress {
+        height: 6px;
+    }
+}
+
+/* Mobile Large (480px - 640px) */
+@media (max-width: 640px) {
+    .main-content {
+        padding: var(--space-3);
+        padding-bottom: 85px;
+    }
+
+    h1 {
+        font-size: 1.35rem;
+    }
+
+    h2 {
+        font-size: 1.15rem;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    .wallet-card {
+        padding: var(--space-4);
+    }
+
+    .wallet-balance {
+        font-size: 1.5rem;
+    }
+
+    .wallet-label {
+        font-size: 0.7rem;
+    }
+
+    .card-body {
+        padding: var(--space-3);
+    }
+
+    .stat-card {
+        padding: var(--space-3);
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+    }
+
+    .plan-card {
+        padding: var(--space-4);
+    }
+
+    .plan-name {
+        font-size: 1.1rem;
+    }
+
+    .plan-price {
+        font-size: 1.5rem;
+    }
+
+    .plan-features li {
+        font-size: 0.85rem;
+        padding: var(--space-2) 0;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Flex wrap for mobile buttons */
+    .btn-group-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        width: 100%;
+    }
+
+    .flex.gap-4,
+    .flex.gap-6 {
+        flex-wrap: wrap;
+        gap: var(--space-2) !important;
+    }
+}
+
+/* Mobile Small (< 480px) */
+@media (max-width: 480px) {
+    .main-content {
+        padding: var(--space-2);
+        padding-bottom: 80px;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+    }
+
+    h2 {
+        font-size: 1rem;
+    }
+
+    h3 {
+        font-size: 0.9rem;
+    }
+
+    .wallet-balance {
+        font-size: 1.25rem;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+    }
+
+    .card {
+        border-radius: var(--radius-lg);
+    }
+
+    .wallet-card {
+        border-radius: var(--radius-lg);
+        padding: var(--space-3);
+    }
+
+    .plan-price {
+        font-size: 1.25rem;
+    }
+
+    .table th,
+    .table td {
+        padding: var(--space-2);
+        font-size: 0.7rem;
+    }
+}
+
+/* ================================
+   BOTTOM NAVIGATION (Mobile Only)
+   ================================ */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-dark);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--space-2) var(--space-3);
+    padding-bottom: calc(var(--space-2) + env(safe-area-inset-bottom, 0));
+    z-index: 998;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+@media (max-width: 1024px) {
+    .bottom-nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-md);
+    min-width: 60px;
+}
+
+.bottom-nav-item:hover,
+.bottom-nav-item.active {
+    color: var(--primary);
+}
+
+.bottom-nav-item.active {
+    background: var(--gradient-glow);
+}
+
+.bottom-nav-item svg {
+    width: 22px;
+    height: 22px;
+    margin-bottom: 2px;
+}
+
+.bottom-nav-item span {
+    font-size: 0.65rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .bottom-nav-item {
+        min-width: 50px;
+        padding: var(--space-1);
+    }
+
+    .bottom-nav-item svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .bottom-nav-item span {
+        font-size: 0.6rem;
+    }
+}
+
+/* ================================
+   ENHANCED MOBILE MENU
+   ================================ */
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-dark);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: var(--space-3) var(--space-4);
+    z-index: 997;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+@media (max-width: 1024px) {
+    .mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .main-content {
+        padding-top: 70px;
+    }
+}
+
+.mobile-header-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.mobile-header-brand span {
+    color: var(--primary);
+}
+
+.mobile-header-brand svg {
+    width: 24px;
+    height: 24px;
+    color: var(--primary);
+}
+
+.mobile-menu-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.mobile-menu-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--primary);
+}
+
+.mobile-menu-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* ================================
+   RESPONSIVE GRIDS (Enhanced)
+   ================================ */
+.grid-responsive {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.grid-responsive-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-responsive-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-responsive-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1200px) {
+    .grid-responsive-4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+
+    .grid-responsive-4,
+    .grid-responsive-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+
+    .grid-responsive-4,
+    .grid-responsive-3,
+    .grid-responsive-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Auto-fill grid for cards */
+.grid-auto-fill {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+    .grid-auto-fill {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ================================
+   RESPONSIVE UTILITIES
+   ================================ */
+.hide-mobile {
+    display: block;
+}
+
+.show-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .show-mobile {
+        display: block !important;
+    }
+}
+
+.hide-tablet {
+    display: block;
+}
+
+.show-tablet {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .hide-tablet {
+        display: none !important;
+    }
+
+    .show-tablet {
+        display: block !important;
+    }
+}
+
+/* Text alignment responsive */
+.text-center-mobile {
+    text-align: inherit;
+}
+
+@media (max-width: 768px) {
+    .text-center-mobile {
+        text-align: center;
+    }
+}
+
+/* Flex direction responsive */
+.flex-col-mobile {
+    flex-direction: row;
+}
+
+@media (max-width: 768px) {
+    .flex-col-mobile {
+        flex-direction: column;
+    }
+}
+
+/* Full width on mobile */
+.w-full-mobile {
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    .w-full-mobile {
+        width: 100%;
+    }
+}
+
+/* ================================
+   ENHANCED CARD STYLES (Responsive)
+   ================================ */
+.card-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.card-horizontal {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+    .card-horizontal {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* ================================
+   SWIPE INDICATORS
+   ================================ */
+.swipe-indicator {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .swipe-indicator {
+        display: flex;
+    }
+}
+
+.swipe-indicator svg {
+    width: 16px;
+    height: 16px;
+    animation: swipe-hint 2s ease-in-out infinite;
+}
+
+@keyframes swipe-hint {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+/* ================================
+   SCROLL SNAP FOR HORIZONTAL SCROLLING
+   ================================ */
+.scroll-snap-x {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: var(--space-4);
+    padding-bottom: var(--space-2);
+}
+
+.scroll-snap-x::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-snap-x>* {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+}
+
+/* ================================
+   TOUCH FEEDBACK
+   ================================ */
+@media (hover: none) and (pointer: coarse) {
+
+    .card:active,
+    .btn:active,
+    .sidebar-link:active,
+    .bottom-nav-item:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+
+    .task-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .task-card:active {
+        transform: scale(0.99);
+        border-color: var(--primary);
+    }
+}
+
+/* ================================
+   SAFE AREAS (Notch Support)
+   ================================ */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .main-content {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+
+    .mobile-header {
+        padding-top: calc(var(--space-3) + env(safe-area-inset-top));
+    }
+
+    @media (max-width: 1024px) {
+        .main-content {
+            padding-top: calc(70px + env(safe-area-inset-top));
+        }
+    }
+}
+
+/* ================================
+   PULL TO REFRESH INDICATOR
+   ================================ */
+.pull-indicator {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.pull-indicator.visible {
+    opacity: 1;
+}
+
+/* ================================
+   LANDSCAPE MODE ADJUSTMENTS
+   ================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+    .sidebar {
+        padding: var(--space-4);
+    }
+
+    .sidebar-brand {
+        margin-bottom: var(--space-4);
+    }
+
+    .sidebar-link {
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .bottom-nav {
+        padding: var(--space-1) var(--space-3);
+    }
+
+    .bottom-nav-item {
+        flex-direction: row;
+        gap: var(--space-1);
+    }
+
+    .bottom-nav-item svg {
+        margin-bottom: 0;
     }
 }

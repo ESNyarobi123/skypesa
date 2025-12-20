@@ -4,6 +4,49 @@
 @section('page-title', 'Dashboard')
 @section('page-subtitle', 'Karibu ' . auth()->user()->name . '!')
 
+@push('styles')
+<style>
+    /* Dashboard responsive styles */
+    @media (max-width: 768px) {
+        .dashboard-stats {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: var(--space-3);
+            padding-bottom: var(--space-2);
+        }
+        
+        .dashboard-stats::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .dashboard-stats .stat-card {
+            flex: 0 0 calc(50% - var(--space-2));
+            scroll-snap-align: start;
+        }
+        
+        .dashboard-quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-2);
+        }
+        
+        .dashboard-quick-actions .btn {
+            padding: var(--space-3);
+            font-size: 0.8rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .dashboard-stats .stat-card {
+            flex: 0 0 70%;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Wallet Overview -->
 <div class="grid grid-3 mb-8">
@@ -13,7 +56,7 @@
             <div class="wallet-label">Salio Lako</div>
             <div class="wallet-balance">TZS {{ number_format(auth()->user()->wallet?->balance ?? 0, 0) }}</div>
             <div class="flex gap-4 mt-4">
-                <a href="{{ route('withdrawals.create') }}" class="btn" style="background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(10px);">
+                <a href="{{ route('withdrawals.create') }}" class="btn w-full-mobile" style="background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(10px);">
                     <i data-lucide="send"></i>
                     Toa Pesa
                 </a>
@@ -24,12 +67,12 @@
     <!-- Today's Earnings -->
     <div class="card card-body">
         <div class="flex items-center gap-4">
-            <div style="width: 50px; height: 50px; background: var(--gradient-glow); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 50px; height: 50px; min-width: 50px; background: var(--gradient-glow); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <i data-lucide="trending-up" style="color: var(--primary);"></i>
             </div>
-            <div>
+            <div style="min-width: 0; flex: 1;">
                 <div style="font-size: 0.875rem; color: var(--text-muted);">Mapato ya Leo</div>
-                <div style="font-size: 1.5rem; font-weight: 700;">TZS {{ number_format(auth()->user()->earningsToday(), 0) }}</div>
+                <div style="font-size: 1.25rem; font-weight: 700;">TZS {{ number_format(auth()->user()->earningsToday(), 0) }}</div>
             </div>
         </div>
         <div class="mt-4">
@@ -51,12 +94,12 @@
     <!-- Current Plan -->
     <div class="card card-body">
         <div class="flex items-center gap-4">
-            <div style="width: 50px; height: 50px; background: var(--gradient-glow); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 50px; height: 50px; min-width: 50px; background: var(--gradient-glow); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <i data-lucide="crown" style="color: var(--primary);"></i>
             </div>
-            <div>
+            <div style="min-width: 0; flex: 1;">
                 <div style="font-size: 0.875rem; color: var(--text-muted);">Mpango Wako</div>
-                <div style="font-size: 1.5rem; font-weight: 700;">{{ auth()->user()->getPlanName() }}</div>
+                <div style="font-size: 1.25rem; font-weight: 700;">{{ auth()->user()->getPlanName() }}</div>
             </div>
         </div>
         @php
@@ -65,9 +108,9 @@
         @endphp
         @if($daysRemaining !== null)
         <div class="mt-4">
-            <div style="font-size: 0.875rem; color: var(--text-muted);">
-                <i data-lucide="clock" style="width: 14px; height: 14px; display: inline;"></i>
-                Inaisha baada ya siku {{ $daysRemaining }}
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem;">
+                <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+                <span>Inaisha baada ya siku {{ $daysRemaining }}</span>
             </div>
         </div>
         @endif
@@ -77,6 +120,7 @@
         </a>
     </div>
 </div>
+
 
 <!-- Quick Stats -->
 <div class="grid grid-4 mb-8">

@@ -168,7 +168,18 @@ class BitLabsService
     }
 
     /**
-     * Process and categorize surveys
+     * Process and categorize surveys from BitLabs API response
+     * 
+     * BitLabs response format:
+     * - id: Survey unique identifier
+     * - click_url: URL to open survey (redirect user here)
+     * - cpi: Cost per interview (publisher payout in USD)
+     * - value: Display value (in cents or local currency)
+     * - loi: Length of interview in minutes
+     * - rating: Survey quality rating
+     * - category: { name, icon_url, icon_name }
+     * - cr: Conversion rate
+     * - type: 'survey' or 'start_bonus'
      */
     protected function processSurveys(array $rawSurveys, User $user): array
     {
@@ -186,27 +197,113 @@ class BitLabsService
             }
 
             $reward = SurveyCompletion::getRewardForLoi($loi, $user);
+            
+            // Extract category info
+            $category = $survey['category'] ?? [];
+            $categoryName = $category['name'] ?? 'General';
+            $categoryIcon = $category['icon_url'] ?? null;
+
+            // Get payout (cpi is in USD, value may be in cents)
+            $payoutUsd = (float) ($survey['cpi'] ?? 0);
+            
+            // Check if it's a start_bonus survey (Initial Rewarded Profiler)
+            $surveyType = $survey['type'] ?? 'survey';
+            $isStartBonus = $surveyType === 'start_bonus';
 
             $surveys[] = [
-                'id' => $survey['id'] ?? $survey['survey_id'] ?? null,
+                'id' => $survey['id'] ?? null,
                 'type' => $type,
                 'type_label' => $config['label'] ?? 'Survey',
                 'loi' => $loi,
                 'loi_label' => $loi . ' dakika',
                 'reward' => $reward,
                 'reward_formatted' => 'TZS ' . number_format($reward, 0),
-                'payout' => $survey['value'] ?? $survey['cpi'] ?? 0,
-                'rating' => $survey['rating'] ?? 0,
+                'payout_usd' => $payoutUsd,
+                'value' => $survey['value'] ?? '0',
+                'rating' => (float) ($survey['rating'] ?? 0),
+                'cr' => (float) ($survey['cr'] ?? 0), // Conversion rate
                 'is_top' => ($survey['rating'] ?? 0) >= 4,
-                'href' => $survey['click_url'] ?? $survey['link'] ?? '',
+                'is_start_bonus' => $isStartBonus,
+                'href' => $survey['click_url'] ?? '', // Use click_url from API
+                'category' => $categoryName,
+                'category_icon' => $categoryIcon,
                 'vip_only' => $config['vip_only'] ?? false,
+                'country' => $survey['country'] ?? 'TZ',
+                'tags' => $survey['tags'] ?? [],
             ];
         }
 
-        // Sort by rating (best first)
-        usort($surveys, fn($a, $b) => $b['rating'] <=> $a['rating']);
+        // Sort by rating (best first), then by reward
+        usort($surveys, function($a, $b) {
+            if ($b['rating'] !== $a['rating']) {
+                return $b['rating'] <=> $a['rating'];
+            }
+            return $b['reward'] <=> $a['reward'];
+        });
 
         return $surveys;
+    }
+
+    /**
+     * Import user data to BitLabs for better survey targeting
+     * 
+     * BitLabs recommends importing: birthdate, gender, zipcode
+     * This helps avoid duplicate qualification questions
+     */
+    public function importUserData(User $user): array
+    {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'message' => 'BitLabs not configured'];
+        }
+
+        try {
+            $userData = [
+                'uid' => (string) $user->id,
+                'country' => 'TZ', // Tanzania
+            ];
+
+            // Add birth date if available
+            if ($user->birth_date) {
+                $userData['birthdate'] = \Carbon\Carbon::parse($user->birth_date)->format('Y-m-d');
+            }
+
+            // Add gender if available
+            if ($user->gender) {
+                $userData['gender'] = strtoupper($user->gender) === 'MALE' ? 'MALE' : 'FEMALE';
+            }
+
+            // Add zipcode if available
+            if ($user->zipcode ?? null) {
+                $userData['zipcode'] = $user->zipcode;
+            }
+
+            $response = Http::withHeaders([
+                'X-Api-Token' => $this->apiToken,
+                'accept' => 'application/json',
+                'content-type' => 'application/json',
+            ])
+            ->timeout(15)
+            ->post('https://api.bitlabs.ai/v1/publishers/users', [
+                'users' => [$userData]
+            ]);
+
+            if ($response->successful()) {
+                Log::info('BitLabs user data imported', ['user_id' => $user->id]);
+                return ['success' => true, 'message' => 'User data imported'];
+            }
+
+            Log::warning('BitLabs user import failed', [
+                'user_id' => $user->id,
+                'status' => $response->status(),
+                'response' => $response->body(),
+            ]);
+            
+            return ['success' => false, 'message' => 'Import failed'];
+
+        } catch (\Exception $e) {
+            Log::error('BitLabs user import error: ' . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
     }
 
     /**

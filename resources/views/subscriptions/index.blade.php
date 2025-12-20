@@ -4,40 +4,167 @@
 @section('page-title', 'Mipango ya Subscription')
 @section('page-subtitle', 'Chagua mpango unaokufaa')
 
+@push('styles')
+<style>
+    /* Responsive subscription plans */
+    .plans-container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: var(--space-4);
+    }
+    
+    @media (max-width: 1400px) {
+        .plans-container {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 1024px) {
+        .plans-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .plans-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding-bottom: var(--space-4);
+            margin: 0 calc(-1 * var(--space-3));
+            padding-left: var(--space-3);
+            padding-right: var(--space-3);
+        }
+        
+        .plans-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .plan-card {
+            flex: 0 0 280px;
+            scroll-snap-align: center;
+        }
+        
+        .plan-card.featured {
+            flex: 0 0 290px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .plan-card {
+            flex: 0 0 260px;
+        }
+        
+        .plan-card.featured {
+            flex: 0 0 270px;
+        }
+    }
+    
+    /* Current plan card responsive */
+    .current-plan-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+    
+    @media (max-width: 768px) {
+        .current-plan-stats {
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-3);
+            margin-top: var(--space-4);
+        }
+        
+        .current-plan-stats > div {
+            text-align: center;
+        }
+        
+        .current-plan-stats .stat-label {
+            font-size: 0.65rem;
+        }
+        
+        .current-plan-stats .stat-value {
+            font-size: 1rem;
+        }
+    }
+    
+    /* Swipe indicator */
+    .swipe-hint {
+        display: none;
+        text-align: center;
+        padding: var(--space-2);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+    
+    @media (max-width: 768px) {
+        .swipe-hint {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .swipe-hint svg {
+            animation: swipe 2s ease-in-out infinite;
+        }
+        
+        @keyframes swipe {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+    }
+    
+    /* Calculator table responsive */
+    @media (max-width: 768px) {
+        .calculator-table {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .calculator-table .table {
+            min-width: 700px;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Current Plan -->
 @if($currentSubscription)
-<div class="card mb-8" style="background: var(--gradient-primary); padding: var(--space-6);">
+<div class="card mb-8" style="background: var(--gradient-primary); padding: var(--space-6); position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50%; right: -20%; width: 60%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%); transform: rotate(30deg);"></div>
     <div style="position: relative; z-index: 10;">
-        <div class="flex justify-between items-center flex-wrap" style="gap: var(--space-4);">
-            <div>
+        <div class="flex justify-between items-center flex-wrap flex-col-mobile" style="gap: var(--space-4);">
+            <div style="text-align: var(--mobile-text-align, left);">
                 <div style="font-size: 0.875rem; color: rgba(255,255,255,0.7);">Mpango Wako wa Sasa</div>
-                <h2 style="color: white;">{{ $currentSubscription->plan->display_name }}</h2>
+                <h2 style="color: white; font-size: 1.5rem;">{{ $currentSubscription->plan->display_name }}</h2>
                 @if($currentSubscription->daysRemaining() !== null)
-                <div style="color: rgba(255,255,255,0.8); margin-top: var(--space-2);">
-                    <i data-lucide="clock" style="width: 16px; height: 16px; display: inline;"></i>
+                <div style="color: rgba(255,255,255,0.8); margin-top: var(--space-2); display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
                     Inaisha baada ya siku {{ $currentSubscription->daysRemaining() }}
                 </div>
                 @else
-                <div style="color: rgba(255,255,255,0.8); margin-top: var(--space-2);">
-                    <i data-lucide="infinity" style="width: 16px; height: 16px; display: inline;"></i>
+                <div style="color: rgba(255,255,255,0.8); margin-top: var(--space-2); display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="infinity" style="width: 16px; height: 16px;"></i>
                     Unlimited
                 </div>
                 @endif
             </div>
-            <div class="grid grid-3" style="gap: var(--space-6);">
+            <div class="current-plan-stats">
                 <div>
-                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7);">Tasks/Siku</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: white;">{{ $currentSubscription->plan->daily_task_limit ?? '∞' }}</div>
+                    <div class="stat-label" style="font-size: 0.75rem; color: rgba(255,255,255,0.7);">Tasks/Siku</div>
+                    <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: white;">{{ $currentSubscription->plan->daily_task_limit ?? '∞' }}</div>
                 </div>
                 <div>
-                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7);">TZS/Task</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: white;">{{ number_format($currentSubscription->plan->reward_per_task, 0) }}</div>
+                    <div class="stat-label" style="font-size: 0.75rem; color: rgba(255,255,255,0.7);">TZS/Task</div>
+                    <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: white;">{{ number_format($currentSubscription->plan->reward_per_task, 0) }}</div>
                 </div>
                 <div>
-                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7);">Ada</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: white;">{{ $currentSubscription->plan->withdrawal_fee_percent }}%</div>
+                    <div class="stat-label" style="font-size: 0.75rem; color: rgba(255,255,255,0.7);">Ada</div>
+                    <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: white;">{{ $currentSubscription->plan->withdrawal_fee_percent }}%</div>
                 </div>
             </div>
         </div>
@@ -46,8 +173,15 @@
 @endif
 
 <!-- All Plans -->
-<h3 class="mb-6">Mipango Yote</h3>
-<div class="grid grid-5">
+<h3 class="mb-4">Mipango Yote</h3>
+
+<!-- Swipe Hint for Mobile -->
+<div class="swipe-hint">
+    <i data-lucide="chevrons-right" style="width: 16px; height: 16px;"></i>
+    <span>Swipe kuona mipango zaidi</span>
+</div>
+
+<div class="plans-container mb-8">
     @foreach($plans as $plan)
     <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }} {{ $currentSubscription?->plan_id == $plan->id ? 'current' : '' }}">
         @if($currentSubscription?->plan_id == $plan->id)
@@ -133,38 +267,48 @@
         Hesabu Mapato Yako ya Mwezi
     </h4>
     
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Mpango</th>
-                <th style="text-align: center;">Tasks/Siku</th>
-                <th style="text-align: center;">TZS/Task</th>
-                <th style="text-align: center;">Mapato ya Siku</th>
-                <th style="text-align: center;">Mapato ya Mwezi</th>
-                <th style="text-align: center;">Bei</th>
-                <th style="text-align: right;">Faida (NET)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($plans as $plan)
-            @php
-                $dailyTasks = $plan->daily_task_limit ?? 50;
-                $dailyEarnings = $dailyTasks * $plan->reward_per_task;
-                $monthlyEarnings = $dailyEarnings * 30;
-                $netProfit = $monthlyEarnings * (1 - $plan->withdrawal_fee_percent / 100) - $plan->price;
-            @endphp
-            <tr>
-                <td style="font-weight: 600;">{{ $plan->display_name }}</td>
-                <td style="text-align: center;">{{ $plan->daily_task_limit ?? '50+' }}</td>
-                <td style="text-align: center;">TZS {{ number_format($plan->reward_per_task, 0) }}</td>
-                <td style="text-align: center;">TZS {{ number_format($dailyEarnings, 0) }}</td>
-                <td style="text-align: center;">TZS {{ number_format($monthlyEarnings, 0) }}</td>
-                <td style="text-align: center;">TZS {{ number_format($plan->price, 0) }}</td>
-                <td style="text-align: right; font-weight: 700; color: var(--success);">TZS {{ number_format($netProfit, 0) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <div class="calculator-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mpango</th>
+                    <th style="text-align: center;">Tasks/Siku</th>
+                    <th style="text-align: center;">TZS/Task</th>
+                    <th style="text-align: center;">Mapato ya Siku</th>
+                    <th style="text-align: center;">Mapato ya Mwezi</th>
+                    <th style="text-align: center;">Bei</th>
+                    <th style="text-align: right;">Faida (NET)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($plans as $plan)
+                @php
+                    $dailyTasks = $plan->daily_task_limit ?? 50;
+                    $dailyEarnings = $dailyTasks * $plan->reward_per_task;
+                    $monthlyEarnings = $dailyEarnings * 30;
+                    $netProfit = $monthlyEarnings * (1 - $plan->withdrawal_fee_percent / 100) - $plan->price;
+                @endphp
+                <tr>
+                    <td style="font-weight: 600;">{{ $plan->display_name }}</td>
+                    <td style="text-align: center;">{{ $plan->daily_task_limit ?? '50+' }}</td>
+                    <td style="text-align: center;">TZS {{ number_format($plan->reward_per_task, 0) }}</td>
+                    <td style="text-align: center;">TZS {{ number_format($dailyEarnings, 0) }}</td>
+                    <td style="text-align: center;">TZS {{ number_format($monthlyEarnings, 0) }}</td>
+                    <td style="text-align: center;">TZS {{ number_format($plan->price, 0) }}</td>
+                    <td style="text-align: right; font-weight: 700; color: var(--success);">TZS {{ number_format($netProfit, 0) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Quick Summary Cards for Mobile -->
+    <div class="show-mobile mt-6" style="display: none;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: var(--space-4);">
+            <i data-lucide="info" style="width: 14px; height: 14px; display: inline;"></i>
+            Scroll horizontally to see all columns
+        </p>
+    </div>
     
     <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-4);">
         * Hesabu hizi zinadhani umekamilisha tasks zote kwa siku 30. Faida halisi inategemea juhudi zako.
