@@ -389,3 +389,15 @@ Route::prefix('webhooks')->group(function () {
         ->name('monetag.postback');
 });
 
+/*
+|--------------------------------------------------------------------------
+| Direct CPX Research Postback Route
+|--------------------------------------------------------------------------
+| This route is at /api/cpx-research for CPX Research dashboard
+| Postback URL: https://skypesa.hosting.hollyn.online/api/cpx-research
+|--------------------------------------------------------------------------
+*/
+
+Route::match(['get', 'post'], '/cpx-research', [\App\Http\Controllers\Api\SurveyController::class, 'postback'])
+    ->name('cpx.postback.direct');
+
