@@ -892,6 +892,207 @@
                 gap: 1rem;
                 text-align: center;
             }
+
+            .hero {
+                padding: 5rem 0 3rem;
+                min-height: auto;
+            }
+
+            .section {
+                padding: 4rem 0;
+            }
+
+            .section-title h2 {
+                font-size: 1.75rem;
+            }
+
+            .btn-lg {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-buttons .btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Small Mobile - iPhone SE, older phones */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero {
+                padding: 4rem 0 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 1.75rem;
+                line-height: 1.2;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+                width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 0.875rem 1.25rem;
+            }
+
+            .btn-lg {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.875rem;
+            }
+
+            .hero-stats {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .stat-item {
+                min-width: 80px;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            .hero-phone {
+                max-width: 260px;
+                margin-top: 2rem;
+            }
+
+            .phone-screen {
+                padding: 1.25rem;
+                min-height: 380px;
+            }
+
+            .phone-balance-value {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .section-title {
+                margin-bottom: 2.5rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.5rem;
+            }
+
+            .section-title p {
+                font-size: 0.9rem;
+            }
+
+            .step-card {
+                padding: 1.5rem;
+            }
+
+            .step-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .step-icon {
+                width: 60px;
+                height: 60px;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .plan-card {
+                padding: 1.5rem;
+            }
+
+            .plan-name {
+                font-size: 1.25rem;
+            }
+
+            .plan-price {
+                font-size: 1.75rem;
+            }
+
+            .cta-content h2 {
+                font-size: 1.75rem;
+            }
+
+            .cta-content p {
+                font-size: 1rem;
+            }
+
+            .footer {
+                padding: 2.5rem 0 1.5rem;
+            }
+
+            .navbar {
+                padding: 0.75rem 0;
+            }
+
+            .logo {
+                font-size: 1.25rem;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+
+            .nav-buttons .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Very Small Screens - Fix any overflow issues */
+        @media (max-width: 360px) {
+            .hero-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .hero-buttons .btn {
+                font-size: 0.8rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .plan-price {
+                font-size: 1.5rem;
+            }
+
+            .logo {
+                font-size: 1.1rem;
+            }
+
+            .nav-buttons .btn {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
