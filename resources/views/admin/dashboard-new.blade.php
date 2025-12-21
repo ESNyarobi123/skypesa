@@ -423,6 +423,103 @@
         </div>
     </div>
 </div>
+
+<!-- Profit Analytics Section -->
+<div class="chart-card" style="margin-top: 1.5rem; background: linear-gradient(145deg, rgba(16, 185, 129, 0.05) 0%, #151515 100%); border-color: rgba(16, 185, 129, 0.2);">
+    <div class="chart-header">
+        <div>
+            <div class="chart-title" style="color: var(--success);">
+                <i data-lucide="trending-up" style="width: 20px; height: 20px; display: inline;"></i>
+                Profit Analytics
+            </div>
+            <div class="chart-subtitle">Platform revenue and profit breakdown</div>
+        </div>
+        <a href="{{ route('admin.settings.index') }}" class="btn btn-sm btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
+            <i data-lucide="settings" style="width: 14px; height: 14px;"></i>
+            Configure
+        </a>
+    </div>
+    
+    <!-- Quick Profit Stats -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="text-align: center; padding: 1.25rem; background: var(--gradient-primary); border-radius: 12px;">
+            <div style="font-size: 1.75rem; font-weight: 800; color: white;">TZS {{ number_format($profitData['today_profit'] ?? 0, 0) }}</div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.8); text-transform: uppercase;">Today's Profit</div>
+        </div>
+        <div style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 12px;">
+            <div style="font-size: 1.75rem; font-weight: 800; color: white;">TZS {{ number_format($profitData['month_profit'] ?? 0, 0) }}</div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.8); text-transform: uppercase;">This Month's Profit</div>
+        </div>
+        <div style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); border-radius: 12px;">
+            <div style="font-size: 1.75rem; font-weight: 800; color: white;">TZS {{ number_format($profitData['total_profit'] ?? 0, 0) }}</div>
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.8); text-transform: uppercase;">Total Profit</div>
+        </div>
+    </div>
+    
+    <!-- Revenue Breakdown -->
+    <h4 style="color: white; font-size: 0.9rem; margin-bottom: 1rem;">
+        <i data-lucide="pie-chart" style="width: 16px; height: 16px; display: inline; color: var(--primary);"></i>
+        Revenue Breakdown
+    </h4>
+    <div style="display: grid; gap: 0.75rem;">
+        <!-- Ad Revenue -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border-left: 3px solid var(--success);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="tv" style="width: 18px; height: 18px; color: var(--success);"></i>
+                <span style="color: white;">Estimated Ad Revenue</span>
+            </div>
+            <span style="font-weight: 700; color: var(--success);">+ TZS {{ number_format($profitData['estimated_ad_revenue'] ?? 0, 0) }}</span>
+        </div>
+        
+        <!-- Subscription Revenue -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 10px; border-left: 3px solid var(--info);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="crown" style="width: 18px; height: 18px; color: var(--info);"></i>
+                <span style="color: white;">Subscription Revenue</span>
+            </div>
+            <span style="font-weight: 700; color: var(--info);">+ TZS {{ number_format($profitData['subscription_revenue'] ?? 0, 0) }}</span>
+        </div>
+        
+        <!-- Withdrawal Fees -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(139, 92, 246, 0.1); border-radius: 10px; border-left: 3px solid #8b5cf6;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="percent" style="width: 18px; height: 18px; color: #8b5cf6;"></i>
+                <span style="color: white;">Withdrawal Fees Collected</span>
+            </div>
+            <span style="font-weight: 700; color: #8b5cf6;">+ TZS {{ number_format($profitData['withdrawal_fees'] ?? 0, 0) }}</span>
+        </div>
+        
+        <!-- User Payouts (expense) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 10px; border-left: 3px solid var(--error);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="users" style="width: 18px; height: 18px; color: var(--error);"></i>
+                <span style="color: white;">User Payouts (Task Rewards)</span>
+            </div>
+            <span style="font-weight: 700; color: var(--error);">- TZS {{ number_format($profitData['user_payouts'] ?? 0, 0) }}</span>
+        </div>
+        
+        <!-- Referral Bonuses (expense) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(245, 158, 11, 0.1); border-radius: 10px; border-left: 3px solid var(--warning);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="gift" style="width: 18px; height: 18px; color: var(--warning);"></i>
+                <span style="color: white;">Referral Bonuses Paid</span>
+            </div>
+            <span style="font-weight: 700; color: var(--warning);">- TZS {{ number_format($profitData['referral_bonuses'] ?? 0, 0) }}</span>
+        </div>
+        
+        <!-- Net Profit -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--gradient-primary); border-radius: 12px; margin-top: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="wallet" style="width: 20px; height: 20px; color: white;"></i>
+                <span style="color: white; font-weight: 700; font-size: 1.1rem;">NET PROFIT</span>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 1.5rem; font-weight: 800; color: white;">TZS {{ number_format($profitData['total_profit'] ?? 0, 0) }}</div>
+                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.8);">{{ $profitData['profit_margin'] ?? 0 }}% margin</div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')

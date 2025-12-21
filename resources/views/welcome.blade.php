@@ -9,8 +9,17 @@
     <meta property="og:title" content="SKYpesa - Pata Pesa Kwa Kutazama Matangazo">
     <meta property="og:description" content="Jiunge na maelfu ya Watanzania wanaopata pesa kila siku kwa kukamilisha kazi rahisi.">
     <meta property="og:type" content="website">
-    <title>SKYpesa -  Kutazama Matangazo | Tanzania</title>
+    <title>SKYpesa - Kutazama Matangazo | Tanzania</title>
     
+    <!-- PWA Support -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SKYpesa">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1367,6 +1376,87 @@
             el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(el);
         });
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/pwa-sw.js', { scope: '/' })
+                .then((registration) => {
+                    console.log('[PWA] Service Worker registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('[PWA] SW registration failed:', error);
+                });
+        }
+    </script>
+    
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; padding: 1rem 1.5rem; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; z-index: 9999; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex-shrink: 0; width: 48px; height: 48px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="download" style="color: white; width: 24px; height: 24px;"></i>
+            </div>
+            <div style="flex: 1; min-width: 150px;">
+                <div style="font-weight: 700; font-size: 1rem; color: white;">Install SKYpesa App</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">Pakua app kwenye simu yako!</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button id="pwa-install-action" onclick="installPWA()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;">Install</button>
+                <button onclick="dismissPWA()" style="padding: 0.75rem; background: rgba(255,255,255,0.1); color: #94a3b8; border: none; border-radius: 50px; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // PWA Installation for landing page
+        let deferredPrompt = null;
+        const banner = document.getElementById('pwa-install-banner');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show banner after delay
+            setTimeout(() => {
+                if (!localStorage.getItem('pwa-dismissed')) {
+                    banner.style.display = 'block';
+                    lucide.createIcons();
+                }
+            }, 5000);
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        banner.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+        
+        function dismissPWA() {
+            banner.style.display = 'none';
+            localStorage.setItem('pwa-dismissed', Date.now());
+        }
+        
+        // Check if iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (isIOS && !isStandalone && !localStorage.getItem('pwa-dismissed')) {
+            setTimeout(() => {
+                banner.style.display = 'block';
+                document.getElementById('pwa-install-action').textContent = 'View Instructions';
+                document.getElementById('pwa-install-action').onclick = function() {
+                    alert('Ili kupakua SKYpesa:\n\n1. Bonyeza Share icon hapo chini\n2. Tafuta "Add to Home Screen"\n3. Bonyeza "Add"');
+                };
+                lucide.createIcons();
+            }, 5000);
+        }
     </script>
 </body>
 </html>

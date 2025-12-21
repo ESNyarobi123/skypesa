@@ -114,6 +114,75 @@ class AdminDashboardController extends Controller
             : 0;
         $referralBonusesPaid = Transaction::where('category', 'referral_bonus')->sum('amount');
         
+        // === PROFIT ANALYTICS ===
+        // Get profit settings
+        $adRevenuePerView = \App\Models\Setting::get('ad_revenue_per_view', 8);
+        $platformProfitPercent = \App\Models\Setting::get('platform_profit_percent', 60);
+        
+        // Calculate estimated ad revenue (task completions × ad revenue per view)
+        $totalTaskCompletions = TaskCompletion::where('status', 'completed')->count();
+        $estimatedAdRevenue = $totalTaskCompletions * $adRevenuePerView;
+        
+        // Calculate user payouts (total earnings paid to users)
+        $totalUserPayouts = $totalEarnings;
+        
+        // Calculate platform gross profit from ads
+        $platformAdProfit = $estimatedAdRevenue - $totalUserPayouts;
+        
+        // Subscription revenue
+        $subscriptionRevenue = UserSubscription::whereNotNull('amount_paid')->sum('amount_paid');
+        
+        // Withdrawal fees collected
+        $withdrawalFeesCollected = Withdrawal::whereIn('status', ['approved', 'paid'])->sum('fee');
+        
+        // Total platform profit
+        $totalPlatformProfit = $platformAdProfit + $subscriptionRevenue + $withdrawalFeesCollected - $referralBonusesPaid;
+        
+        // Today's profit
+        $todayCompletions = TaskCompletion::where('status', 'completed')
+            ->whereDate('created_at', today())
+            ->count();
+        $todayAdRevenue = $todayCompletions * $adRevenuePerView;
+        $todayUserPayouts = $earningsToday;
+        $todayWithdrawalFees = Withdrawal::whereIn('status', ['approved', 'paid'])
+            ->whereDate('updated_at', today())
+            ->sum('fee');
+        $todaySubscriptionRevenue = UserSubscription::whereDate('created_at', today())
+            ->whereNotNull('amount_paid')
+            ->sum('amount_paid');
+        $todayProfit = ($todayAdRevenue - $todayUserPayouts) + $todayWithdrawalFees + $todaySubscriptionRevenue;
+        
+        // This month's profit
+        $monthCompletions = TaskCompletion::where('status', 'completed')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+        $monthAdRevenue = $monthCompletions * $adRevenuePerView;
+        $monthWithdrawalFees = Withdrawal::whereIn('status', ['approved', 'paid'])
+            ->whereMonth('updated_at', now()->month)
+            ->whereYear('updated_at', now()->year)
+            ->sum('fee');
+        $monthSubscriptionRevenue = UserSubscription::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->whereNotNull('amount_paid')
+            ->sum('amount_paid');
+        $monthProfit = ($monthAdRevenue - $earningsThisMonth) + $monthWithdrawalFees + $monthSubscriptionRevenue;
+        
+        // Profit data for charts
+        $profitData = [
+            'estimated_ad_revenue' => $estimatedAdRevenue,
+            'user_payouts' => $totalUserPayouts,
+            'subscription_revenue' => $subscriptionRevenue,
+            'withdrawal_fees' => $withdrawalFeesCollected,
+            'referral_bonuses' => $referralBonusesPaid,
+            'total_profit' => $totalPlatformProfit,
+            'today_profit' => $todayProfit,
+            'month_profit' => $monthProfit,
+            'profit_margin' => $estimatedAdRevenue > 0 
+                ? round(($totalPlatformProfit / $estimatedAdRevenue) * 100, 1) 
+                : 0,
+        ];
+        
         return view('admin.dashboard-new', compact(
             'totalUsers', 'activeUsers', 'newUsersToday', 'newUsersThisMonth',
             'totalTasks', 'activeTasks', 'completionsToday', 'completionsThisMonth',
@@ -122,7 +191,8 @@ class AdminDashboardController extends Controller
             'recentUsers', 'recentWithdrawals', 'recentCompletions',
             'chartLabels', 'chartEarnings', 'chartCompletions',
             'subscriptionDistribution',
-            'referredUsersCount', 'activeReferrersCount', 'referralConversionRate', 'referralBonusesPaid'
+            'referredUsersCount', 'activeReferrersCount', 'referralConversionRate', 'referralBonusesPaid',
+            'profitData'
         ));
     }
     

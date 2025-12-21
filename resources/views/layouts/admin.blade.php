@@ -1051,7 +1051,7 @@
                     <div class="menu-section-title">System</div>
                     <ul class="sidebar-nav">
                         <li class="sidebar-nav-item">
-                            <a href="{{ route('admin.settings') }}" class="sidebar-nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+                            <a href="{{ route('admin.settings.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                                 <i data-lucide="settings" class="nav-icon"></i>
                                 Settings
                             </a>

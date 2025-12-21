@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#111111">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="SKYpesa - Pata pesa kwa kufanya kazi rahisi kwenye simu yako. Fanya tasks, jibu surveys, na uweze kuchangia pesa halisi!">
     <title>@yield('title', 'Dashboard') - SKYpesa</title>
+    
+    {{-- PWA Meta Tags --}}
+    @include('components.pwa-meta')
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -334,5 +335,97 @@
     
     {{-- Monetag Integration --}}
     @include('partials.monetag')
+    
+    {{-- PWA Install Prompt --}}
+    @include('components.pwa-install')
+    
+    {{-- PWA Service Worker Registration --}}
+    <script>
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/pwa-sw.js', { scope: '/' })
+                    .then((registration) => {
+                        console.log('[PWA] Service Worker registered successfully:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('[PWA] New service worker installing...');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('[PWA] Service Worker registration failed:', error);
+                    });
+            });
+            
+            // Listen for update notifications
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
+            });
+        }
+        
+        // Show update notification
+        function showUpdateNotification() {
+            const updateBanner = document.createElement('div');
+            updateBanner.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 1rem;
+                    left: 1rem;
+                    right: 1rem;
+                    padding: 1rem;
+                    background: linear-gradient(135deg, #1a1a22, #111116);
+                    border: 1px solid rgba(240, 180, 41, 0.3);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 1rem;
+                    z-index: 10001;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                ">
+                    <div>
+                        <div style="font-weight: 600; color: #fff; margin-bottom: 0.25rem;">Update Available!</div>
+                        <div style="font-size: 0.8rem; color: #b0b0b8;">Toleo jipya linapatikana. Bonyeza refresh.</div>
+                    </div>
+                    <button onclick="window.location.reload()" style="
+                        padding: 0.75rem 1.5rem;
+                        background: linear-gradient(135deg, #f0b429, #d4a025);
+                        color: #000;
+                        border: none;
+                        border-radius: 50px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">Refresh</button>
+                </div>
+            `;
+            document.body.appendChild(updateBanner);
+        }
+        
+        // Request notification permission
+        async function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                const permission = await Notification.requestPermission();
+                console.log('[PWA] Notification permission:', permission);
+            }
+        }
+        
+        // Request on user interaction
+        document.addEventListener('click', () => {
+            requestNotificationPermission();
+        }, { once: true });
+    </script>
 </body>
 </html>

@@ -65,7 +65,8 @@
         <div style="margin-top: var(--space-6); padding: var(--space-4); background: var(--gradient-glow); border-radius: var(--radius-lg); border: 1px solid rgba(16, 185, 129, 0.2);">
             <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Makadirio ya Mapato (Mwezi)</div>
             @php
-                $dailyTasks = $plan->daily_task_limit ?? 50;
+                // VIP (unlimited) shows 200+ tasks for realistic earnings estimate
+                $dailyTasks = $plan->daily_task_limit ?? 200;
                 $dailyEarnings = $dailyTasks * $plan->reward_per_task;
                 $monthlyEarnings = $dailyEarnings * 30;
             @endphp

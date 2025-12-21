@@ -64,4 +64,135 @@ class AdminWithdrawalController extends Controller
         
         return back()->with('success', 'Ombi limewekwa kama limelipwa!');
     }
+
+    /**
+     * Bulk approve multiple withdrawals
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'withdrawal_ids' => 'required|array|min:1',
+            'withdrawal_ids.*' => 'exists:withdrawals,id',
+        ]);
+
+        $approved = 0;
+        $skipped = 0;
+
+        foreach ($request->withdrawal_ids as $id) {
+            $withdrawal = Withdrawal::find($id);
+            
+            if ($withdrawal && $withdrawal->isPending()) {
+                $withdrawal->approve(auth()->user(), 'Bulk approved by admin');
+                $approved++;
+            } else {
+                $skipped++;
+            }
+        }
+
+        $message = "Approved: {$approved}";
+        if ($skipped > 0) {
+            $message .= ", Skipped: {$skipped} (not pending)";
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Bulk reject multiple withdrawals
+     */
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'withdrawal_ids' => 'required|array|min:1',
+            'withdrawal_ids.*' => 'exists:withdrawals,id',
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $rejected = 0;
+        $skipped = 0;
+
+        foreach ($request->withdrawal_ids as $id) {
+            $withdrawal = Withdrawal::find($id);
+            
+            if ($withdrawal && ($withdrawal->isPending() || $withdrawal->isProcessing())) {
+                $withdrawal->reject($request->reason, auth()->user());
+                $rejected++;
+            } else {
+                $skipped++;
+            }
+        }
+
+        $message = "Rejected: {$rejected}";
+        if ($skipped > 0) {
+            $message .= ", Skipped: {$skipped} (not pending/processing)";
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Export withdrawals to CSV
+     */
+    public function export(Request $request)
+    {
+        $query = Withdrawal::with('user');
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+        
+        $withdrawals = $query->latest()->get();
+        
+        $filename = 'withdrawals_' . now()->format('Y-m-d_His') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+        
+        $callback = function() use ($withdrawals) {
+            $file = fopen('php://output', 'w');
+            
+            // Header row
+            fputcsv($file, [
+                'ID',
+                'User',
+                'Phone',
+                'Amount',
+                'Fee',
+                'Net Amount',
+                'Status',
+                'Payment Number',
+                'Created At',
+                'Processed At',
+            ]);
+            
+            foreach ($withdrawals as $withdrawal) {
+                fputcsv($file, [
+                    $withdrawal->id,
+                    $withdrawal->user->name ?? 'N/A',
+                    $withdrawal->user->phone ?? 'N/A',
+                    $withdrawal->amount,
+                    $withdrawal->fee,
+                    $withdrawal->net_amount,
+                    $withdrawal->status,
+                    $withdrawal->payment_number,
+                    $withdrawal->created_at->format('Y-m-d H:i:s'),
+                    $withdrawal->processed_at ? $withdrawal->processed_at->format('Y-m-d H:i:s') : '',
+                ]);
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
 }

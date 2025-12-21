@@ -111,7 +111,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/live-stats', [AdminDashboardController::class, 'liveStats'])->name('live-stats');
         Route::get('/referrals', [AdminDashboardController::class, 'referrals'])->name('referrals');
         Route::get('/transactions', [AdminDashboardController::class, 'transactions'])->name('transactions');
-        Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('settings');
         
         // Users Management (Full CRUD)
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
@@ -153,9 +152,18 @@ Route::middleware(['auth'])->group(function () {
         
         // Withdrawals
         Route::get('/withdrawals', [AdminWithdrawalController::class, 'index'])->name('withdrawals.index');
+        Route::get('/withdrawals/export', [AdminWithdrawalController::class, 'export'])->name('withdrawals.export');
         Route::patch('/withdrawals/{withdrawal}/approve', [AdminWithdrawalController::class, 'approve'])->name('withdrawals.approve');
         Route::patch('/withdrawals/{withdrawal}/reject', [AdminWithdrawalController::class, 'reject'])->name('withdrawals.reject');
         Route::patch('/withdrawals/{withdrawal}/mark-paid', [AdminWithdrawalController::class, 'markPaid'])->name('withdrawals.mark-paid');
+        Route::post('/withdrawals/bulk-approve', [AdminWithdrawalController::class, 'bulkApprove'])->name('withdrawals.bulk-approve');
+        Route::post('/withdrawals/bulk-reject', [AdminWithdrawalController::class, 'bulkReject'])->name('withdrawals.bulk-reject');
+        
+        // Settings Management
+        Route::get('/settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/clear-cache', [App\Http\Controllers\Admin\AdminSettingsController::class, 'clearCache'])->name('settings.clear-cache');
+        Route::post('/settings/reset-demo', [App\Http\Controllers\Admin\AdminSettingsController::class, 'resetDemoData'])->name('settings.reset-demo');
         
         // Adsterra Integration
         Route::get('/adsterra', [AdminAdsterraController::class, 'index'])->name('adsterra.index');

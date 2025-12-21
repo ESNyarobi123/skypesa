@@ -283,19 +283,20 @@
             <tbody>
                 @foreach($plans as $plan)
                 @php
-                    $dailyTasks = $plan->daily_task_limit ?? 50;
+                    // VIP (unlimited) shows 200+ tasks to demonstrate high earning potential
+                    $dailyTasks = $plan->daily_task_limit ?? 200;
                     $dailyEarnings = $dailyTasks * $plan->reward_per_task;
                     $monthlyEarnings = $dailyEarnings * 30;
                     $netProfit = $monthlyEarnings * (1 - $plan->withdrawal_fee_percent / 100) - $plan->price;
                 @endphp
                 <tr>
                     <td style="font-weight: 600;">{{ $plan->display_name }}</td>
-                    <td style="text-align: center;">{{ $plan->daily_task_limit ?? '50+' }}</td>
+                    <td style="text-align: center;">{{ $plan->daily_task_limit ?? '200+' }}</td>
                     <td style="text-align: center;">TZS {{ number_format($plan->reward_per_task, 0) }}</td>
                     <td style="text-align: center;">TZS {{ number_format($dailyEarnings, 0) }}</td>
                     <td style="text-align: center;">TZS {{ number_format($monthlyEarnings, 0) }}</td>
                     <td style="text-align: center;">TZS {{ number_format($plan->price, 0) }}</td>
-                    <td style="text-align: right; font-weight: 700; color: var(--success);">TZS {{ number_format($netProfit, 0) }}</td>
+                    <td style="text-align: right; font-weight: 700; color: {{ $netProfit >= 0 ? 'var(--success)' : 'var(--error)' }};">TZS {{ number_format($netProfit, 0) }}</td>
                 </tr>
                 @endforeach
             </tbody>

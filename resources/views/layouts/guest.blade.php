@@ -7,6 +7,9 @@
     <title>@yield('title', 'SKYpesa - Pata Pesa Kwa Kutazama na Kukamilisha Task')</title>
     <meta name="description" content="@yield('description', 'SKYpesa ni jukwaa la kujipatia pesa mtandaoni kwa kukamilisha kazi rahisi. Tazama matangazo, shiriki links, na upate malipo halali.')">
     
+    {{-- PWA Meta Tags --}}
+    @include('components.pwa-meta')
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,5 +52,23 @@
     
     {{-- Monetag Integration --}}
     @include('partials.monetag')
+    
+    {{-- PWA Install Prompt --}}
+    @include('components.pwa-install')
+    
+    {{-- PWA Service Worker Registration --}}
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/pwa-sw.js', { scope: '/' })
+                    .then((registration) => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('[PWA] SW registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
