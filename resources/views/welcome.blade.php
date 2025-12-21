@@ -18,8 +18,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SKYpesa">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
+    <!-- Favicon - Multiple sizes for all browsers -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96x96.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
 
     <!-- Fonts -->
@@ -51,6 +56,11 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
         body {
@@ -196,6 +206,26 @@
             border: none;
             color: var(--text-primary);
             cursor: pointer;
+        }
+
+        /* PWA Install Button - Hero */
+        .pwa-install-hero-btn {
+            display: inline-flex !important;
+            background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+            border: 1px solid rgba(99, 102, 241, 0.5) !important;
+            color: white !important;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .pwa-install-hero-btn:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 4px 25px rgba(99, 102, 241, 0.6); }
         }
 
         /* Hero Section */
@@ -922,6 +952,11 @@
                             <i data-lucide="play-circle" style="width: 20px; height: 20px;"></i>
                             Jinsi Inavyofanya Kazi
                         </a>
+                        <!-- PWA Install Button - Visible for all browsers -->
+                        <button id="pwa-hero-install" class="btn btn-secondary btn-lg pwa-install-hero-btn" onclick="handlePWAInstall()">
+                            <i data-lucide="download" style="width: 20px; height: 20px;"></i>
+                            Pakua App
+                        </button>
                     </div>
 
                     <div class="hero-stats">
@@ -1411,54 +1446,252 @@
     </div>
     
     <script>
-        // PWA Installation for landing page
+        // PWA Installation for landing page - Enhanced Version
         let deferredPrompt = null;
         const banner = document.getElementById('pwa-install-banner');
+        const heroInstallBtn = document.getElementById('pwa-hero-install');
         
+        // Check if already installed
+        function isInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+        }
+        
+        // Check if iOS
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+        
+        // Show hero install button
+        function showHeroInstallBtn() {
+            if (heroInstallBtn && !isInstalled()) {
+                heroInstallBtn.style.display = 'inline-flex';
+                lucide.createIcons();
+            }
+        }
+        
+        // Show install banner
+        function showInstallBanner() {
+            if (banner && !isInstalled() && !localStorage.getItem('pwa-dismissed')) {
+                banner.style.display = 'block';
+                lucide.createIcons();
+            }
+        }
+        
+        // Listen for install prompt event
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Show banner after delay
-            setTimeout(() => {
-                if (!localStorage.getItem('pwa-dismissed')) {
-                    banner.style.display = 'block';
-                    lucide.createIcons();
+            // Show hero button immediately
+            showHeroInstallBtn();
+            
+            // Show banner after delay only if not dismissed
+            const dismissedTime = localStorage.getItem('pwa-dismissed');
+            if (dismissedTime) {
+                const daysSinceDismissed = (Date.now() - parseInt(dismissedTime)) / (1000 * 60 * 60 * 24);
+                if (daysSinceDismissed > 7) {
+                    localStorage.removeItem('pwa-dismissed');
                 }
-            }, 5000);
+            }
+            
+            if (!localStorage.getItem('pwa-dismissed')) {
+                setTimeout(showInstallBanner, 3000);
+            }
         });
         
+        // Handle hero button click
+        if (heroInstallBtn) {
+            heroInstallBtn.addEventListener('click', async () => {
+                if (isIOS()) {
+                    showIOSInstructions();
+                    return;
+                }
+                
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        heroInstallBtn.style.display = 'none';
+                        if (banner) banner.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                }
+            });
+        }
+        
+        // Install PWA function for banner button
         function installPWA() {
+            if (isIOS()) {
+                showIOSInstructions();
+                return;
+            }
+            
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         banner.style.display = 'none';
+                        if (heroInstallBtn) heroInstallBtn.style.display = 'none';
                     }
                     deferredPrompt = null;
                 });
             }
         }
         
+        // Dismiss PWA banner
         function dismissPWA() {
             banner.style.display = 'none';
-            localStorage.setItem('pwa-dismissed', Date.now());
+            localStorage.setItem('pwa-dismissed', Date.now().toString());
         }
         
-        // Check if iOS
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-        
-        if (isIOS && !isStandalone && !localStorage.getItem('pwa-dismissed')) {
-            setTimeout(() => {
-                banner.style.display = 'block';
-                document.getElementById('pwa-install-action').textContent = 'View Instructions';
-                document.getElementById('pwa-install-action').onclick = function() {
-                    alert('Ili kupakua SKYpesa:\n\n1. Bonyeza Share icon hapo chini\n2. Tafuta "Add to Home Screen"\n3. Bonyeza "Add"');
-                };
-                lucide.createIcons();
-            }, 5000);
+        // Show iOS instructions
+        function showIOSInstructions() {
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; inset: 0; z-index: 10000;">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);" onclick="this.parentElement.parentElement.remove()"></div>
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 2rem; animation: slideUp 0.4s ease;">
+                        <style>@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }</style>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0;">Install SKYpesa</h3>
+                            <button onclick="this.closest('[style*=fixed]').remove()" style="width: 36px; height: 36px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                            </button>
+                        </div>
+                        <p style="color: #94a3b8; margin: 0 0 1.5rem; font-size: 0.9rem;">Ili kupakua SKYpesa kwenye iPhone yako:</p>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 0.75rem;">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; font-size: 0.875rem;">1</div>
+                            <span style="color: white;">Bonyeza <strong style="color: #10b981;">Share</strong> icon hapo chini</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 0.75rem;">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; font-size: 0.875rem;">2</div>
+                            <span style="color: white;">Tafuta <strong style="color: #10b981;">"Add to Home Screen"</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 1.5rem;">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; font-size: 0.875rem;">3</div>
+                            <span style="color: white;">Bonyeza <strong style="color: #10b981;">"Add"</strong> juu kulia</span>
+                        </div>
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer;">Nimeelewa!</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            lucide.createIcons();
         }
+        
+        // Main PWA Install handler for hero button - works on ALL browsers
+        function handlePWAInstall() {
+            // Check if Chrome/Edge with beforeinstallprompt
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        if (heroInstallBtn) heroInstallBtn.style.display = 'none';
+                        if (banner) banner.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+                return;
+            }
+            
+            // Show browser-specific instructions
+            showBrowserInstallInstructions();
+        }
+        
+        // Show install instructions based on browser
+        function showBrowserInstallInstructions() {
+            const isFirefox = navigator.userAgent.indexOf('Firefox') > -1;
+            const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|Edg/.test(navigator.userAgent);
+            const isEdge = /Edge|Edg/.test(navigator.userAgent);
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            
+            let browserName = 'Browser';
+            let instructions = [];
+            
+            if (isIOS()) {
+                showIOSInstructions();
+                return;
+            }
+            
+            if (isFirefox) {
+                browserName = 'Firefox';
+                instructions = [
+                    'Bonyeza menu (☰) juu kulia',
+                    'Chagua "Install this site as an app" au "Add to Home screen"',
+                    'Bonyeza "Install" kukamilisha'
+                ];
+            } else if (isChrome) {
+                browserName = 'Chrome';
+                instructions = [
+                    'Bonyeza menu (⋮) juu kulia',
+                    'Tafuta "Install SKYpesa..." au "Add to Home screen"',
+                    'Bonyeza "Install" kukamilisha'
+                ];
+            } else if (isEdge) {
+                browserName = 'Edge';
+                instructions = [
+                    'Bonyeza menu (···) juu kulia',
+                    'Chagua "Apps" → "Install this site as an app"',
+                    'Bonyeza "Install" kukamilisha'
+                ];
+            } else if (isSafari) {
+                browserName = 'Safari';
+                instructions = [
+                    'Bonyeza Share icon hapo chini',
+                    'Tafuta "Add to Home Screen"',
+                    'Bonyeza "Add" kukamilisha'
+                ];
+            } else {
+                instructions = [
+                    'Bonyeza menu ya browser yako',
+                    'Tafuta "Install" au "Add to Home screen"',
+                    'Fuata maelekezo kukamilisha'
+                ];
+            }
+            
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; inset: 0; z-index: 10000;">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);" onclick="this.parentElement.parentElement.remove()"></div>
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 2rem; animation: slideUp 0.4s ease;">
+                        <style>@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }</style>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0;">Pakua SKYpesa (${browserName})</h3>
+                            <button onclick="this.closest('[style*=fixed]').remove()" style="width: 36px; height: 36px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                            </button>
+                        </div>
+                        <p style="color: #94a3b8; margin: 0 0 1.5rem; font-size: 0.9rem;">Ili kupakua SKYpesa kwenye kifaa chako:</p>
+                        ${instructions.map((step, i) => `
+                            <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 0.75rem;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; font-size: 0.875rem;">${i + 1}</div>
+                                <span style="color: white;">${step}</span>
+                            </div>
+                        `).join('')}
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 50px; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 0.75rem;">Nimeelewa!</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            lucide.createIcons();
+        }
+        
+        
+        // Hide install button if already installed as PWA (but not on localhost for testing)
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (isInstalled() && heroInstallBtn && !isLocalhost) {
+            heroInstallBtn.style.display = 'none';
+        }
+        
+        // Track installation
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            if (heroInstallBtn) heroInstallBtn.style.display = 'none';
+            if (banner) banner.style.display = 'none';
+            deferredPrompt = null;
+        });
     </script>
 </body>
 </html>

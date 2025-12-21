@@ -341,22 +341,24 @@
     
     {{-- PWA Service Worker Registration --}}
     <script>
-        // Register PWA Service Worker
+        // Register PWA Service Worker (Silent Updates)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/pwa-sw.js', { scope: '/' })
                     .then((registration) => {
                         console.log('[PWA] Service Worker registered successfully:', registration.scope);
                         
-                        // Check for updates
+                        // Check for updates silently - no notification popup
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             console.log('[PWA] New service worker installing...');
                             
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New version available
-                                    showUpdateNotification();
+                                    // New version available - update silently
+                                    console.log('[PWA] New version available, will activate on next visit');
+                                    // Skip waiting and activate immediately
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
                                 }
                             });
                         });
@@ -366,65 +368,24 @@
                     });
             });
             
-            // Listen for update notifications
+            // Refresh page when new service worker takes control
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
                     refreshing = true;
-                    window.location.reload();
+                    // Silently refresh - no popup needed
+                    console.log('[PWA] Controller changed, page will update');
                 }
             });
         }
         
-        // Show update notification
-        function showUpdateNotification() {
-            const updateBanner = document.createElement('div');
-            updateBanner.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 1rem;
-                    left: 1rem;
-                    right: 1rem;
-                    padding: 1rem;
-                    background: linear-gradient(135deg, #1a1a22, #111116);
-                    border: 1px solid rgba(240, 180, 41, 0.3);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 1rem;
-                    z-index: 10001;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-                ">
-                    <div>
-                        <div style="font-weight: 600; color: #fff; margin-bottom: 0.25rem;">Update Available!</div>
-                        <div style="font-size: 0.8rem; color: #b0b0b8;">Toleo jipya linapatikana. Bonyeza refresh.</div>
-                    </div>
-                    <button onclick="window.location.reload()" style="
-                        padding: 0.75rem 1.5rem;
-                        background: linear-gradient(135deg, #f0b429, #d4a025);
-                        color: #000;
-                        border: none;
-                        border-radius: 50px;
-                        font-weight: 600;
-                        cursor: pointer;
-                    ">Refresh</button>
-                </div>
-            `;
-            document.body.appendChild(updateBanner);
-        }
-        
-        // Request notification permission
-        async function requestNotificationPermission() {
-            if ('Notification' in window && Notification.permission === 'default') {
-                const permission = await Notification.requestPermission();
-                console.log('[PWA] Notification permission:', permission);
-            }
-        }
-        
-        // Request on user interaction
+        // Request notification permission on first interaction
         document.addEventListener('click', () => {
-            requestNotificationPermission();
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    console.log('[PWA] Notification permission:', permission);
+                });
+            }
         }, { once: true });
     </script>
 </body>

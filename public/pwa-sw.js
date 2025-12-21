@@ -3,14 +3,20 @@
  * Handles caching, offline support, and background sync
  */
 
-const CACHE_NAME = 'skypesa-v1.0.0';
+const CACHE_NAME = 'skypesa-v2.0.0';
 const OFFLINE_URL = '/offline.html';
+
+// Disable update prompts for minor cache updates
+const SKIP_UPDATE_NOTIFICATION = true;
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
     '/',
     '/offline.html',
     '/manifest.json',
+    '/favicon.ico',
+    '/icons/icon-16x16.png',
+    '/icons/icon-32x32.png',
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',

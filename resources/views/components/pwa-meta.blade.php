@@ -32,8 +32,9 @@
 {{-- Standard Icons & Favicon --}}
 <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/icon-32x32.png') }}">
 <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('icons/icon-16x16.png') }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/icon-32x32.png') }}">
+<link rel="icon" type="image/png" sizes="96x96" href="{{ asset('icons/icon-96x96.png') }}">
 <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}">
 
 {{-- Microsoft Tile --}}
