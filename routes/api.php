@@ -319,11 +319,21 @@ Route::prefix('webhooks')->group(function () {
     Route::post('/zenopay', [\App\Http\Controllers\Api\SubscriptionController::class, 'zenoPayCallback'])
         ->name('zenopay.callback');
     
-    // Adsterra Postback
-    Route::match(['get', 'post'], '/adsterra', [\App\Http\Controllers\Api\TaskController::class, 'adsterraPostback'])
+    // Adsterra Postback (new handler with verification)
+    Route::match(['get', 'post'], '/adsterra', [\App\Http\Controllers\Api\PostbackController::class, 'adsterra'])
         ->name('adsterra.postback');
     
-    // Monetag Postback
-    Route::match(['get', 'post'], '/monetag', [\App\Http\Controllers\Api\TaskController::class, 'monetagPostback'])
+    // Monetag Postback (new handler with verification)
+    Route::match(['get', 'post'], '/monetag', [\App\Http\Controllers\Api\PostbackController::class, 'monetag'])
         ->name('monetag.postback');
+    
+    // Generic provider postback handler
+    Route::match(['get', 'post'], '/{provider}', [\App\Http\Controllers\Api\PostbackController::class, 'handle'])
+        ->where('provider', '[a-z]+')
+        ->name('provider.postback');
+    
+    // Test endpoint for debugging postbacks
+    Route::match(['get', 'post'], '/test', [\App\Http\Controllers\Api\PostbackController::class, 'test'])
+        ->name('postback.test');
 });
+

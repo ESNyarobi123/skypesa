@@ -25,6 +25,11 @@ class User extends Authenticatable
         'device_fingerprint',
         'last_login_at',
         'last_login_ip',
+        // Fraud tracking fields
+        'fraud_score',
+        'flagged_tasks',
+        'is_suspicious',
+        'last_fraud_check',
     ];
 
     protected $hidden = [
@@ -39,7 +44,9 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_verified' => 'boolean',
+            'is_suspicious' => 'boolean',
             'last_login_at' => 'datetime',
+            'last_fraud_check' => 'datetime',
         ];
     }
 

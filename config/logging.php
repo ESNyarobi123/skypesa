@@ -127,6 +127,28 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // SKYpesa custom channels
+        'postbacks' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/postbacks.log'),
+            'level' => 'debug',
+            'days' => 30, // Keep postback logs for 30 days
+        ],
+
+        'fraud' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/fraud.log'),
+            'level' => 'debug',
+            'days' => 90, // Keep fraud logs for 90 days
+        ],
+
+        'withdrawals' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/withdrawals.log'),
+            'level' => 'debug',
+            'days' => 90,
+        ],
+
     ],
 
 ];

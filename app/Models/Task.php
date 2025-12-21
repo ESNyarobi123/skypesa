@@ -9,15 +9,26 @@ class Task extends Model
 {
     use HasFactory;
 
+    /**
+     * Task categories
+     */
+    public const CATEGORY_TRAFFIC = 'traffic_task';
+    public const CATEGORY_CONVERSION = 'conversion_task';
+
     protected $fillable = [
         'title',
         'description',
         'type',
+        'category',
+        'require_postback',
         'url',
         'provider',
         'duration_seconds',
+        'cooldown_seconds',
         'reward_override',
+        'min_payout',
         'daily_limit',
+        'ip_daily_limit',
         'total_limit',
         'completions_count',
         'thumbnail',
@@ -32,11 +43,19 @@ class Task extends Model
 
     protected $casts = [
         'reward_override' => 'decimal:2',
+        'min_payout' => 'decimal:4',
         'requirements' => 'array',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'require_postback' => 'boolean',
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'category' => 'traffic_task',
+        'require_postback' => false,
+        'cooldown_seconds' => 60,
     ];
 
     public function completions()
@@ -117,9 +136,120 @@ class Task extends Model
         }
 
         if ($this->daily_limit) {
-            return $this->userCompletionsToday($user) < $this->daily_limit;
+            if ($this->userCompletionsToday($user) >= $this->daily_limit) {
+                return false;
+            }
         }
 
         return true;
+    }
+
+    /**
+     * Check if IP has exceeded daily limit for this task
+     */
+    public function ipCompletionsToday(string $ip): int
+    {
+        return $this->completions()
+            ->where('ip_address', $ip)
+            ->whereDate('created_at', today())
+            ->where('status', 'completed')
+            ->count();
+    }
+
+    /**
+     * Check if IP can complete this task
+     */
+    public function canIPComplete(string $ip): bool
+    {
+        if (!$this->ip_daily_limit) {
+            return true; // No IP limit set
+        }
+
+        return $this->ipCompletionsToday($ip) < $this->ip_daily_limit;
+    }
+
+    /**
+     * Check if user is within cooldown period
+     */
+    public function isUserInCooldown(User $user): bool
+    {
+        $lastCompletion = $this->completions()
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$lastCompletion) {
+            return false;
+        }
+
+        $cooldown = $this->cooldown_seconds ?? 60;
+        $cooldownEnds = $lastCompletion->created_at->addSeconds($cooldown);
+
+        return now()->lt($cooldownEnds);
+    }
+
+    /**
+     * Get remaining cooldown seconds for user
+     */
+    public function getCooldownRemaining(User $user): int
+    {
+        $lastCompletion = $this->completions()
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$lastCompletion) {
+            return 0;
+        }
+
+        $cooldown = $this->cooldown_seconds ?? 60;
+        $cooldownEnds = $lastCompletion->created_at->addSeconds($cooldown);
+
+        return max(0, $cooldownEnds->diffInSeconds(now(), false) * -1);
+    }
+
+    /**
+     * Scope for traffic tasks (smaller rewards, strict limits)
+     */
+    public function scopeTrafficTasks($query)
+    {
+        return $query->where('category', self::CATEGORY_TRAFFIC);
+    }
+
+    /**
+     * Scope for conversion tasks (bigger rewards, postback required)
+     */
+    public function scopeConversionTasks($query)
+    {
+        return $query->where('category', self::CATEGORY_CONVERSION);
+    }
+
+    /**
+     * Check if this is a traffic task
+     */
+    public function isTrafficTask(): bool
+    {
+        return $this->category === self::CATEGORY_TRAFFIC;
+    }
+
+    /**
+     * Check if this is a conversion task
+     */
+    public function isConversionTask(): bool
+    {
+        return $this->category === self::CATEGORY_CONVERSION;
+    }
+
+    /**
+     * Check if payout requires postback confirmation
+     */
+    public function requiresPostback(): bool
+    {
+        // Conversion tasks always require postback
+        if ($this->isConversionTask()) {
+            return true;
+        }
+
+        return $this->require_postback ?? false;
     }
 }

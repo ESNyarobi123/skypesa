@@ -9,6 +9,15 @@ class TaskCompletion extends Model
 {
     use HasFactory;
 
+    /**
+     * Completion status constants
+     */
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_FRAUD = 'fraud';
+
     protected $fillable = [
         'user_id',
         'task_id',
@@ -25,14 +34,27 @@ class TaskCompletion extends Model
         'completed_at',
         'is_locked',
         'lock_token',
+        // New provider tracking fields
+        'provider_ref',
+        'provider_payout',
+        'provider',
+        'from_postback',
+        'postback_received_at',
     ];
 
     protected $casts = [
         'reward_earned' => 'decimal:2',
+        'provider_payout' => 'decimal:4',
         'metadata' => 'array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
+        'postback_received_at' => 'datetime',
         'is_locked' => 'boolean',
+        'from_postback' => 'boolean',
+    ];
+
+    protected $attributes = [
+        'from_postback' => false,
     ];
 
     public function user()
@@ -50,10 +72,33 @@ class TaskCompletion extends Model
         return $this->morphMany(Transaction::class, 'transactionable');
     }
 
+    // ==========================================
+    // Status Scopes
+    // ==========================================
+
     public function scopeCompleted($query)
     {
-        return $query->where('status', 'completed');
+        return $query->where('status', self::STATUS_COMPLETED);
     }
+
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', self::STATUS_IN_PROGRESS);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function scopeFraud($query)
+    {
+        return $query->where('status', self::STATUS_FRAUD);
+    }
+
+    // ==========================================
+    // Time-based Scopes
+    // ==========================================
 
     public function scopeToday($query)
     {
@@ -69,5 +114,83 @@ class TaskCompletion extends Model
     {
         return $query->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year);
+    }
+
+    // ==========================================
+    // Provider Scopes
+    // ==========================================
+
+    public function scopeFromProvider($query, string $provider)
+    {
+        return $query->where('provider', $provider);
+    }
+
+    public function scopeFromPostback($query)
+    {
+        return $query->where('from_postback', true);
+    }
+
+    // ==========================================
+    // Status Helpers
+    // ==========================================
+
+    public function isCompleted(): bool
+    {
+        return $this->status === self::STATUS_COMPLETED;
+    }
+
+    public function isInProgress(): bool
+    {
+        return $this->status === self::STATUS_IN_PROGRESS;
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isFraud(): bool
+    {
+        return $this->status === self::STATUS_FRAUD;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
+    }
+
+    /**
+     * Mark completion as completed via postback
+     */
+    public function markCompletedViaPostback(float $reward, string $providerRef, float $providerPayout = 0): void
+    {
+        $this->update([
+            'status' => self::STATUS_COMPLETED,
+            'completed_at' => now(),
+            'reward_earned' => $reward,
+            'provider_ref' => $providerRef,
+            'provider_payout' => $providerPayout,
+            'from_postback' => true,
+            'postback_received_at' => now(),
+        ]);
+    }
+
+    /**
+     * Mark as fraud
+     */
+    public function markAsFraud(string $reason): void
+    {
+        $this->update([
+            'status' => self::STATUS_FRAUD,
+            'rejection_reason' => $reason,
+        ]);
+    }
+
+    /**
+     * Check if this completion was paid from postback
+     */
+    public function wasPaidFromPostback(): bool
+    {
+        return $this->from_postback && $this->isCompleted() && $this->reward_earned > 0;
     }
 }

@@ -29,6 +29,31 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| Task Redirect Routes (Click Tracking)
+|--------------------------------------------------------------------------
+| These routes handle redirects to ad providers with tracking.
+| Since Monetag Direct Links and Adsterra Smartlink don't have postbacks,
+| we track clicks here and use timer-based completion.
+|
+| Anti-fraud: Logged + limits applied before redirect
+*/
+Route::prefix('go')->name('go.')->middleware('auth')->group(function () {
+    // Monetag Direct Links (by slug: immortal, glad, etc.)
+    Route::get('/monetag/{slug}', [App\Http\Controllers\GoController::class, 'monetag'])
+        ->where('slug', '[a-z_]+')
+        ->name('monetag');
+    
+    // Adsterra Smartlink
+    Route::get('/adsterra/{task?}', [App\Http\Controllers\GoController::class, 'adsterra'])
+        ->name('adsterra');
+    
+    // Generic redirect (for flexibility)
+    Route::get('/{provider}/{slug}', [App\Http\Controllers\GoController::class, 'redirect'])
+        ->name('provider');
+});
+
 // Auth routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
