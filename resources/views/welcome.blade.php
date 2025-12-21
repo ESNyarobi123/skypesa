@@ -829,8 +829,8 @@
             .hero-content p {
                 margin-left: auto;
                 margin-right: auto;
-            }
-
+            }  
+ 
             .hero-buttons {
                 justify-content: center;
             }
@@ -892,8 +892,8 @@
                 gap: 1rem;
                 text-align: center;
             }
-
-            .hero {
+ 
+             .hero {
                 padding: 5rem 0 3rem;
                 min-height: auto;
             }

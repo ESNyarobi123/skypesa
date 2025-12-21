@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="SKYpesa - Pata pesa kwa kufanya kazi rahisi kwenye simu yako. Fanya tasks, jibu surveys, na uweze kuchangia pesa halisi!">
     <title>@yield('title', 'Dashboard') - SKYpesa</title>
-    
+     
     {{-- PWA Meta Tags --}}
     @include('components.pwa-meta')
     

@@ -1511,8 +1511,8 @@ a:hover {
         width: 20px;
         height: 2px;
     }
-}
-
+} 
+ 
 @media (max-width: 360px) {
     .bottom-nav-item {
         padding: 4px 2px;
