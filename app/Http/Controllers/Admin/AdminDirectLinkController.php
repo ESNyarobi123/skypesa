@@ -98,11 +98,15 @@ class AdminDirectLinkController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
             'type' => ['required', 'string', 'max:50'],
             'url' => ['required', 'url', 'max:500'],
-            'provider' => ['nullable', 'string', 'max:100'],
+            'provider' => ['required', 'string', 'max:100'],
             'duration_seconds' => ['required', 'integer', 'min:1', 'max:300'],
             'reward_override' => ['nullable', 'numeric', 'min:0'],
             'daily_limit' => ['nullable', 'integer', 'min:1'],
+            'ip_daily_limit' => ['nullable', 'integer', 'min:1'],
+            'cooldown_seconds' => ['nullable', 'integer', 'min:0'],
             'total_limit' => ['nullable', 'integer', 'min:1'],
+            'category' => ['required', 'in:traffic_task,conversion_task'],
+            'require_postback' => ['boolean'],
             'thumbnail' => ['nullable', 'url', 'max:500'],
             'icon' => ['nullable', 'string', 'max:50'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
@@ -114,8 +118,13 @@ class AdminDirectLinkController extends Controller
         
         $validated['is_active'] = $request->has('is_active');
         $validated['is_featured'] = $request->has('is_featured');
+        $validated['require_postback'] = $request->boolean('require_postback');
         $validated['completions_count'] = 0;
         $validated['sort_order'] = $validated['sort_order'] ?? Task::max('sort_order') + 1;
+        
+        // Default anti-fraud values for Direct Links
+        $validated['ip_daily_limit'] = $validated['ip_daily_limit'] ?? 5;
+        $validated['cooldown_seconds'] = $validated['cooldown_seconds'] ?? 120;
         
         Task::create($validated);
         
@@ -155,11 +164,15 @@ class AdminDirectLinkController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
             'type' => ['required', 'string', 'max:50'],
             'url' => ['required', 'url', 'max:500'],
-            'provider' => ['nullable', 'string', 'max:100'],
+            'provider' => ['required', 'string', 'max:100'],
             'duration_seconds' => ['required', 'integer', 'min:1', 'max:300'],
             'reward_override' => ['nullable', 'numeric', 'min:0'],
             'daily_limit' => ['nullable', 'integer', 'min:1'],
+            'ip_daily_limit' => ['nullable', 'integer', 'min:1'],
+            'cooldown_seconds' => ['nullable', 'integer', 'min:0'],
             'total_limit' => ['nullable', 'integer', 'min:1'],
+            'category' => ['required', 'in:traffic_task,conversion_task'],
+            'require_postback' => ['boolean'],
             'thumbnail' => ['nullable', 'url', 'max:500'],
             'icon' => ['nullable', 'string', 'max:50'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
@@ -171,6 +184,7 @@ class AdminDirectLinkController extends Controller
         
         $validated['is_active'] = $request->has('is_active');
         $validated['is_featured'] = $request->has('is_featured');
+        $validated['require_postback'] = $request->boolean('require_postback');
         
         $directlink->update($validated);
         

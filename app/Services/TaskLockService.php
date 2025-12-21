@@ -55,6 +55,8 @@ class TaskLockService
      */
     public function startTask(User $user, Task $task): array
     {
+        $ip = request()->ip();
+        
         // Check if user already has an active task
         if ($this->hasActiveTask($user)) {
             $activeTask = $this->getActiveTask($user);
@@ -66,7 +68,67 @@ class TaskLockService
                 'remaining_time' => $remaining,
                 'active_task' => $activeTask->task,
                 'lock_token' => $activeTask->lock_token,
+                'error_code' => 'HAS_ACTIVE_TASK',
             ];
+        }
+
+        // Check cooldown (time since last completion)
+        $cooldownSeconds = $task->cooldown_seconds ?? config('directlinks.cooldown_seconds', 120);
+        $lastCompletion = TaskCompletion::where('user_id', $user->id)
+            ->whereIn('status', ['completed', 'in_progress'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+        
+        if ($lastCompletion && $cooldownSeconds > 0) {
+            $cooldownEnds = $lastCompletion->created_at->addSeconds($cooldownSeconds);
+            if (now()->lt($cooldownEnds)) {
+                $remaining = now()->diffInSeconds($cooldownEnds);
+                return [
+                    'success' => false,
+                    'message' => "Subiri sekunde {$remaining} kabla ya kazi nyingine.",
+                    'remaining_time' => $remaining,
+                    'error_code' => 'COOLDOWN_ACTIVE',
+                ];
+            }
+        }
+
+        // Check IP daily limit
+        $ipDailyLimit = $task->ip_daily_limit ?? config('directlinks.ip_daily_limit', 15);
+        if ($ipDailyLimit > 0) {
+            $ipTodayCount = TaskCompletion::where('ip_address', $ip)
+                ->whereDate('created_at', today())
+                ->count();
+            
+            if ($ipTodayCount >= $ipDailyLimit) {
+                Log::warning('IP limit reached', [
+                    'ip' => $ip,
+                    'user_id' => $user->id,
+                    'count' => $ipTodayCount,
+                    'limit' => $ipDailyLimit,
+                ]);
+                
+                return [
+                    'success' => false,
+                    'message' => 'Kikomo cha kazi kimefikiwa kwa IP hii. Jaribu kesho.',
+                    'error_code' => 'IP_LIMIT_REACHED',
+                ];
+            }
+        }
+
+        // Check task-specific IP limit
+        if ($task->ip_daily_limit && $task->ip_daily_limit > 0) {
+            $taskIpCount = TaskCompletion::where('ip_address', $ip)
+                ->where('task_id', $task->id)
+                ->whereDate('created_at', today())
+                ->count();
+            
+            if ($taskIpCount >= $task->ip_daily_limit) {
+                return [
+                    'success' => false,
+                    'message' => 'Umekamilisha kazi hii mara nyingi leo kwa IP hii.',
+                    'error_code' => 'TASK_IP_LIMIT_REACHED',
+                ];
+            }
         }
 
         // Generate unique lock token
@@ -83,8 +145,9 @@ class TaskLockService
             'required_duration' => $task->duration_seconds,
             'reward_earned' => 0,
             'duration_spent' => 0,
-            'ip_address' => request()->ip(),
+            'ip_address' => $ip,
             'user_agent' => request()->userAgent(),
+            'provider' => $task->provider,
         ]);
 
         Log::info('Task started', [
@@ -92,6 +155,7 @@ class TaskLockService
             'task_id' => $task->id,
             'lock_token' => $lockToken,
             'duration' => $task->duration_seconds,
+            'ip' => $ip,
         ]);
 
         return [

@@ -51,8 +51,13 @@
                         @enderror
                     </div>
                     <div class="form-group-modern">
-                        <label class="form-label-modern">Provider/Source</label>
-                        <input type="text" name="provider" class="form-input-modern" value="{{ old('provider', $directlink->provider) }}">
+                        <label class="form-label-modern">Provider/Source *</label>
+                        <select name="provider" class="form-input-modern form-select-modern" required>
+                            <option value="">-- Select Provider --</option>
+                            <option value="monetag" {{ old('provider', $directlink->provider) === 'monetag' ? 'selected' : '' }}>🚀 Monetag (Direct Links)</option>
+                            <option value="adsterra" {{ old('provider', $directlink->provider) === 'adsterra' ? 'selected' : '' }}>🔗 Adsterra (Smartlink)</option>
+                            <option value="manual" {{ old('provider', $directlink->provider) === 'manual' ? 'selected' : '' }}>📝 Manual/Other</option>
+                        </select>
                         @error('provider')
                         <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
                         @enderror
@@ -91,7 +96,28 @@
                     <div class="form-group-modern">
                         <label class="form-label-modern">Daily Limit per User</label>
                         <input type="number" name="daily_limit" class="form-input-modern" value="{{ old('daily_limit', $directlink->daily_limit) }}" min="1" placeholder="Unlimited">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Max times per user per day</p>
                         @error('daily_limit')
+                        <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">IP Daily Limit</label>
+                        <input type="number" name="ip_daily_limit" class="form-input-modern" value="{{ old('ip_daily_limit', $directlink->ip_daily_limit ?? 5) }}" min="1" placeholder="e.g., 5">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Max times per IP per day (anti-fraud)</p>
+                        @error('ip_daily_limit')
+                        <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+                
+                <!-- Advanced Limits -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">Cooldown (Seconds)</label>
+                        <input type="number" name="cooldown_seconds" class="form-input-modern" value="{{ old('cooldown_seconds', $directlink->cooldown_seconds ?? 120) }}" min="0" placeholder="e.g., 120">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Wait time between task starts</p>
+                        @error('cooldown_seconds')
                         <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
                         @enderror
                     </div>
@@ -99,6 +125,32 @@
                         <label class="form-label-modern">Total Completions Limit</label>
                         <input type="number" name="total_limit" class="form-input-modern" value="{{ old('total_limit', $directlink->total_limit) }}" min="1" placeholder="Unlimited">
                         @error('total_limit')
+                        <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+                
+                <!-- Category & Postback -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">Task Category</label>
+                        <select name="category" class="form-input-modern form-select-modern">
+                            <option value="traffic_task" {{ old('category', $directlink->category ?? 'traffic_task') === 'traffic_task' ? 'selected' : '' }}>🚗 Traffic Task (Timer-based)</option>
+                            <option value="conversion_task" {{ old('category', $directlink->category) === 'conversion_task' ? 'selected' : '' }}>💰 Conversion Task (Postback)</option>
+                        </select>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Direct Links = Traffic Task</p>
+                        @error('category')
+                        <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">Postback Required?</label>
+                        <select name="require_postback" class="form-input-modern form-select-modern">
+                            <option value="0" {{ !old('require_postback', $directlink->require_postback ?? false) ? 'selected' : '' }}>❌ No (Timer-based payout)</option>
+                            <option value="1" {{ old('require_postback', $directlink->require_postback ?? false) ? 'selected' : '' }}>✅ Yes (SDK Rewarded only)</option>
+                        </select>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Direct Links have NO postback!</p>
+                        @error('require_postback')
                         <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
                         @enderror
                     </div>
