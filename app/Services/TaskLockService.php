@@ -44,10 +44,26 @@ class TaskLockService
             return 0;
         }
 
-        $elapsed = now()->diffInSeconds($activeTask->started_at);
+        // Use absolute timestamp difference to avoid timezone issues
+        $startedTimestamp = $activeTask->started_at->timestamp;
+        $nowTimestamp = now()->timestamp;
+        $elapsed = abs($nowTimestamp - $startedTimestamp);
+        
+        // Maximum task age is 10 minutes (600 seconds)
+        // If task is older than this, it should be reset
+        $maxTaskAge = config('directlinks.max_task_age', 600);
+        
+        if ($elapsed > $maxTaskAge) {
+            // Task has expired, auto-cancel it
+            $this->cancelTask($user, $activeTask->lock_token);
+            return 0;
+        }
+        
         $remaining = $activeTask->required_duration - $elapsed;
         
-        return max(0, $remaining);
+        // Ensure remaining is within valid range
+        // Can't be negative, and can't be more than required_duration
+        return max(0, min($remaining, $activeTask->required_duration));
     }
 
     /**
@@ -82,7 +98,10 @@ class TaskLockService
         if ($lastCompletion && $cooldownSeconds > 0) {
             $cooldownEnds = $lastCompletion->created_at->addSeconds($cooldownSeconds);
             if (now()->lt($cooldownEnds)) {
-                $remaining = now()->diffInSeconds($cooldownEnds);
+                // Use absolute timestamp difference
+                $remaining = abs($cooldownEnds->timestamp - now()->timestamp);
+                // Ensure remaining is reasonable (max 10 minutes)
+                $remaining = min($remaining, 600);
                 return [
                     'success' => false,
                     'message' => "Subiri sekunde {$remaining} kabla ya kazi nyingine.",

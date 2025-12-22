@@ -56,6 +56,10 @@ return [
     
     // Maximum time to complete after starting (in minutes)
     'max_completion_window' => 10,
+    
+    // Maximum task age in seconds (tasks older than this will be auto-cancelled)
+    // This prevents astronomical countdown values when timestamps are corrupted
+    'max_task_age' => env('TASK_MAX_AGE', 600), // 10 minutes
 
     /*
     |--------------------------------------------------------------------------

@@ -55,6 +55,10 @@ class TaskController extends Controller
             $activeTask = $this->lockService->getActiveTask($user);
             $remaining = $this->lockService->getRemainingTime($user);
             
+            // Extra validation: remaining should be between 0 and task duration
+            // This handles edge cases with timezone issues or corrupted data
+            $remaining = max(0, min($remaining, $task->duration_seconds));
+            
             // If active task is the same as requested, continue
             if ($activeTask->task_id !== $task->id) {
                 return redirect()->route('tasks.show', $activeTask->task)
@@ -145,8 +149,23 @@ class TaskController extends Controller
             ], 404);
         }
         
-        $elapsed = now()->diffInSeconds($activeTask->started_at);
-        $remaining = max(0, $activeTask->required_duration - $elapsed);
+        // Use absolute timestamp difference to avoid timezone issues
+        $elapsed = abs(now()->timestamp - $activeTask->started_at->timestamp);
+        
+        // Maximum task age is 10 minutes - if older, reset the task
+        $maxTaskAge = config('directlinks.max_task_age', 600);
+        if ($elapsed > $maxTaskAge) {
+            // Task has expired - cancel it
+            $this->lockService->cancelTask($user, $activeTask->lock_token);
+            return response()->json([
+                'success' => false,
+                'message' => 'Kazi hii imekwisha muda wake. Anza upya.',
+                'can_complete' => false,
+                'expired' => true,
+            ], 410); // 410 Gone
+        }
+        
+        $remaining = max(0, min($activeTask->required_duration - $elapsed, $activeTask->required_duration));
         $canComplete = $remaining <= 0;
         
         return response()->json([

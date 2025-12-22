@@ -412,9 +412,32 @@
     let timerInterval = null;
     let taskStarted = false;
     
-    // If resuming, auto-start
+    // Maximum valid countdown is 10 minutes (600 seconds)
+    const maxValidCountdown = 600;
+    
+    // Validate countdown on page load - if invalid, something is wrong
+    function validateCountdown() {
+        // If countdown is negative, zero, or unreasonably large, reset
+        if (countdown < 0 || countdown > maxValidCountdown) {
+            console.warn('Invalid countdown detected:', countdown, '- resetting to task duration');
+            countdown = taskDuration;
+        }
+        // Also ensure countdown doesn't exceed task duration
+        if (countdown > taskDuration) {
+            countdown = taskDuration;
+        }
+    }
+    
+    // If resuming, auto-start (with validation)
     if (isResuming && lockToken) {
         document.addEventListener('DOMContentLoaded', function() {
+            validateCountdown();
+            
+            // If countdown is 0 or task has expired, allow user to claim or restart
+            if (countdown <= 0) {
+                countdown = 0;
+            }
+            
             resumeTask();
         });
     }
@@ -519,14 +542,36 @@
         const completeBtn = document.getElementById('completeButton');
         const waitingText = document.getElementById('waitingText');
         
+        // Validate countdown before starting
+        validateCountdown();
+        
+        // Update initial display
+        timerEl.textContent = Math.max(0, countdown);
+        
+        // If countdown is already complete, show complete button immediately
+        if (countdown <= 0) {
+            countdown = 0;
+            completeBtn.style.display = 'flex';
+            waitingText.style.display = 'none';
+            timerEl.textContent = '✓';
+            timerEl.style.color = 'var(--success)';
+            progressEl.style.width = '100%';
+            progressTextEl.textContent = '100% - Imekamilika!';
+            lucide.createIcons();
+            return;
+        }
+        
         timerInterval = setInterval(function() {
             countdown--;
             
-            // Update timer
-            timerEl.textContent = Math.max(0, countdown);
+            // Ensure countdown never goes below 0
+            countdown = Math.max(0, countdown);
             
-            // Update progress
-            const progress = Math.min(100, ((taskDuration - countdown) / taskDuration) * 100);
+            // Update timer
+            timerEl.textContent = countdown;
+            
+            // Update progress (ensure progress is between 0-100)
+            const progress = Math.max(0, Math.min(100, ((taskDuration - countdown) / taskDuration) * 100));
             progressEl.style.width = progress + '%';
             progressTextEl.textContent = Math.round(progress) + '% - ' + 
                 (countdown > 0 ? 'Tazama tangazo...' : 'Imekamilika!');
