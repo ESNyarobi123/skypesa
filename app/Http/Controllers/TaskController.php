@@ -50,27 +50,28 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         
-        // Check if user has an active task - they MUST complete it first
+        // Check if user has an active task
         if ($this->lockService->hasActiveTask($user)) {
             $activeTask = $this->lockService->getActiveTask($user);
             $remaining = $this->lockService->getRemainingTime($user);
             $remaining = max(0, min($remaining, $activeTask->task->duration_seconds ?? 60));
             
-            // Always redirect to the active task - no exceptions
-            // User must complete current task before starting another
+            // If trying to start a DIFFERENT task, redirect to current active task
             if ($activeTask->task_id !== $task->id) {
                 return redirect()->route('tasks.show', $activeTask->task)
                     ->with('warning', 'Kamilisha kazi inayoendelea kwanza! Sekunde ' . $remaining . ' zimebaki.');
             }
             
-            // If they're viewing the same task they already started, show it with the existing lock
-            // This allows them to continue without restarting
-            return view('tasks.show', [
-                'task' => $task,
-                'lockToken' => $activeTask->lock_token,
-                'remaining' => $remaining,
-                'isActive' => true,
+            // If it's the SAME task, CANCEL the old one and let them START FRESH
+            // This is the requested behavior: timer resets when user returns
+            $this->lockService->cancelTask($user, $activeTask->lock_token);
+            
+            \Log::info('Task reset - user returning to same task', [
+                'user_id' => $user->id,
+                'task_id' => $task->id,
             ]);
+            
+            // Fall through to show fresh start page
         }
         
         if (!$task->isAvailable()) {
@@ -90,9 +91,7 @@ class TaskController extends Controller
         
         return view('tasks.show', [
             'task' => $task,
-            'lockToken' => null,
-            'remaining' => $task->duration_seconds,
-            'isActive' => false,
+            'lockToken' => null, // Will be set when user clicks Start
         ]);
     }
 

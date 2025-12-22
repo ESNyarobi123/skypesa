@@ -412,10 +412,9 @@
     const csrfToken = "{{ csrf_token() }}";
     
     let lockToken = {!! json_encode($lockToken) !!};
-    let countdown = {{ $remaining ?? $task->duration_seconds }};
+    let countdown = taskDuration; // Always start fresh with full duration
     let timerInterval = null;
     let taskStarted = false;
-    const isActive = {{ ($isActive ?? false) ? 'true' : 'false' }};
     
     // Maximum valid countdown is 10 minutes (600 seconds)
     const maxValidCountdown = 600;
@@ -433,13 +432,7 @@
         }
     }
     
-    // If task is already active (user returning to continue), auto-start the view
-    if (isActive && lockToken) {
-        document.addEventListener('DOMContentLoaded', function() {
-            validateCountdown();
-            showFullscreenView();
-        });
-    }
+    // Note: Users always start fresh - old tasks are cancelled when they return
     
     function startTask() {
         const startBtn = document.getElementById('startButton');
