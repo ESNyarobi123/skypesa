@@ -658,7 +658,13 @@
                 @endif
             </div>
             
-            @if($task->canUserComplete(auth()->user()) && auth()->user()->canCompleteMoreTasks())
+            @if($activitySummary['has_active_task'])
+            {{-- User has active task - show locked button --}}
+            <a href="{{ route('tasks.show', $activitySummary['active_task']['task']) }}" class="task-action-btn disabled" style="background: rgba(234, 179, 8, 0.2); color: var(--warning); border: 1px solid var(--warning);">
+                <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                Kamilisha Kazi Inayoendelea Kwanza
+            </a>
+            @elseif($task->canUserComplete(auth()->user()) && auth()->user()->canCompleteMoreTasks())
             <a href="{{ route('tasks.show', $task) }}" class="task-action-btn start">
                 <i data-lucide="play" style="width: 18px; height: 18px;"></i>
                 Anza Kazi
