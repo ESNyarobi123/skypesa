@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminWithdrawalController;
 use App\Http\Controllers\Admin\AdminAdsterraController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminDirectLinkController;
+use App\Http\Controllers\Admin\AdminLinkPoolController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -171,6 +172,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/adsterra/import-placement', [AdminAdsterraController::class, 'importPlacement'])->name('adsterra.import-placement');
         Route::post('/adsterra/import-all', [AdminAdsterraController::class, 'importAll'])->name('adsterra.import-all');
         Route::post('/adsterra/sync', [AdminAdsterraController::class, 'sync'])->name('adsterra.sync');
+
+        // Link Pools Management (SkyBoost™, SkyLinks™)
+        Route::get('/linkpools', [AdminLinkPoolController::class, 'index'])->name('linkpools.index');
+        Route::get('/linkpools/create', [AdminLinkPoolController::class, 'create'])->name('linkpools.create');
+        Route::post('/linkpools', [AdminLinkPoolController::class, 'store'])->name('linkpools.store');
+        Route::get('/linkpools/{linkpool}', [AdminLinkPoolController::class, 'show'])->name('linkpools.show');
+        Route::get('/linkpools/{linkpool}/edit', [AdminLinkPoolController::class, 'edit'])->name('linkpools.edit');
+        Route::put('/linkpools/{linkpool}', [AdminLinkPoolController::class, 'update'])->name('linkpools.update');
+        Route::delete('/linkpools/{linkpool}', [AdminLinkPoolController::class, 'destroy'])->name('linkpools.destroy');
+        Route::patch('/linkpools/{linkpool}/toggle-status', [AdminLinkPoolController::class, 'toggleStatus'])->name('linkpools.toggle-status');
+        
+        // Pool Links (nested under pools)
+        Route::get('/linkpools/{linkpool}/links/create', [AdminLinkPoolController::class, 'createLink'])->name('linkpools.links.create');
+        Route::post('/linkpools/{linkpool}/links', [AdminLinkPoolController::class, 'storeLink'])->name('linkpools.links.store');
+        Route::get('/linkpools/{linkpool}/links/{link}/edit', [AdminLinkPoolController::class, 'editLink'])->name('linkpools.links.edit');
+        Route::put('/linkpools/{linkpool}/links/{link}', [AdminLinkPoolController::class, 'updateLink'])->name('linkpools.links.update');
+        Route::delete('/linkpools/{linkpool}/links/{link}', [AdminLinkPoolController::class, 'destroyLink'])->name('linkpools.links.destroy');
+        Route::patch('/linkpools/{linkpool}/links/{link}/toggle-status', [AdminLinkPoolController::class, 'toggleLinkStatus'])->name('linkpools.links.toggle-status');
+        Route::post('/linkpools/{linkpool}/links/{link}/reset-clicks', [AdminLinkPoolController::class, 'resetLinkClicks'])->name('linkpools.links.reset-clicks');
+        Route::post('/linkpools/{linkpool}/links/bulk-import', [AdminLinkPoolController::class, 'bulkImportLinks'])->name('linkpools.links.bulk-import');
 
     });
 });

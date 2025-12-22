@@ -1049,9 +1049,16 @@
                             </a>
                         </li>
                         <li class="sidebar-nav-item">
+                            <a href="{{ route('admin.linkpools.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.linkpools.*') ? 'active' : '' }}">
+                                <i data-lucide="layers" class="nav-icon"></i>
+                                Link Pools
+                                <span style="margin-left: auto; font-size: 0.65rem; padding: 0.15rem 0.4rem; background: linear-gradient(135deg, #10B981, #059669); border-radius: 4px; color: white; font-weight: 600;">NEW</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
                             <a href="{{ route('admin.adsterra.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.adsterra.*') ? 'active' : '' }}">
                                 <i data-lucide="link" class="nav-icon"></i>
-                                SkyLinks Manager
+                                Adsterra Manager
                             </a>
                         </li>
                     </ul>
