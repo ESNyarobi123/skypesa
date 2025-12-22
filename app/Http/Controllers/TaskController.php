@@ -53,25 +53,25 @@ class TaskController extends Controller
         // Check if user has an active task
         if ($this->lockService->hasActiveTask($user)) {
             $activeTask = $this->lockService->getActiveTask($user);
-            $remaining = $this->lockService->getRemainingTime($user);
             
-            // Extra validation: remaining should be between 0 and task duration
-            // This handles edge cases with timezone issues or corrupted data
-            $remaining = max(0, min($remaining, $task->duration_seconds));
-            
-            // If active task is the same as requested, continue
+            // If active task is for a DIFFERENT task, redirect them there
             if ($activeTask->task_id !== $task->id) {
+                $remaining = $this->lockService->getRemainingTime($user);
+                $remaining = max(0, min($remaining, $activeTask->task->duration_seconds ?? 60));
+                
                 return redirect()->route('tasks.show', $activeTask->task)
                     ->with('warning', 'Una kazi inayoendelea! Kamilisha kwanza au subiri sekunde ' . $remaining);
             }
             
-            // Continue with the active task - pass lock token
-            return view('tasks.show', [
-                'task' => $task,
-                'lockToken' => $activeTask->lock_token,
-                'startedAt' => $activeTask->started_at,
-                'remainingTime' => $remaining,
-                'isResuming' => true,
+            // If it's the SAME task, cancel the old one and let them start fresh
+            // This handles the case where user left without completing
+            $this->lockService->cancelTask($user, $activeTask->lock_token);
+            
+            // Log this for debugging
+            \Log::info('Auto-cancelled incomplete task for restart', [
+                'user_id' => $user->id,
+                'task_id' => $task->id,
+                'old_lock_token' => $activeTask->lock_token,
             ]);
         }
         
@@ -92,10 +92,7 @@ class TaskController extends Controller
         
         return view('tasks.show', [
             'task' => $task,
-            'lockToken' => null,
-            'startedAt' => null,
-            'remainingTime' => $task->duration_seconds,
-            'isResuming' => false,
+            'lockToken' => null, // Will be set when task starts
         ]);
     }
 

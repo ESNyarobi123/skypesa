@@ -407,15 +407,14 @@
     const csrfToken = "{{ csrf_token() }}";
     
     let lockToken = {!! json_encode($lockToken) !!};
-    let isResuming = {{ $isResuming ? 'true' : 'false' }};
-    let countdown = {{ $remainingTime }};
+    let countdown = taskDuration; // Always start from full duration
     let timerInterval = null;
     let taskStarted = false;
     
     // Maximum valid countdown is 10 minutes (600 seconds)
     const maxValidCountdown = 600;
     
-    // Validate countdown on page load - if invalid, something is wrong
+    // Validate countdown before starting timer
     function validateCountdown() {
         // If countdown is negative, zero, or unreasonably large, reset
         if (countdown < 0 || countdown > maxValidCountdown) {
@@ -428,19 +427,7 @@
         }
     }
     
-    // If resuming, auto-start (with validation)
-    if (isResuming && lockToken) {
-        document.addEventListener('DOMContentLoaded', function() {
-            validateCountdown();
-            
-            // If countdown is 0 or task has expired, allow user to claim or restart
-            if (countdown <= 0) {
-                countdown = 0;
-            }
-            
-            resumeTask();
-        });
-    }
+    // Note: We no longer auto-resume tasks. Users always start fresh.
     
     function startTask() {
         const startBtn = document.getElementById('startButton');
@@ -496,10 +483,6 @@
                 lucide.createIcons();
             }
         });
-    }
-    
-    function resumeTask() {
-        showFullscreenView();
     }
     
     function showFullscreenView() {
@@ -665,32 +648,78 @@
         }
     }
     
-    // Prevent closing page during task
+    // Cancel task on server when user leaves
+    function cancelTaskOnServer() {
+        if (taskStarted && lockToken && countdown > 0) {
+            // Use sendBeacon for reliability during page unload
+            const cancelUrl = "{{ route('tasks.cancel') }}";
+            const data = new FormData();
+            data.append('lock_token', lockToken);
+            data.append('_token', csrfToken);
+            
+            // sendBeacon is more reliable for unload events
+            if (navigator.sendBeacon) {
+                const blob = new Blob([JSON.stringify({
+                    lock_token: lockToken,
+                    _token: csrfToken
+                })], { type: 'application/json' });
+                navigator.sendBeacon(cancelUrl, blob);
+            } else {
+                // Fallback to sync XHR (not recommended but works)
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', cancelUrl, false); // sync
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                xhr.send(JSON.stringify({ lock_token: lockToken }));
+            }
+            
+            console.log('Task cancelled due to user leaving');
+        }
+    }
+    
+    // Cancel task when page is about to unload
     window.addEventListener('beforeunload', function(e) {
         if (taskStarted && countdown > 0) {
+            // Cancel the task on server
+            cancelTaskOnServer();
+            
+            // Show warning to user
             e.preventDefault();
-            e.returnValue = 'Una kazi inayoendelea! Ukiondoka utapoteza malipo yako.';
+            e.returnValue = 'Una kazi inayoendelea! Ukiondoka utapoteza muda wako na kuanza upya.';
             return e.returnValue;
         }
     });
     
-    // Show warning when tab loses focus
+    // Also cancel when page actually unloads (backup)
+    window.addEventListener('unload', function() {
+        cancelTaskOnServer();
+    });
+    
+    // Show warning when tab loses focus (but don't cancel yet - just warn)
     document.addEventListener('visibilitychange', function() {
         if (taskStarted && countdown > 0) {
             const overlay = document.getElementById('warningOverlay');
             if (document.hidden) {
                 overlay.style.display = 'block';
+                // Note: We're not cancelling here, just warning
+                // Task will be cancelled if they navigate away completely
             } else {
                 overlay.style.display = 'none';
             }
         }
     });
     
-    // Prevent back navigation
+    // Prevent back navigation and cancel if they force it
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function() {
         if (taskStarted && countdown > 0) {
+            // Cancel the task since they're trying to leave
+            cancelTaskOnServer();
+            
+            // Push state back to prevent navigation
             history.pushState(null, null, location.href);
+            
+            // Show warning
             document.getElementById('warningOverlay').style.display = 'block';
             setTimeout(() => {
                 document.getElementById('warningOverlay').style.display = 'none';
