@@ -50,28 +50,26 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         
-        // Check if user has an active task
+        // Check if user has an active task - they MUST complete it first
         if ($this->lockService->hasActiveTask($user)) {
             $activeTask = $this->lockService->getActiveTask($user);
+            $remaining = $this->lockService->getRemainingTime($user);
+            $remaining = max(0, min($remaining, $activeTask->task->duration_seconds ?? 60));
             
-            // If active task is for a DIFFERENT task, redirect them there
+            // Always redirect to the active task - no exceptions
+            // User must complete current task before starting another
             if ($activeTask->task_id !== $task->id) {
-                $remaining = $this->lockService->getRemainingTime($user);
-                $remaining = max(0, min($remaining, $activeTask->task->duration_seconds ?? 60));
-                
                 return redirect()->route('tasks.show', $activeTask->task)
-                    ->with('warning', 'Una kazi inayoendelea! Kamilisha kwanza au subiri sekunde ' . $remaining);
+                    ->with('warning', 'Kamilisha kazi inayoendelea kwanza! Sekunde ' . $remaining . ' zimebaki.');
             }
             
-            // If it's the SAME task, cancel the old one and let them start fresh
-            // This handles the case where user left without completing
-            $this->lockService->cancelTask($user, $activeTask->lock_token);
-            
-            // Log this for debugging
-            \Log::info('Auto-cancelled incomplete task for restart', [
-                'user_id' => $user->id,
-                'task_id' => $task->id,
-                'old_lock_token' => $activeTask->lock_token,
+            // If they're viewing the same task they already started, show it with the existing lock
+            // This allows them to continue without restarting
+            return view('tasks.show', [
+                'task' => $task,
+                'lockToken' => $activeTask->lock_token,
+                'remaining' => $remaining,
+                'isActive' => true,
             ]);
         }
         
@@ -92,7 +90,9 @@ class TaskController extends Controller
         
         return view('tasks.show', [
             'task' => $task,
-            'lockToken' => null, // Will be set when task starts
+            'lockToken' => null,
+            'remaining' => $task->duration_seconds,
+            'isActive' => false,
         ]);
     }
 
