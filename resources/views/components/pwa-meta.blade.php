@@ -29,13 +29,13 @@
 <link rel="apple-touch-startup-image" href="{{ asset('icons/splash-1170x2532.png') }}" 
       media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
 
-{{-- Standard Icons & Favicon --}}
-<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-<link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('icons/icon-16x16.png') }}">
-<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/icon-32x32.png') }}">
-<link rel="icon" type="image/png" sizes="96x96" href="{{ asset('icons/icon-96x96.png') }}">
-<link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}">
+{{-- Standard Icons & Favicon (v2 = cache bust) --}}
+<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
+<link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('icons/icon-16x16.png') }}?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('icons/icon-32x32.png') }}?v=2">
+<link rel="icon" type="image/png" sizes="96x96" href="{{ asset('icons/icon-96x96.png') }}?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}?v=2">
 
 {{-- Microsoft Tile --}}
 <meta name="msapplication-TileImage" content="{{ asset('icons/icon-144x144.png') }}">
