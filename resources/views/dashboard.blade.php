@@ -48,6 +48,16 @@
 @endpush
 
 @section('content')
+<!-- ==========================================
+     GAMIFICATION WIDGETS
+     ========================================== -->
+     
+<!-- Welcome Bonus Widget (for new users) -->
+@include('components.welcome-bonus-widget')
+
+<!-- Daily Goal Widget -->
+@include('components.daily-goal-widget')
+
 <!-- Wallet Overview -->
 <div class="grid grid-3 mb-8">
     <!-- Balance Card -->

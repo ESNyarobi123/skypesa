@@ -21,6 +21,8 @@ class TaskCompletion extends Model
     protected $fillable = [
         'user_id',
         'task_id',
+        'pool_link_id', // NEW: Track which pool link was used (for random rotation)
+        'used_url',     // NEW: The actual URL that was displayed
         'reward_earned',
         'duration_spent',
         'required_duration',
@@ -70,6 +72,15 @@ class TaskCompletion extends Model
     public function transactions()
     {
         return $this->morphMany(Transaction::class, 'transactionable');
+    }
+
+    /**
+     * Get the pool link that was used for this completion
+     * Only set if task uses a link pool (SkyBoost™, SkyLinks™, etc.)
+     */
+    public function poolLink()
+    {
+        return $this->belongsTo(PoolLink::class);
     }
 
     // ==========================================

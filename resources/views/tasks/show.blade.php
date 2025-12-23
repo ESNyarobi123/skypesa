@@ -279,16 +279,27 @@
                 </div>
             </div>
             
-            <!-- Instructions -->
-            <div class="alert mb-6" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--info);">
-                <i data-lucide="info"></i>
-                <div>
-                    <strong>Jinsi Inavyofanya Kazi:</strong>
-                    <ul style="margin-top: var(--space-2); padding-left: var(--space-4);">
-                        <li>Tangazo litafunguka ndani ya page hii</li>
-                        <li>Timer itaanza kuhesabu - <strong>huwezi kuanza kazi nyingine</strong></li>
-                        <li>Baada ya muda kuisha, bonyeza "Pata Malipo"</li>
-                    </ul>
+            <!-- Instructions (Collapsible - hidden after first visit) -->
+            <div id="instructionsContainer" style="margin-bottom: var(--space-6);">
+                <!-- Toggle Button -->
+                <button type="button" id="instructionsToggle" onclick="toggleInstructions()" 
+                        style="display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-3); 
+                               background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); 
+                               border-radius: var(--radius-lg); color: var(--info); cursor: pointer; font-size: 0.875rem;">
+                    <i data-lucide="info" style="width: 18px; height: 18px;"></i>
+                    <span>Jinsi Inavyofanya Kazi</span>
+                    <i data-lucide="chevron-down" id="instructionsChevron" style="width: 16px; height: 16px; margin-left: auto; transition: transform 0.3s;"></i>
+                </button>
+                
+                <!-- Collapsible Content -->
+                <div id="instructionsContent" style="overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; max-height: 0; padding: 0 var(--space-4);">
+                    <div style="padding-top: var(--space-3);">
+                        <ul style="padding-left: var(--space-4); color: var(--text-secondary); font-size: 0.875rem; line-height: 1.8;">
+                            <li>Tangazo litafunguka ndani ya page hii</li>
+                            <li>Timer itaanza kuhesabu - <strong style="color: var(--warning);">huwezi kuanza kazi nyingine</strong></li>
+                            <li>Baada ya muda kuisha, bonyeza "Pata Malipo"</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -406,7 +417,7 @@
 <script>
     const taskId = {{ $task->id }};
     const taskDuration = {{ $task->duration_seconds }};
-    const taskUrl = "{{ $task->url }}";
+    const defaultTaskUrl = "{{ $task->url }}"; // Fallback URL
     const startUrl = "{{ route('tasks.start', $task) }}";
     const completeUrl = "{{ route('tasks.complete', $task) }}";
     const csrfToken = "{{ csrf_token() }}";
@@ -415,6 +426,7 @@
     let countdown = taskDuration; // Always start fresh with full duration
     let timerInterval = null;
     let taskStarted = false;
+    let activeUrl = null; // The actual URL to display (may be random from pool)
     
     // Maximum valid countdown is 10 minutes (600 seconds)
     const maxValidCountdown = 600;
@@ -431,6 +443,56 @@
             countdown = taskDuration;
         }
     }
+    
+    // ==========================================
+    // INSTRUCTIONS TOGGLE (show/hide)
+    // ==========================================
+    const INSTRUCTIONS_KEY = 'skypesa_instructions_seen';
+    let instructionsOpen = false;
+    
+    function toggleInstructions() {
+        const content = document.getElementById('instructionsContent');
+        const chevron = document.getElementById('instructionsChevron');
+        
+        instructionsOpen = !instructionsOpen;
+        
+        if (instructionsOpen) {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            content.style.paddingTop = 'var(--space-3)';
+            chevron.style.transform = 'rotate(180deg)';
+        } else {
+            content.style.maxHeight = '0';
+            content.style.paddingTop = '0';
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+    
+    function initInstructions() {
+        // Check if user has seen instructions before
+        const hasSeenInstructions = localStorage.getItem(INSTRUCTIONS_KEY);
+        
+        if (!hasSeenInstructions) {
+            // First time - show instructions expanded
+            instructionsOpen = true;
+            const content = document.getElementById('instructionsContent');
+            const chevron = document.getElementById('instructionsChevron');
+            
+            if (content && chevron) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                content.style.paddingTop = 'var(--space-3)';
+                chevron.style.transform = 'rotate(180deg)';
+            }
+            
+            // Mark as seen after a short delay (user has seen it)
+            setTimeout(() => {
+                localStorage.setItem(INSTRUCTIONS_KEY, 'true');
+            }, 2000);
+        }
+        // If already seen, instructions stay collapsed by default
+    }
+    
+    // Initialize instructions on page load
+    document.addEventListener('DOMContentLoaded', initInstructions);
     
     // Note: Users always start fresh - old tasks are cancelled when they return
     
@@ -474,7 +536,9 @@
             if (data.success) {
                 lockToken = data.lock_token;
                 countdown = data.duration;
-                showFullscreenView();
+                // Use the URL returned by server (random from pool) or fall back to default
+                activeUrl = data.used_url || defaultTaskUrl;
+                showFullscreenView(activeUrl);
             } else {
                 throw new Error(data.message || 'Imeshindwa kuanza kazi');
             }
@@ -490,16 +554,18 @@
         });
     }
     
-    function showFullscreenView() {
+    function showFullscreenView(urlToLoad) {
         taskStarted = true;
         
         // Hide before start, show fullscreen
         document.getElementById('beforeStartView').style.display = 'none';
         document.getElementById('taskFullscreen').style.display = 'flex';
         
-        // Load iframe
+        // Load iframe with the URL (may be random from pool)
         const iframe = document.getElementById('taskIframe');
-        iframe.src = taskUrl;
+        iframe.src = urlToLoad || defaultTaskUrl;
+        
+        console.log('Loading task URL:', urlToLoad || defaultTaskUrl);
         
         // Hide loading when iframe loads
         iframe.onload = function() {

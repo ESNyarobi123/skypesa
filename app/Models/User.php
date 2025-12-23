@@ -30,6 +30,13 @@ class User extends Authenticatable
         'flagged_tasks',
         'is_suspicious',
         'last_fraud_check',
+        // Gamification fields
+        'received_welcome_bonus',
+        'first_task_completed',
+        'first_task_at',
+        'last_daily_goal_date',
+        'daily_goal_progress',
+        'daily_goal_claimed',
     ];
 
     protected $hidden = [
@@ -47,6 +54,12 @@ class User extends Authenticatable
             'is_suspicious' => 'boolean',
             'last_login_at' => 'datetime',
             'last_fraud_check' => 'datetime',
+            // Gamification casts
+            'received_welcome_bonus' => 'boolean',
+            'first_task_completed' => 'boolean',
+            'first_task_at' => 'datetime',
+            'last_daily_goal_date' => 'date',
+            'daily_goal_claimed' => 'boolean',
         ];
     }
 

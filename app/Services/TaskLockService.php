@@ -68,6 +68,9 @@ class TaskLockService
 
     /**
      * Start a new task (lock it)
+     * 
+     * If task uses a Link Pool (SkyBoost™, SkyLinks™), 
+     * we pick a RANDOM link from that pool.
      */
     public function startTask(User $user, Task $task): array
     {
@@ -150,6 +153,46 @@ class TaskLockService
             }
         }
 
+        // ===========================================
+        // LINK POOL RANDOM SELECTION (NEW!)
+        // If task uses a pool, pick random link
+        // ===========================================
+        $poolLinkId = null;
+        $usedUrl = null;
+        
+        if ($task->usesLinkPool()) {
+            $poolLink = $task->getRandomPoolLink();
+            
+            if (!$poolLink) {
+                Log::warning('No active links in pool', [
+                    'task_id' => $task->id,
+                    'pool_id' => $task->link_pool_id,
+                ]);
+                
+                return [
+                    'success' => false,
+                    'message' => 'Hakuna links zinazopatikana kwa sasa. Jaribu tena baadaye.',
+                    'error_code' => 'NO_POOL_LINKS',
+                ];
+            }
+            
+            $poolLinkId = $poolLink->id;
+            $usedUrl = $poolLink->url;
+            
+            // Record click on the pool link
+            $poolLink->recordClick();
+            
+            Log::info('Random pool link selected', [
+                'task_id' => $task->id,
+                'pool_id' => $task->link_pool_id,
+                'pool_link_id' => $poolLink->id,
+                'link_name' => $poolLink->name,
+            ]);
+        } else {
+            // Static URL task
+            $usedUrl = $task->url;
+        }
+
         // Generate unique lock token
         $lockToken = Str::random(64);
 
@@ -157,6 +200,8 @@ class TaskLockService
         $completion = TaskCompletion::create([
             'user_id' => $user->id,
             'task_id' => $task->id,
+            'pool_link_id' => $poolLinkId, // NEW: Track which pool link was used
+            'used_url' => $usedUrl,        // NEW: The actual URL displayed
             'status' => 'in_progress',
             'is_locked' => true,
             'lock_token' => $lockToken,
@@ -175,6 +220,8 @@ class TaskLockService
             'lock_token' => $lockToken,
             'duration' => $task->duration_seconds,
             'ip' => $ip,
+            'pool_link_id' => $poolLinkId,
+            'used_url' => $usedUrl,
         ]);
 
         return [
@@ -184,6 +231,7 @@ class TaskLockService
             'completion_id' => $completion->id,
             'duration' => $task->duration_seconds,
             'started_at' => $completion->started_at,
+            'used_url' => $usedUrl,  // NEW: Return the URL to display
         ];
     }
 
@@ -238,28 +286,70 @@ class TaskLockService
             ];
         }
 
+        // ===========================================
+        // GAMIFICATION: Calculate reward with bonuses
+        // ===========================================
+        $baseReward = $task->getRewardFor($user);
+        $finalReward = $baseReward;
+        $bonusApplied = null;
+        
+        // Check for Welcome Bonus (First Task = x10!)
+        if (!$user->first_task_completed) {
+            $gamification = app(\App\Services\GamificationService::class);
+            $multiplier = $gamification->getWelcomeBonusMultiplier($user);
+            $finalReward = $baseReward * $multiplier;
+            $bonusApplied = 'welcome_bonus';
+            
+            // Mark first task as completed
+            $gamification->markFirstTaskCompleted($user);
+            
+            Log::info('Welcome bonus applied!', [
+                'user_id' => $user->id,
+                'base_reward' => $baseReward,
+                'multiplier' => $multiplier,
+                'final_reward' => $finalReward,
+            ]);
+        }
+
         // Mark as completed
         $completion->update([
             'status' => 'completed',
             'is_locked' => false,
             'completed_at' => now(),
             'duration_spent' => $actualDuration,
-            'reward_earned' => $task->getRewardFor($user),
+            'reward_earned' => $finalReward,
         ]);
+
+        // ===========================================
+        // GAMIFICATION: Increment daily goal progress
+        // ===========================================
+        $gamification = app(\App\Services\GamificationService::class);
+        $gamification->incrementDailyProgress($user);
+
+        // ===========================================
+        // REFERRAL BONUS: Pay when first task is completed
+        // ===========================================
+        if ($bonusApplied === 'welcome_bonus' && $user->referred_by) {
+            $this->payReferralBonus($user);
+        }
 
         Log::info('Task completed', [
             'user_id' => $user->id,
             'task_id' => $task->id,
             'duration' => $actualDuration,
-            'reward' => $completion->reward_earned,
+            'base_reward' => $baseReward,
+            'final_reward' => $finalReward,
+            'bonus_applied' => $bonusApplied,
         ]);
 
         return [
             'success' => true,
             'message' => 'Kazi imekamilika!',
             'completion' => $completion,
-            'reward' => $completion->reward_earned,
+            'reward' => $finalReward,
             'duration' => $actualDuration,
+            'bonus_applied' => $bonusApplied,
+            'was_welcome_bonus' => $bonusApplied === 'welcome_bonus',
         ];
     }
 
@@ -318,4 +408,66 @@ class TaskLockService
             'remaining_today' => $user->remainingTasksToday(),
         ];
     }
+
+    /**
+     * Pay referral bonus when new user completes first task
+     */
+    protected function payReferralBonus(User $newUser): void
+    {
+        // Get settings
+        $referralEnabled = \App\Models\Setting::get('referral_enabled', true);
+        if (!$referralEnabled) {
+            return;
+        }
+
+        $referrerBonus = (float) \App\Models\Setting::get('referral_bonus_referrer', 500);
+        $newUserBonus = (float) \App\Models\Setting::get('referral_bonus_new_user', 200);
+
+        try {
+            // Get the referrer
+            $referrer = User::find($newUser->referred_by);
+            if (!$referrer) {
+                Log::warning('Referrer not found', ['referred_by' => $newUser->referred_by]);
+                return;
+            }
+
+            // Pay referrer bonus
+            if ($referrerBonus > 0 && $referrer->wallet) {
+                $referrer->wallet->credit(
+                    $referrerBonus,
+                    'referral',
+                    null,
+                    '🎁 Referral Bonus! ' . $newUser->name . ' amekamilisha task ya kwanza.'
+                );
+
+                Log::info('Referral bonus paid to referrer', [
+                    'referrer_id' => $referrer->id,
+                    'new_user_id' => $newUser->id,
+                    'amount' => $referrerBonus,
+                ]);
+            }
+
+            // Pay new user bonus
+            if ($newUserBonus > 0 && $newUser->wallet) {
+                $newUser->wallet->credit(
+                    $newUserBonus,
+                    'referral',
+                    null,
+                    '🎁 Karibu Bonus! Umejiandikisha kupitia referral.'
+                );
+
+                Log::info('Referral bonus paid to new user', [
+                    'new_user_id' => $newUser->id,
+                    'referrer_id' => $referrer->id,
+                    'amount' => $newUserBonus,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to pay referral bonus', [
+                'new_user_id' => $newUser->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 }
+

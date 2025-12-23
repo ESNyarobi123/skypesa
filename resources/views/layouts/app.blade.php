@@ -90,6 +90,12 @@
                         Referrals
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('leaderboard') }}" class="sidebar-link {{ request()->routeIs('leaderboard') ? 'active' : '' }}">
+                        <i data-lucide="trophy"></i>
+                        Leaderboard
+                    </a>
+                </li>
 
                 
                 @if(auth()->user()->isAdmin())

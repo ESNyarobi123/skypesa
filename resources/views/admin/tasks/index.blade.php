@@ -34,14 +34,26 @@
             <tr>
                 <td>
                     <div style="font-weight: 500;">{{ $task->title }}</div>
-                    @if($task->is_featured)
-                    <span class="badge badge-warning">FEATURED</span>
-                    @endif
+                    <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-top: 0.25rem;">
+                        @if($task->is_featured)
+                        <span class="badge badge-warning">FEATURED</span>
+                        @endif
+                        @if($task->usesLinkPool())
+                        <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #8b5cf6;">
+                            🔀 {{ $task->linkPool?->name }}
+                        </span>
+                        @endif
+                    </div>
                 </td>
                 <td>
                     <span class="badge badge-primary">{{ $task->type }}</span>
                 </td>
-                <td>{{ ucfirst($task->provider) }}</td>
+                <td>
+                    {{ ucfirst($task->provider) }}
+                    @if($task->usesLinkPool())
+                        <br><small style="color: var(--text-muted);">{{ $task->linkPool?->activeLinks()->count() }} links</small>
+                    @endif
+                </td>
                 <td>{{ $task->duration_seconds }}s</td>
                 <td>
                     @if($task->reward_override)

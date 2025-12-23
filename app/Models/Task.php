@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Task extends Model
 {
@@ -22,6 +23,7 @@ class Task extends Model
         'category',
         'require_postback',
         'url',
+        'link_pool_id', // NEW: Link to a pool for random link selection
         'provider',
         'duration_seconds',
         'cooldown_seconds',
@@ -58,10 +60,79 @@ class Task extends Model
         'cooldown_seconds' => 60,
     ];
 
+    // ==========================================
+    // RELATIONSHIPS
+    // ==========================================
+
     public function completions()
     {
         return $this->hasMany(TaskCompletion::class);
     }
+
+    /**
+     * Get the link pool this task uses (for random link selection)
+     */
+    public function linkPool(): BelongsTo
+    {
+        return $this->belongsTo(LinkPool::class);
+    }
+
+    // ==========================================
+    // LINK POOL METHODS
+    // ==========================================
+
+    /**
+     * Check if this task uses a link pool
+     */
+    public function usesLinkPool(): bool
+    {
+        return !is_null($this->link_pool_id);
+    }
+
+    /**
+     * Get a random link from the pool
+     * Returns null if no pool or no active links
+     */
+    public function getRandomPoolLink(): ?PoolLink
+    {
+        if (!$this->usesLinkPool()) {
+            return null;
+        }
+
+        return $this->linkPool?->getRandomLink();
+    }
+
+    /**
+     * Get the URL for this task
+     * If task uses a pool, returns a random link from pool
+     * Otherwise returns the static URL
+     */
+    public function getTaskUrl(): string
+    {
+        if ($this->usesLinkPool()) {
+            $poolLink = $this->getRandomPoolLink();
+            return $poolLink?->url ?? $this->url ?? '#';
+        }
+
+        return $this->url ?? '#';
+    }
+
+    /**
+     * Check if task has available links
+     * For pool tasks, checks if pool has active links
+     */
+    public function hasAvailableLinks(): bool
+    {
+        if ($this->usesLinkPool()) {
+            return $this->linkPool?->activeLinks()->count() > 0;
+        }
+
+        return !empty($this->url);
+    }
+
+    // ==========================================
+    // SCOPES
+    // ==========================================
 
     public function scopeActive($query)
     {

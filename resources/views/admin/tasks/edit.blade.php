@@ -44,7 +44,35 @@
             
             <div class="form-group">
                 <label class="form-label">URL</label>
-                <input type="url" name="url" class="form-control" value="{{ old('url', $task->url) }}" required>
+                <input type="url" name="url" id="urlInput" class="form-control" value="{{ old('url', $task->url) }}">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">
+                    * Ikiwa unatumia Link Pool, URL hii haitumiki (itachaguliwa random kutoka pool)
+                </small>
+            </div>
+            
+            <!-- Link Pool Selector (NEW!) -->
+            <div class="form-group" style="margin-top: var(--space-4);">
+                <label class="form-label">
+                    <i data-lucide="shuffle" style="width: 16px; height: 16px; display: inline;"></i>
+                    Link Pool (Random Rotation)
+                </label>
+                <select name="link_pool_id" id="linkPoolSelect" class="form-control" onchange="toggleUrlRequired()">
+                    <option value="">-- Usitumie Pool (tumia URL hapo juu) --</option>
+                    @foreach($linkPools as $pool)
+                        <option value="{{ $pool->id }}" 
+                                {{ old('link_pool_id', $task->link_pool_id) == $pool->id ? 'selected' : '' }}
+                                data-links="{{ $pool->activeLinks()->count() }}">
+                            {{ $pool->name }} ({{ $pool->activeLinks()->count() }} links)
+                        </option>
+                    @endforeach
+                </select>
+                @if($task->usesLinkPool())
+                    <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.5rem;">
+                        <small style="color: var(--success);">
+                            🔀 Task hii inatumia <strong>{{ $task->linkPool?->name }}</strong> - links {{ $task->linkPool?->activeLinks()->count() ?? 0 }}
+                        </small>
+                    </div>
+                @endif
             </div>
             
             <div class="grid grid-2" style="gap: var(--space-4);">
@@ -113,3 +141,23 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function toggleUrlRequired() {
+        const poolSelect = document.getElementById('linkPoolSelect');
+        const urlInput = document.getElementById('urlInput');
+        
+        if (poolSelect.value) {
+            urlInput.required = false;
+            urlInput.placeholder = 'https://... (optional - pool links will be used)';
+        } else {
+            urlInput.required = true;
+            urlInput.placeholder = 'https://... (required)';
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', toggleUrlRequired);
+</script>
+@endpush
+

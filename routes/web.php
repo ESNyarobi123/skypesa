@@ -97,6 +97,12 @@ Route::middleware(['auth'])->group(function () {
     // Referrals
     Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
     
+    // Gamification Routes
+    Route::get('/leaderboard', [App\Http\Controllers\GamificationController::class, 'leaderboard'])->name('leaderboard');
+    Route::post('/daily-goal/claim', [App\Http\Controllers\GamificationController::class, 'claimDailyGoal'])->name('daily-goal.claim');
+    Route::get('/api/daily-goal', [App\Http\Controllers\GamificationController::class, 'getDailyGoal'])->name('api.daily-goal');
+    Route::get('/api/leaderboard', [App\Http\Controllers\GamificationController::class, 'getLeaderboardData'])->name('api.leaderboard');
+    
     // Payments (ZenoPay)
     Route::get('/pay/subscription/{plan}', [PaymentController::class, 'subscriptionPayment'])->name('payments.subscription');
     Route::post('/pay/subscription/{plan}', [PaymentController::class, 'initiateSubscriptionPayment'])->name('payments.subscription.initiate');

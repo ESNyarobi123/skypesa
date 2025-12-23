@@ -135,9 +135,40 @@
         <div class="stat-label">Wanaofanya Kazi</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">TZS 0</div>
+        <div class="stat-value" style="color: var(--primary);">TZS {{ number_format($referralEarnings, 0) }}</div>
         <div class="stat-label">Bonus Uliyopata</div>
     </div>
+</div>
+
+<!-- Bonus Info Card -->
+<div class="card mb-8" style="padding: var(--space-5); background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(16, 185, 129, 0.3);">
+    <div style="display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <h4 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">💰</span>
+                Bonus za Referral
+            </h4>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">
+                Alika marafiki na mpate bonus pamoja!
+            </p>
+        </div>
+        <div style="display: flex; gap: var(--space-4); flex-wrap: wrap;">
+            <div style="background: var(--bg-dark); padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); text-align: center; min-width: 120px;">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Wewe Utapata</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">TZS {{ number_format($referralBonusReferrer, 0) }}</div>
+            </div>
+            <div style="background: var(--bg-dark); padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); text-align: center; min-width: 120px;">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Rafiki Atapata</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--success);">TZS {{ number_format($referralBonusNewUser, 0) }}</div>
+            </div>
+        </div>
+    </div>
+    @if($referralRequireTask)
+    <div style="margin-top: var(--space-3); padding: var(--space-2) var(--space-3); background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-md); font-size: 0.75rem; color: var(--warning);">
+        <i data-lucide="info" style="width: 14px; height: 14px; display: inline; vertical-align: middle;"></i>
+        Bonus italipwa rafiki akimaliza task yake ya kwanza
+    </div>
+    @endif
 </div>
 
 <!-- Referral Code Card -->
@@ -206,8 +237,8 @@
                 <i data-lucide="gift" style="color: var(--primary);"></i>
             </div>
             <div>
-                <h5 class="mb-2">3. Pata Bonus</h5>
-                <p style="font-size: 0.875rem; margin: 0;">Unapata bonus wanapoanza kufanya tasks</p>
+                <h5 class="mb-2">3. Pata TZS {{ number_format($referralBonusReferrer, 0) }}!</h5>
+                <p style="font-size: 0.875rem; margin: 0;">Unapata bonus rafiki akimaliza task yake ya kwanza</p>
             </div>
         </div>
     </div>
