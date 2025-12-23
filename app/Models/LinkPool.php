@@ -58,11 +58,51 @@ class LinkPool extends Model
     }
 
     /**
-     * Get a random active link from this pool
+     * Get a random active link from this pool using Weighted Random Selection
+     * 
+     * @param string|null $provider Optional provider filter
+     * @return PoolLink|null
      */
-    public function getRandomLink(): ?PoolLink
+    public function getRandomLink(?string $provider = null): ?PoolLink
     {
-        return $this->activeLinks()->inRandomOrder()->first();
+        $query = $this->activeLinks();
+        
+        // If a specific provider is requested, filter by it
+        if ($provider) {
+            $query->where('provider', strtolower($provider));
+        }
+        
+        $links = $query->get();
+        
+        if ($links->isEmpty()) {
+            // If no links for specific provider, fall back to any active link in pool
+            if ($provider) {
+                $links = $this->activeLinks()->get();
+            }
+            
+            if ($links->isEmpty()) {
+                return null;
+            }
+        }
+
+        // Weighted Random Selection Logic
+        $totalWeight = $links->sum('weight');
+        
+        if ($totalWeight <= 0) {
+            return $links->random();
+        }
+
+        $randomWeight = mt_rand(1, $totalWeight);
+        $currentWeight = 0;
+
+        foreach ($links as $link) {
+            $currentWeight += ($link->weight ?? 1);
+            if ($randomWeight <= $currentWeight) {
+                return $link;
+            }
+        }
+
+        return $links->first();
     }
 
     /**

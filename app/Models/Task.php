@@ -99,7 +99,8 @@ class Task extends Model
             return null;
         }
 
-        return $this->linkPool?->getRandomLink();
+        // Pass the task's provider to the pool to prioritize matching links
+        return $this->linkPool?->getRandomLink($this->provider);
     }
 
     /**

@@ -108,11 +108,12 @@ class GamificationService
      */
     public function incrementDailyProgress(User $user): void
     {
-        // Reset if new day
+        // We just need to ensure the date is current. 
+        // The actual count is now handled dynamically in DailyGoal::getUserProgress()
         if ($user->last_daily_goal_date !== today()->toDateString()) {
             $user->update([
                 'last_daily_goal_date' => today(),
-                'daily_goal_progress' => 1,
+                'daily_goal_progress' => 1, // First task of the day
                 'daily_goal_claimed' => false,
             ]);
         } else {

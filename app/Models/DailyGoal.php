@@ -50,35 +50,20 @@ class DailyGoal extends Model
      */
     public function getUserProgress(User $user): array
     {
-        // Get today's date as string for comparison
-        $todayString = today()->toDateString();
-        
-        // Get user's last goal date as string (handle null and Carbon)
-        $userLastDate = $user->last_daily_goal_date 
-            ? (is_string($user->last_daily_goal_date) 
-                ? $user->last_daily_goal_date 
-                : $user->last_daily_goal_date->toDateString())
-            : null;
-        
-        // Reset if it's a new day or never set
-        if ($userLastDate !== $todayString) {
-            // Count actual tasks completed today from database
-            $todayTaskCount = $user->taskCompletions()
-                ->where('status', 'completed')
-                ->whereDate('created_at', today())
-                ->count();
+        // Always get the actual count of tasks completed today for 100% accuracy
+        $completed = $user->taskCompletions()
+            ->where('status', 'completed')
+            ->whereDate('created_at', today())
+            ->count();
             
+        // Sync the user's progress field and date if needed (for other parts of the system)
+        if ($user->daily_goal_progress !== $completed || $user->last_daily_goal_date !== today()->toDateString()) {
             $user->update([
+                'daily_goal_progress' => $completed,
                 'last_daily_goal_date' => today(),
-                'daily_goal_progress' => $todayTaskCount,
-                'daily_goal_claimed' => false,
             ]);
-            
-            // Refresh user to get updated values
-            $user->refresh();
         }
 
-        $completed = $user->daily_goal_progress ?? 0;
         $target = $this->target_tasks;
         $percentage = $target > 0 ? min(100, ($completed / $target) * 100) : 0;
 
