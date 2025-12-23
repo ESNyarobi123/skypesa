@@ -111,13 +111,13 @@
     
     .daily-goal-title h4 {
         margin: 0 0 0.25rem 0;
-        font-size: 1.1rem;
+        font-size: 0.9375rem; /* was 1.1rem */
     }
     
     .daily-goal-title p {
         margin: 0;
         color: var(--text-muted);
-        font-size: 0.875rem;
+        font-size: 0.75rem; /* was 0.875rem */
     }
     
     .daily-goal-bonus {
@@ -126,12 +126,12 @@
     
     .bonus-amount {
         display: inline-block;
-        padding: 0.5rem 1rem;
+        padding: 0.375rem 0.75rem;
         background: var(--gradient-primary);
         border-radius: var(--radius-full);
         color: white;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.75rem; /* was 0.9rem */
         animation: pulse 2s infinite;
     }
     
@@ -150,18 +150,18 @@
     }
     
     .progress-stats {
-        min-width: 80px;
+        min-width: 70px;
     }
     
     .completed-count {
-        font-size: 1.5rem;
+        font-size: 1.25rem; /* was 1.5rem */
         font-weight: 800;
         color: var(--primary);
     }
     
     .target-count {
         color: var(--text-muted);
-        font-size: 0.875rem;
+        font-size: 0.75rem; /* was 0.875rem */
     }
     
     .progress-bar-wrapper {
@@ -200,16 +200,17 @@
     }
     
     .progress-percentage {
-        min-width: 50px;
+        min-width: 45px;
         text-align: right;
         font-weight: 700;
+        font-size: 0.8125rem;
         color: var(--primary);
     }
     
     .claim-bonus-btn {
         width: 100%;
-        padding: 1rem;
-        font-size: 1rem;
+        padding: 0.75rem;
+        font-size: 0.875rem;
         animation: pulse 2s infinite;
     }
     
@@ -218,16 +219,17 @@
         align-items: center;
         justify-content: center;
         gap: var(--space-2);
-        padding: 1rem;
+        padding: 0.75rem;
         background: rgba(16, 185, 129, 0.2);
         border-radius: var(--radius-lg);
         color: var(--success);
         font-weight: 500;
+        font-size: 0.8125rem;
     }
     
     .bonus-claimed i {
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
     }
     
     .tasks-remaining {
@@ -235,16 +237,16 @@
         align-items: center;
         justify-content: center;
         gap: var(--space-2);
-        padding: 0.75rem;
+        padding: 0.5rem;
         background: rgba(255, 255, 255, 0.05);
         border-radius: var(--radius-lg);
         color: var(--text-secondary);
-        font-size: 0.9rem;
+        font-size: 0.75rem;
     }
     
     .tasks-remaining i {
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
         color: var(--primary);
     }
     

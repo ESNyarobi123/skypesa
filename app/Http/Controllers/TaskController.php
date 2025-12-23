@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\TaskCompletion;
 use App\Services\TaskLockService;
+use App\Services\GamificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
     protected TaskLockService $lockService;
+    protected GamificationService $gamificationService;
 
-    public function __construct(TaskLockService $lockService)
+    public function __construct(TaskLockService $lockService, GamificationService $gamificationService)
     {
         $this->lockService = $lockService;
+        $this->gamificationService = $gamificationService;
     }
 
     public function index(Request $request)
@@ -210,6 +213,12 @@ class TaskController extends Controller
                 'Malipo ya task: ' . $task->title
             );
             
+            // Increment daily goal progress
+            $this->gamificationService->incrementDailyProgress($user);
+            
+            // Get updated daily goal data
+            $dailyGoal = $this->gamificationService->getDailyGoalData($user->fresh());
+            
             DB::commit();
             
             return response()->json([
@@ -218,6 +227,7 @@ class TaskController extends Controller
                 'reward' => $reward,
                 'new_balance' => $user->wallet->fresh()->balance,
                 'duration' => $result['duration'],
+                'daily_goal' => $dailyGoal,
             ]);
             
         } catch (\Exception $e) {

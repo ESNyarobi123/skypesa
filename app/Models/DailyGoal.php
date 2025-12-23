@@ -50,18 +50,37 @@ class DailyGoal extends Model
      */
     public function getUserProgress(User $user): array
     {
-        // Reset if it's a new day
-        if ($user->last_daily_goal_date !== today()->toDateString()) {
+        // Get today's date as string for comparison
+        $todayString = today()->toDateString();
+        
+        // Get user's last goal date as string (handle null and Carbon)
+        $userLastDate = $user->last_daily_goal_date 
+            ? (is_string($user->last_daily_goal_date) 
+                ? $user->last_daily_goal_date 
+                : $user->last_daily_goal_date->toDateString())
+            : null;
+        
+        // Reset if it's a new day or never set
+        if ($userLastDate !== $todayString) {
+            // Count actual tasks completed today from database
+            $todayTaskCount = $user->taskCompletions()
+                ->where('status', 'completed')
+                ->whereDate('created_at', today())
+                ->count();
+            
             $user->update([
                 'last_daily_goal_date' => today(),
-                'daily_goal_progress' => 0,
+                'daily_goal_progress' => $todayTaskCount,
                 'daily_goal_claimed' => false,
             ]);
+            
+            // Refresh user to get updated values
+            $user->refresh();
         }
 
-        $completed = $user->daily_goal_progress;
+        $completed = $user->daily_goal_progress ?? 0;
         $target = $this->target_tasks;
-        $percentage = min(100, ($completed / $target) * 100);
+        $percentage = $target > 0 ? min(100, ($completed / $target) * 100) : 0;
 
         return [
             'completed' => $completed,
@@ -69,7 +88,7 @@ class DailyGoal extends Model
             'percentage' => round($percentage, 1),
             'remaining' => max(0, $target - $completed),
             'is_complete' => $completed >= $target,
-            'is_claimed' => $user->daily_goal_claimed,
+            'is_claimed' => $user->daily_goal_claimed ?? false,
             'bonus_amount' => $this->bonus_amount,
         ];
     }

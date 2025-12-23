@@ -398,7 +398,21 @@
         </div>
         <h1 style="color: var(--primary); margin-bottom: 0.5rem;">Hongera! 🎉</h1>
         <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">Umepata <strong>TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}</strong></p>
-        <p id="newBalanceText" style="color: var(--text-muted); margin-bottom: 2rem;"></p>
+        <p id="newBalanceText" style="color: var(--text-muted); margin-bottom: 1rem;"></p>
+        
+        <!-- Daily Goal Progress Update -->
+        <div id="dailyGoalUpdateBox" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1.5rem; display: none;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <i data-lucide="target" style="width: 18px; height: 18px; color: var(--primary);"></i>
+                <span style="font-weight: 600; color: var(--primary);">🎯 Mkakamavu wa Leo</span>
+            </div>
+            <div id="dailyGoalUpdateText" style="font-size: 0.9rem; color: var(--text-secondary);"></div>
+            <div style="margin-top: 0.5rem;">
+                <div style="height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden;">
+                    <div id="dailyGoalProgressBar" style="height: 100%; background: var(--gradient-primary); transition: width 1s ease; width: 0%;"></div>
+                </div>
+            </div>
+        </div>
         
         <div class="flex gap-4 justify-center">
             <a href="{{ route('tasks.index') }}" class="btn btn-primary btn-lg">
@@ -536,7 +550,7 @@
             if (data.success) {
                 lockToken = data.lock_token;
                 countdown = data.duration;
-                // Use the URL returned by server (random from pool) or fall back to default
+                // MUHIMU: Tumia link iliyochaguliwa na server (Random Link)
                 activeUrl = data.used_url || defaultTaskUrl;
                 showFullscreenView(activeUrl);
             } else {
@@ -674,7 +688,7 @@
         .then(data => {
             if (data.success) {
                 taskStarted = false;
-                showSuccessModal(data.new_balance);
+                showSuccessModal(data.new_balance, data.daily_goal);
             } else {
                 throw new Error(data.message || 'Imeshindwa kukamilika');
             }
@@ -728,10 +742,32 @@
         });
     }
     
-    function showSuccessModal(newBalance) {
+    function showSuccessModal(newBalance, dailyGoal) {
         document.getElementById('taskFullscreen').style.display = 'none';
         document.getElementById('successModal').style.display = 'flex';
         document.getElementById('newBalanceText').textContent = 'Salio jipya: TZS ' + new Intl.NumberFormat().format(newBalance);
+        
+        // Update daily goal progress with animation
+        if (dailyGoal) {
+            const goalBox = document.getElementById('dailyGoalUpdateBox');
+            const goalText = document.getElementById('dailyGoalUpdateText');
+            const goalBar = document.getElementById('dailyGoalProgressBar');
+            
+            goalBox.style.display = 'block';
+            
+            if (dailyGoal.is_complete && !dailyGoal.is_claimed) {
+                goalText.innerHTML = `<strong style="color: var(--success);">🎉 Umekamilisha! ${dailyGoal.completed}/${dailyGoal.target}</strong><br>Chukua bonus yako TZS ${new Intl.NumberFormat().format(dailyGoal.bonus_amount)}!`;
+            } else if (dailyGoal.is_claimed) {
+                goalText.innerHTML = `<strong style="color: var(--success);">✓ ${dailyGoal.completed}/${dailyGoal.target}</strong><br>Umeshachukua bonus ya leo!`;
+            } else {
+                goalText.innerHTML = `<strong>${dailyGoal.completed}/${dailyGoal.target}</strong> tasks<br>Baki <strong style="color: var(--primary);">${dailyGoal.remaining}</strong> kwa bonus!`;
+            }
+            
+            // Animate progress bar
+            setTimeout(() => {
+                goalBar.style.width = dailyGoal.percentage + '%';
+            }, 300);
+        }
         
         // Create confetti
         createConfetti();

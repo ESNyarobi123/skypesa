@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Services\TaskLockService;
+use App\Services\GamificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 {
     protected TaskLockService $lockService;
+    protected GamificationService $gamificationService;
 
-    public function __construct(TaskLockService $lockService)
+    public function __construct(TaskLockService $lockService, GamificationService $gamificationService)
     {
         $this->lockService = $lockService;
+        $this->gamificationService = $gamificationService;
     }
 
     /**
@@ -106,7 +109,7 @@ class TaskController extends Controller
                 'lock_token' => $result['lock_token'],
                 'duration' => $result['duration'],
                 'started_at' => $result['started_at']->toISOString(),
-                'task_url' => $task->url,
+                'task_url' => $result['used_url'] ?? $task->url,
             ],
         ]);
     }
@@ -209,6 +212,9 @@ class TaskController extends Controller
             $completion,
             'Malipo ya task: ' . $task->title
         );
+        
+        // Increment daily goal progress
+        $this->gamificationService->incrementDailyProgress($user);
 
         return response()->json([
             'success' => true,
