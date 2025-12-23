@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="x-apple-disable-message-reformatting">
-    <title>Kodi ya Kubadilisha Nenosiri - SKYpesa</title>
+    <title>Akaunti Yako - SKYpesa</title>
     <!--[if mso]>
     <noscript>
         <xml>
@@ -20,7 +20,7 @@
     
     <!-- Preheader Text -->
     <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
-        Kodi yako ya uhakiki ni {{ $otp }}. Itatumika kwa dakika 15 tu.
+        Akaunti yako ya SKYpesa imefunguliwa kikamilifu.
     </div>
     
     <!-- Main Container -->
@@ -35,7 +35,7 @@
                     <tr>
                         <td style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 40px 30px; text-align: center;">
                             <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">SKYpesa</h1>
-                            <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Usalama wa Akaunti Yako</p>
+                            <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Taarifa za Akaunti Yako</p>
                         </td>
                     </tr>
                     
@@ -45,30 +45,21 @@
                             
                             <!-- Message -->
                             <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.7;">
-                                Habari,
+                                Habari {{ $user->name }},
                             </p>
                             
                             <p style="margin: 0 0 25px 0; color: #4a5568; font-size: 16px; line-height: 1.7;">
-                                Tumepokea ombi la kubadilisha nenosiri lako la SKYpesa. Tumia kodi ifuatayo ya uhakiki (OTP) ili kuendelea:
+                                Akaunti yako ya SKYpesa imefunguliwa kikamilifu. Sasa unaweza kuingia na kuanza kutumia huduma zetu.
                             </p>
                             
-                            <!-- OTP Code Box -->
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <!-- Info Box -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f0fdf4; border-radius: 8px; margin: 25px 0;">
                                 <tr>
-                                    <td style="text-align: center; padding: 25px 0;">
-                                        <div style="display: inline-block; background-color: #f0fdf4; border: 2px dashed #10b981; border-radius: 12px; padding: 20px 40px;">
-                                            <span style="font-size: 36px; font-weight: 800; color: #059669; letter-spacing: 8px; font-family: 'Courier New', monospace;">{{ $otp }}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <!-- Warning Box -->
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fef3c7; border-radius: 8px; margin: 25px 0;">
-                                <tr>
-                                    <td style="padding: 15px 20px;">
-                                        <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
-                                            <strong>Muhimu:</strong> Kodi hii itatumika kwa dakika 15 tu. Usimpe mtu yeyote kodi hii.
+                                    <td style="padding: 20px;">
+                                        <p style="margin: 0 0 10px 0; color: #047857; font-size: 15px; font-weight: 600;">Taarifa za Akaunti:</p>
+                                        <p style="margin: 0; color: #065f46; font-size: 14px;">
+                                            Jina: {{ $user->name }}<br>
+                                            Email: {{ $user->email }}
                                         </p>
                                     </td>
                                 </tr>
@@ -76,7 +67,7 @@
                             
                             <!-- Help Text -->
                             <p style="margin: 0; color: #718096; font-size: 14px; line-height: 1.6;">
-                                Kama hukuomba kubadilisha nenosiri, puuza email hii. Akaunti yako iko salama.
+                                Kama hukufungua akaunti hii, tafadhali wasiliana nasi mara moja kwa kujibu email hii.
                             </p>
                             
                         </td>
@@ -96,7 +87,7 @@
                                 &copy; {{ date('Y') }} SKYpesa. Haki zote zimehifadhiwa.
                             </p>
                             <p style="margin: 0; color: #a0aec0; font-size: 12px;">
-                                Email hii imetumwa kwa sababu ya ombi la kubadilisha nenosiri.
+                                Email hii imetumwa kwa sababu ya usajili wa akaunti mpya.
                             </p>
                         </td>
                     </tr>

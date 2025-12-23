@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 
 class AuthController extends Controller
 {
@@ -104,6 +106,13 @@ class AuthController extends Controller
                     'Hongera! ' . $user->name . ' amejiunga SKYpesa kupitia link yako. Utapata bonus akimaliza task ya kwanza.'
                 );
             }
+        }
+        
+        // Send Welcome Email
+        try {
+            Mail::to($user->email)->send(new WelcomeMail($user));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send welcome email: ' . $e->getMessage());
         }
 
         Auth::login($user);

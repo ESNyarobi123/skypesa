@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 
 class AuthController extends Controller
 {
@@ -61,6 +63,13 @@ class AuthController extends Controller
                 'status' => 'active',
                 'started_at' => now(),
             ]);
+        }
+
+        // Send Welcome Email
+        try {
+            Mail::to($user->email)->send(new WelcomeMail($user));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send welcome email (API): ' . $e->getMessage());
         }
 
         // Generate token
