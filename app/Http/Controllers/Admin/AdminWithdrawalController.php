@@ -17,6 +17,28 @@ class AdminWithdrawalController extends Controller
             $query->where('status', $request->status);
         }
         
+        // Filter by date range
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+        
+        // Search by name, phone, or payment_name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('payment_number', 'like', "%{$search}%")
+                    ->orWhere('payment_name', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%");
+                    });
+            });
+        }
+        
         $withdrawals = $query->latest()
             ->paginate(20)
             ->withQueryString();
@@ -171,6 +193,8 @@ class AdminWithdrawalController extends Controller
                 'Net Amount',
                 'Status',
                 'Payment Number',
+                'Account Name',
+                'Provider',
                 'Created At',
                 'Processed At',
             ]);
@@ -185,8 +209,10 @@ class AdminWithdrawalController extends Controller
                     $withdrawal->net_amount,
                     $withdrawal->status,
                     $withdrawal->payment_number,
+                    $withdrawal->payment_name ?? '',
+                    $withdrawal->payment_provider ?? '',
                     $withdrawal->created_at->format('Y-m-d H:i:s'),
-                    $withdrawal->processed_at ? $withdrawal->processed_at->format('Y-m-d H:i:s') : '',
+                    $withdrawal->paid_at ? $withdrawal->paid_at->format('Y-m-d H:i:s') : '',
                 ]);
             }
             

@@ -53,6 +53,9 @@
                 <td style="font-weight: 600; color: var(--success);">TZS {{ number_format($withdrawal->net_amount, 0) }}</td>
                 <td>
                     <div style="font-weight: 500;">{{ $withdrawal->payment_number }}</div>
+                    @if($withdrawal->payment_name)
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ $withdrawal->payment_name }}</div>
+                    @endif
                     <div style="font-size: 0.75rem; color: var(--text-muted);">{{ ucfirst($withdrawal->payment_provider) }}</div>
                 </td>
                 <td>

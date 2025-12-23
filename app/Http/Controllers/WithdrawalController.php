@@ -47,12 +47,16 @@ class WithdrawalController extends Controller
         $request->validate([
             'amount' => "required|numeric|min:{$minWithdrawal}|max:" . $wallet->getAvailableBalance(),
             'payment_number' => 'required|string|max:20',
+            'payment_name' => 'required|string|min:3|max:100|regex:/^[a-zA-Z\s]+$/',
             'payment_provider' => 'required|in:mpesa,tigopesa,airtelmoney,halopesa',
         ], [
             'amount.required' => 'Tafadhali weka kiasi.',
             'amount.min' => "Kiasi cha chini ni TZS " . number_format($minWithdrawal, 0),
             'amount.max' => 'Salio lako halitoshi.',
             'payment_number.required' => 'Tafadhali weka namba ya simu.',
+            'payment_name.required' => 'Tafadhali weka jina kamili la mwenye akaunti.',
+            'payment_name.min' => 'Jina liwe na angalau herufi 3.',
+            'payment_name.regex' => 'Jina liwe na herufi tu (bila namba au alama).',
             'payment_provider.required' => 'Tafadhali chagua mtoa huduma.',
         ]);
         
@@ -88,6 +92,7 @@ class WithdrawalController extends Controller
                 'net_amount' => $netAmount,
                 'payment_method' => 'mobile_money',
                 'payment_number' => $request->payment_number,
+                'payment_name' => $request->payment_name,
                 'payment_provider' => $request->payment_provider,
                 'status' => 'pending',
                 // New fraud prevention fields

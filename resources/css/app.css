@@ -79,7 +79,9 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-darker);
     color: var(--text-primary);
-    line-height: 1.6;
+    font-size: 0.875rem;
+    /* 14px base - was 15px */
+    line-height: 1.5;
     min-height: 100vh;
 }
 
@@ -96,27 +98,33 @@ h6 {
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
+    /* was 1.875rem */
 }
 
 h2 {
-    font-size: 2rem;
+    font-size: 1.25rem;
+    /* was 1.5rem */
 }
 
 h3 {
-    font-size: 1.5rem;
+    font-size: 1.0625rem;
+    /* was 1.25rem */
 }
 
 h4 {
-    font-size: 1.25rem;
+    font-size: 0.9375rem;
+    /* was 1.0625rem */
 }
 
 h5 {
-    font-size: 1rem;
+    font-size: 0.8125rem;
+    /* was 0.9375rem */
 }
 
 h6 {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
+    /* was 0.8125rem */
 }
 
 p {
@@ -174,8 +182,9 @@ a:hover {
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
-    font-size: 0.875rem;
+    padding: var(--space-2) var(--space-5);
+    font-size: 0.8125rem;
+    /* was 0.875rem */
     font-weight: 600;
     border-radius: var(--radius-lg);
     border: none;
@@ -219,13 +228,15 @@ a:hover {
 }
 
 .btn-lg {
-    padding: var(--space-4) var(--space-8);
-    font-size: 1rem;
+    padding: var(--space-2) var(--space-5);
+    font-size: 0.875rem;
+    /* was 0.9375rem */
 }
 
 .btn-sm {
-    padding: var(--space-2) var(--space-4);
-    font-size: 0.75rem;
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.625rem;
+    /* was 0.6875rem */
 }
 
 .btn-icon {
@@ -241,19 +252,21 @@ a:hover {
 .form-label {
     display: block;
     margin-bottom: var(--space-2);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
+    /* was 0.875rem */
     font-weight: 500;
     color: var(--text-secondary);
 }
 
 .form-control {
     width: 100%;
-    padding: var(--space-3) var(--space-4);
-    font-size: 1rem;
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.8125rem;
+    /* was 0.875rem */
     color: var(--text-primary);
     background: var(--bg-dark);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     transition: all var(--transition-fast);
 }
 
@@ -271,8 +284,9 @@ a:hover {
 .badge {
     display: inline-flex;
     align-items: center;
-    padding: var(--space-1) var(--space-3);
-    font-size: 0.75rem;
+    padding: 0.125rem var(--space-2);
+    font-size: 0.625rem;
+    /* was 0.75rem */
     font-weight: 600;
     border-radius: var(--radius-full);
     text-transform: uppercase;
@@ -440,23 +454,25 @@ a:hover {
 .stat-card {
     background: var(--gradient-glow);
     border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
     text-align: center;
 }
 
 .stat-value {
-    font-size: 2.5rem;
+    font-size: 1.375rem;
+    /* was 1.75rem */
     font-weight: 800;
     color: var(--primary);
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-1);
 }
 
 .stat-label {
-    font-size: 0.875rem;
+    font-size: 0.625rem;
+    /* was 0.75rem */
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
 }
 
 /* Task Card */
@@ -549,19 +565,22 @@ a:hover {
 }
 
 .plan-name {
-    font-size: 1.5rem;
+    font-size: 1.0625rem;
+    /* was 1.25rem */
     font-weight: 700;
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
 }
 
 .plan-price {
-    font-size: 3rem;
+    font-size: 1.5rem;
+    /* was 2rem */
     font-weight: 800;
     color: var(--primary);
 }
 
 .plan-price span {
-    font-size: 1rem;
+    font-size: 0.6875rem;
+    /* was 0.8125rem */
     font-weight: 500;
     color: var(--text-secondary);
 }
@@ -610,17 +629,19 @@ a:hover {
 }
 
 .wallet-balance {
-    font-size: 3rem;
+    font-size: 1.75rem;
+    /* was 2.25rem */
     font-weight: 800;
     color: white;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-1);
 }
 
 .wallet-label {
-    font-size: 0.875rem;
+    font-size: 0.625rem;
+    /* was 0.75rem */
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
 }
 
 /* Grid */
@@ -1013,11 +1034,13 @@ a:hover {
     }
 
     .wallet-balance {
-        font-size: 3.5rem;
+        font-size: 2.75rem;
+        /* was 3.5rem */
     }
 
     .stat-value {
-        font-size: 2.75rem;
+        font-size: 2rem;
+        /* was 2.75rem */
     }
 }
 
@@ -1066,27 +1089,33 @@ a:hover {
     }
 
     h1 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+        /* was 1.75rem */
     }
 
     h2 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+        /* was 1.5rem */
     }
 
     h3 {
-        font-size: 1.25rem;
+        font-size: 1.0625rem;
+        /* was 1.25rem */
     }
 
     .wallet-balance {
-        font-size: 2.25rem;
+        font-size: 1.875rem;
+        /* was 2.25rem */
     }
 
     .stat-value {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+        /* was 1.75rem */
     }
 
     .plan-price {
-        font-size: 2rem;
+        font-size: 1.75rem;
+        /* was 2rem */
     }
 }
 
@@ -1103,32 +1132,38 @@ a:hover {
     }
 
     h1 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+        /* was 1.5rem */
     }
 
     h2 {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
+        /* was 1.25rem */
     }
 
     h3 {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        /* was 1.1rem */
     }
 
     h4 {
-        font-size: 1rem;
+        font-size: 0.9375rem;
+        /* was 1rem */
     }
 
     .wallet-card {
-        padding: var(--space-6);
-        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        border-radius: var(--radius-lg);
     }
 
     .wallet-balance {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+        /* was 1.75rem */
     }
 
     .wallet-label {
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
+        /* was 0.75rem */
     }
 
     .card-body {
@@ -1136,42 +1171,49 @@ a:hover {
     }
 
     .stat-card {
-        padding: var(--space-4);
+        padding: var(--space-3);
     }
 
     .stat-value {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
+        /* was 1.25rem */
     }
 
     .stat-label {
-        font-size: 0.7rem;
+        font-size: 0.625rem;
+        /* was 0.7rem */
     }
 
     .plan-card {
-        padding: var(--space-6);
+        padding: var(--space-5);
     }
 
     .plan-name {
-        font-size: 1.25rem;
+        font-size: 1.0625rem;
+        /* was 1.25rem */
     }
 
     .plan-price {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+        /* was 1.75rem */
     }
 
     .btn {
-        padding: var(--space-3) var(--space-4);
-        font-size: 0.8rem;
+        padding: var(--space-2) var(--space-4);
+        font-size: 0.75rem;
+        /* was 0.8rem */
     }
 
     .btn-lg {
-        padding: var(--space-3) var(--space-6);
-        font-size: 0.9rem;
+        padding: var(--space-3) var(--space-5);
+        font-size: 0.8125rem;
+        /* was 0.9rem */
     }
 
     .btn-sm {
-        padding: var(--space-2) var(--space-3);
-        font-size: 0.7rem;
+        padding: var(--space-1) var(--space-2);
+        font-size: 0.6875rem;
+        /* was 0.7rem */
     }
 
     /* Responsive Tables */
@@ -1188,8 +1230,9 @@ a:hover {
 
     .table th,
     .table td {
-        padding: var(--space-3);
-        font-size: 0.8rem;
+        padding: var(--space-2);
+        font-size: 0.75rem;
+        /* was 0.8rem */
     }
 
     /* Card Table Alternative for Mobile */
@@ -1511,8 +1554,8 @@ a:hover {
         width: 20px;
         height: 2px;
     }
-} 
- 
+}
+
 @media (max-width: 360px) {
     .bottom-nav-item {
         padding: 4px 2px;

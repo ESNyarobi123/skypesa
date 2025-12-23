@@ -126,6 +126,22 @@
                 </div>
             </div>
             
+            <div class="form-group">
+                <label class="form-label">Jina Kamili la Mwenye Akaunti</label>
+                <div style="position: relative;">
+                    <i data-lucide="user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
+                    <input type="text" name="payment_name" class="form-control" 
+                           placeholder="Mfano: John Doe Mwalimu" 
+                           value="{{ old('payment_name', auth()->user()->name) }}"
+                           style="padding-left: 44px;"
+                           required>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-1);">
+                    <i data-lucide="info" style="width: 12px; height: 12px; display: inline;"></i>
+                    Weka jina kamili la mtu anayemiliki namba hii ya simu
+                </div>
+            </div>
+            
             <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
                 <i data-lucide="send"></i>
                 Tuma Ombi

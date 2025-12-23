@@ -1353,76 +1353,60 @@
                 <p>Anza bure au upgrade kwa faida zaidi</p>
             </div>
 
-            <div class="pricing-grid">
-                <!-- Free -->
-                <div class="plan-card">
-                    <div class="plan-tier">Bure</div>
-                    <div class="plan-name">Free</div>
-                    <div class="plan-price">TZS 0</div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="check"></i> Tasks 20/siku</li>
-                        <li><i data-lucide="coins"></i> TZS 3/task</li>
-                        <li><i data-lucide="banknote"></i> Min: TZS 5,000</li>
-                        <li><i data-lucide="percent"></i> Fee: 20%</li>
-                    </ul>
-                    <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">Jiunge Bure</a>
-                </div>
-
-                <!-- Starter -->
-                <div class="plan-card">
-                    <div class="plan-tier" style="color: #3b82f6;">Starter</div>
-                    <div class="plan-name">Starter</div>
-                    <div class="plan-price">TZS 2,000<span>/mwezi</span></div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="check"></i> Tasks 40/siku</li>
-                        <li><i data-lucide="coins"></i> TZS 4/task</li>
-                        <li><i data-lucide="banknote"></i> Min: TZS 3,000</li>
-                        <li><i data-lucide="percent"></i> Fee: 15%</li>
-                    </ul>
-                    <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">Chagua</a>
-                </div>
-
-                <!-- Silver - Featured -->
-                <div class="plan-card featured">
-                    <div class="plan-tier">Bora</div>
-                    <div class="plan-name">Silver</div>
-                    <div class="plan-price">TZS 5,000<span>/mwezi</span></div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="check"></i> Tasks 60/siku</li>
-                        <li><i data-lucide="coins"></i> TZS 5/task</li>
-                        <li><i data-lucide="banknote"></i> Min: TZS 2,000</li>
-                        <li><i data-lucide="percent"></i> Fee: 10%</li>
-                    </ul>
-                    <a href="{{ route('register') }}" class="btn btn-primary" style="width: 100%;">Chagua</a>
-                </div>
-
-                <!-- Gold -->
-                <div class="plan-card">
-                    <div class="plan-tier" style="color: #f59e0b;">Dhahabu</div>
-                    <div class="plan-name">Gold</div>
-                    <div class="plan-price">TZS 10,000<span>/mwezi</span></div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="check"></i> Tasks 100/siku</li>
-                        <li><i data-lucide="coins"></i> TZS 7/task</li>
-                        <li><i data-lucide="banknote"></i> Min: TZS 1,500</li>
-                        <li><i data-lucide="percent"></i> Fee: 7%</li>
-                    </ul>
-                    <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">Chagua</a>
-                </div>
-
-                <!-- VIP -->
-                <div class="plan-card">
-                    <div class="plan-tier" style="color: var(--primary);">VIP</div>
-                    <div class="plan-name">VIP</div>
-                    <div class="plan-price">TZS 25,000<span>/mwezi</span></div>
-                    <ul class="plan-features">
-                        <li><i data-lucide="infinity"></i> UNLIMITED</li>
-                        <li><i data-lucide="coins"></i> TZS 10/task</li>
-                        <li><i data-lucide="banknote"></i> Min: TZS 1,000</li>
-                        <li><i data-lucide="zap"></i> Fee: 5%</li>
-                    </ul>
-                    <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">Chagua</a>
-                </div>
+            <div class="pricing-grid" style="grid-template-columns: repeat({{ min(count($plans ?? []), 5) }}, 1fr);">
+                @forelse($plans ?? [] as $plan)
+                    <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }}">
+                        <div class="plan-tier" style="{{ $plan->badge_color ? 'color: ' . $plan->badge_color . ';' : '' }}">
+                            {{ $plan->display_name ?? $plan->name }}
+                        </div>
+                        <div class="plan-name">{{ ucfirst($plan->name) }}</div>
+                        <div class="plan-price">
+                            TZS {{ number_format($plan->price, 0) }}
+                            @if($plan->price > 0)
+                                <span>/mwezi</span>
+                            @endif
+                        </div>
+                        <ul class="plan-features">
+                            <li>
+                                @if($plan->daily_task_limit)
+                                    <i data-lucide="check"></i> Tasks {{ $plan->daily_task_limit }}/siku
+                                @else
+                                    <i data-lucide="infinity"></i> UNLIMITED
+                                @endif
+                            </li>
+                            <li>
+                                <i data-lucide="coins"></i> TZS {{ number_format($plan->reward_per_task, 0) }}/task
+                            </li>
+                            <li>
+                                <i data-lucide="banknote"></i> Min: TZS {{ number_format($plan->min_withdrawal, 0) }}
+                            </li>
+                            <li>
+                                <i data-lucide="percent"></i> Fee: {{ number_format($plan->withdrawal_fee_percent, 0) }}%
+                            </li>
+                        </ul>
+                        <a href="{{ route('register') }}" class="btn {{ $plan->is_featured ? 'btn-primary' : 'btn-secondary' }}" style="width: 100%;">
+                            @if($plan->price == 0)
+                                Jiunge Bure
+                            @else
+                                Chagua
+                            @endif
+                        </a>
+                    </div>
+                @empty
+                    <!-- Fallback if no plans exist yet -->
+                    <div class="plan-card">
+                        <div class="plan-tier">Bure</div>
+                        <div class="plan-name">Free</div>
+                        <div class="plan-price">TZS 0</div>
+                        <ul class="plan-features">
+                            <li><i data-lucide="check"></i> Tasks 20/siku</li>
+                            <li><i data-lucide="coins"></i> TZS 3/task</li>
+                            <li><i data-lucide="banknote"></i> Min: TZS 5,000</li>
+                            <li><i data-lucide="percent"></i> Fee: 20%</li>
+                        </ul>
+                        <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">Jiunge Bure</a>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
