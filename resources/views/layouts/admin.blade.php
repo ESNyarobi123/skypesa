@@ -1068,6 +1068,18 @@
                     <div class="menu-section-title">System</div>
                     <ul class="sidebar-nav">
                         <li class="sidebar-nav-item">
+                            <a href="{{ route('admin.support.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.support.*') ? 'active' : '' }}">
+                                <i data-lucide="message-circle" class="nav-icon"></i>
+                                Support Center
+                                @php 
+                                    $unreadAdminSupport = \App\Models\SupportMessage::where('is_admin', false)->where('is_read', false)->count();
+                                @endphp
+                                @if($unreadAdminSupport > 0)
+                                    <span class="nav-badge">{{ $unreadAdminSupport }}</span>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
                             <a href="{{ route('admin.settings.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                                 <i data-lucide="settings" class="nav-icon"></i>
                                 Settings

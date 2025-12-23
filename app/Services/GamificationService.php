@@ -75,15 +75,23 @@ class GamificationService
         try {
             DB::beginTransaction();
 
-            // Credit wallet
+            // Credit wallet - Pass user as transactionable to avoid null constraint
             $user->wallet->credit(
                 self::SIGNUP_BONUS_AMOUNT,
                 'bonus',
-                null,
+                $user,
                 '🎁 Karibu SKYpesa! Bonus ya usajili.'
             );
 
             $user->update(['received_welcome_bonus' => true]);
+
+            // Notify user
+            \App\Models\Notification::notify(
+                $user,
+                'bonus',
+                '🎁 Karibu Bonus!',
+                'Umepata TZS ' . number_format(self::SIGNUP_BONUS_AMOUNT) . ' kama bonus ya kujiunga SKYpesa.'
+            );
 
             DB::commit();
 
@@ -162,25 +170,33 @@ class GamificationService
         try {
             DB::beginTransaction();
 
-            // Credit wallet
-            $user->wallet->credit(
-                $goal->bonus_amount,
-                'bonus',
-                null,
-                '🎯 Daily Goal Bonus! Umekamilisha ' . $goal->target_tasks . ' tasks.'
-            );
-
-            // Mark as claimed
-            $user->update(['daily_goal_claimed' => true]);
-
-            // Record completion
-            DailyGoalCompletion::create([
+            // 1. Record completion first to use as transactionable
+            $completion = DailyGoalCompletion::create([
                 'user_id' => $user->id,
                 'daily_goal_id' => $goal->id,
                 'completed_date' => today(),
                 'tasks_completed' => $progress['completed'],
                 'bonus_earned' => $goal->bonus_amount,
             ]);
+
+            // 2. Credit wallet with completion as transactionable
+            $user->wallet->credit(
+                $goal->bonus_amount,
+                'bonus',
+                $completion,
+                '🎯 Daily Goal Bonus! Umekamilisha ' . $goal->target_tasks . ' tasks.'
+            );
+
+            // 3. Mark as claimed
+            $user->update(['daily_goal_claimed' => true]);
+
+            // 4. Notify user
+            \App\Models\Notification::notify(
+                $user,
+                'bonus',
+                '🎯 Daily Goal Achieved!',
+                'Hongera! Umekamilisha goal ya leo na kupata TZS ' . number_format($goal->bonus_amount) . ' bonus.'
+            );
 
             DB::commit();
 

@@ -260,7 +260,7 @@ class PaymentController extends Controller
         $user->wallet->credit(
             $amount,
             'deposit',
-            null,
+            $user,
             'Deposit via ZenoPay',
             [
                 'zenopay_order_id' => $orderId,

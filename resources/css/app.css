@@ -978,8 +978,26 @@ a:hover {
     background: var(--bg-dark);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     padding: var(--space-6);
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     z-index: 100;
+}
+
+.sidebar nav {
+    flex: 1;
+    overflow-y: auto;
+    margin-right: -1rem;
+    padding-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
 }
 
 .sidebar-brand {
@@ -1600,6 +1618,23 @@ a:hover {
     .main-content {
         padding-top: 70px;
     }
+}
+
+.mobile-header-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    transition: all var(--transition-fast);
+}
+
+.mobile-header-icon:hover {
+    background: var(--bg-card-hover);
+    color: var(--primary);
 }
 
 .mobile-header-brand {

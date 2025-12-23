@@ -21,6 +21,7 @@ class AdminSettingsController extends Controller
             'withdrawal' => Setting::getByGroup('withdrawal'),
             'task' => Setting::getByGroup('task'),
             'profit' => Setting::getByGroup('profit'),
+            'support' => Setting::getByGroup('support'),
         ];
 
         return view('admin.settings', compact('settings'));
@@ -57,6 +58,9 @@ class AdminSettingsController extends Controller
             // Profit
             'ad_revenue_per_view' => 'nullable|integer|min:0',
             'platform_profit_percent' => 'nullable|integer|min:0|max:100',
+
+            // Support
+            'whatsapp_support_number' => 'nullable|string|max:20',
         ]);
 
         // Define field groups for proper categorization
@@ -77,6 +81,7 @@ class AdminSettingsController extends Controller
             'task_allow_skip' => 'task',
             'ad_revenue_per_view' => 'profit',
             'platform_profit_percent' => 'profit',
+            'whatsapp_support_number' => 'support',
         ];
 
         // Boolean fields list

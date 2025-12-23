@@ -27,7 +27,7 @@ class ReferralController extends Controller
         
         // Calculate total earnings from referrals
         $referralEarnings = $user->wallet?->transactions()
-            ->where('category', 'referral')
+            ->where('category', 'referral_bonus')
             ->where('type', 'credit')
             ->sum('amount') ?? 0;
         

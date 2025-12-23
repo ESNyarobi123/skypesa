@@ -213,9 +213,7 @@ class TaskController extends Controller
                 'Malipo ya task: ' . $task->title
             );
             
-            // Increment daily goal progress
-            $this->gamificationService->incrementDailyProgress($user);
-            
+            // Increment daily goal progress is already handled in $this->lockService->completeTask()
             // Get updated daily goal data
             $dailyGoal = $this->gamificationService->getDailyGoalData($user->fresh());
             

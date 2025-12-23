@@ -251,6 +251,27 @@
                     <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Percentage kept as profit (user reward is remainder)</p>
                 </div>
             </div>
+        <!-- Support Settings -->
+        <div class="chart-card" style="margin-bottom: 1.5rem;">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">
+                        <i data-lucide="message-square" style="width: 20px; height: 20px; display: inline; color: #25D366;"></i>
+                        Support Settings
+                    </div>
+                    <div class="chart-subtitle">Configure support and community links</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; gap: 1.25rem;">
+                <div class="form-group-modern">
+                    <label class="form-label-modern">WhatsApp Support Number</label>
+                    <input type="text" name="whatsapp_support_number" class="form-input-modern" 
+                           value="{{ $settings['support']['whatsapp_support_number'] ?? '255700000000' }}"
+                           placeholder="255700000000">
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Include country code without + (e.g., 255712345678)</p>
+                </div>
+            </div>
         </div>
 
         <!-- Save Button -->

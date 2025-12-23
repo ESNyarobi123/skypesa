@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\AdminAdsterraController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminDirectLinkController;
 use App\Http\Controllers\Admin\AdminLinkPoolController;
+use App\Http\Controllers\SupportController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -64,7 +65,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
-    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::get('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendOtp'])->name('password.email');
+    Route::get('/password/otp', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showOtpForm'])->name('password.otp');
+    Route::post('/password/otp', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'verifyOtp'])->name('password.otp.verify');
+    Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showResetForm'])->name('password.reset.form');
+    Route::post('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'resetPassword'])->name('password.reset.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
@@ -106,6 +112,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/daily-goal', [App\Http\Controllers\GamificationController::class, 'getDailyGoal'])->name('api.daily-goal');
     Route::get('/api/leaderboard', [App\Http\Controllers\GamificationController::class, 'getLeaderboardData'])->name('api.leaderboard');
     
+    // Support routes
+    Route::get('/support', [SupportController::class, 'index'])->name('support.index');
+    Route::get('/support/create', [SupportController::class, 'create'])->name('support.create');
+    Route::post('/support', [SupportController::class, 'store'])->name('support.store');
+    Route::get('/support/{id}', [SupportController::class, 'show'])->name('support.show');
+    Route::post('/support/{id}/reply', [SupportController::class, 'reply'])->name('support.reply');
+
     // Payments (ZenoPay)
     Route::get('/pay/subscription/{plan}', [PaymentController::class, 'subscriptionPayment'])->name('payments.subscription');
     Route::post('/pay/subscription/{plan}', [PaymentController::class, 'initiateSubscriptionPayment'])->name('payments.subscription.initiate');
@@ -202,5 +215,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/linkpools/{linkpool}/links/{link}/reset-clicks', [AdminLinkPoolController::class, 'resetLinkClicks'])->name('linkpools.links.reset-clicks');
         Route::post('/linkpools/{linkpool}/links/bulk-import', [AdminLinkPoolController::class, 'bulkImportLinks'])->name('linkpools.links.bulk-import');
 
+        // Support Management
+        Route::get('/support', [App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.index');
+        Route::get('/support/{id}', [App\Http\Controllers\Admin\AdminSupportController::class, 'show'])->name('support.show');
+        Route::post('/support/{id}/reply', [App\Http\Controllers\Admin\AdminSupportController::class, 'reply'])->name('support.reply');
+        Route::patch('/support/{id}/close', [App\Http\Controllers\Admin\AdminSupportController::class, 'close'])->name('support.close');
+
     });
+
+    // Notifications
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
 });

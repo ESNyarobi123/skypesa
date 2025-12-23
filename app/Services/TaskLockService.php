@@ -342,6 +342,14 @@ class TaskLockService
             'bonus_applied' => $bonusApplied,
         ]);
 
+        // Notify user of earnings
+        \App\Models\Notification::notify(
+            $user,
+            'task',
+            '✅ Kazi Imekamilika!',
+            'Hongera! Umepata TZS ' . number_format($finalReward, 1) . ' kwa kukamilisha kazi.'
+        );
+
         return [
             'success' => true,
             'message' => 'Kazi imekamilika!',
@@ -435,9 +443,17 @@ class TaskLockService
             if ($referrerBonus > 0 && $referrer->wallet) {
                 $referrer->wallet->credit(
                     $referrerBonus,
-                    'referral',
-                    null,
+                    'referral_bonus',
+                    $newUser,
                     '🎁 Referral Bonus! ' . $newUser->name . ' amekamilisha task ya kwanza.'
+                );
+
+                // Notify referrer
+                \App\Models\Notification::notify(
+                    $referrer,
+                    'referral',
+                    '👥 Referral Bonus!',
+                    'Umepata TZS ' . number_format($referrerBonus) . ' kwa sababu ' . $newUser->name . ' amekamilisha task ya kwanza.'
                 );
 
                 Log::info('Referral bonus paid to referrer', [
@@ -451,9 +467,17 @@ class TaskLockService
             if ($newUserBonus > 0 && $newUser->wallet) {
                 $newUser->wallet->credit(
                     $newUserBonus,
-                    'referral',
-                    null,
+                    'referral_bonus',
+                    $newUser,
                     '🎁 Karibu Bonus! Umejiandikisha kupitia referral.'
+                );
+
+                // Notify new user
+                \App\Models\Notification::notify(
+                    $newUser,
+                    'referral',
+                    '🎁 Karibu Bonus!',
+                    'Umepata TZS ' . number_format($newUserBonus) . ' kama bonus ya kujiunga kupitia referral.'
                 );
 
                 Log::info('Referral bonus paid to new user', [

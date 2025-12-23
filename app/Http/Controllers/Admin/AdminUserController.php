@@ -126,7 +126,7 @@ class AdminUserController extends Controller
             $user->wallet->credit(
                 $validated['initial_balance'],
                 'bonus',
-                null,
+                $user,
                 'Initial balance from admin'
             );
         }
@@ -302,7 +302,7 @@ class AdminUserController extends Controller
             $wallet->credit(
                 $validated['amount'],
                 'adjustment',
-                null,
+                $user,
                 $validated['reason']
             );
             $message = "TZS " . number_format($validated['amount']) . " credited to {$user->name}'s wallet.";
@@ -314,7 +314,7 @@ class AdminUserController extends Controller
             $wallet->debit(
                 $validated['amount'],
                 'adjustment',
-                null,
+                $user,
                 $validated['reason']
             );
             $message = "TZS " . number_format($validated['amount']) . " debited from {$user->name}'s wallet.";

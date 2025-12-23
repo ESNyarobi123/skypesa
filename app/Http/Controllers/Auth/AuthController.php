@@ -93,6 +93,19 @@ class AuthController extends Controller
             'referred_by' => $referredBy,
         ]);
 
+        // Notify referrer
+        if ($referredBy) {
+            $referrer = User::find($referredBy);
+            if ($referrer) {
+                \App\Models\Notification::notify(
+                    $referrer,
+                    'referral',
+                    '👥 Mtu Mpya Amejiunga!',
+                    'Hongera! ' . $user->name . ' amejiunga SKYpesa kupitia link yako. Utapata bonus akimaliza task ya kwanza.'
+                );
+            }
+        }
+
         Auth::login($user);
         
         $user->recordLogin($request->ip());
