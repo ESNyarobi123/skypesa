@@ -3,7 +3,7 @@
  * Handles caching, offline support, and background sync
  */
 
-const CACHE_NAME = 'skypesa-v2.0.0';
+const CACHE_NAME = 'skypesa-v2.1.0';
 const OFFLINE_URL = '/offline.html';
 
 // Disable update prompts for minor cache updates
@@ -183,17 +183,30 @@ async function fetchAndCache(request) {
 self.addEventListener('push', (event) => {
     console.log('[PWA] Push notification received');
 
+    // Get the base URL from the service worker scope
+    const baseUrl = self.registration.scope.replace(/\/$/, '');
+
+    // Default notification data with absolute URLs for icons
     let data = {
         title: 'SKYpesa',
-        body: 'Una arifa mpya!',
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/icon-96x96.png',
+        body: 'Tazama Task mpya!',
+        icon: `${baseUrl}/icons/icon-192x192.png`,
+        badge: `${baseUrl}/icons/icon-96x96.png`,
         tag: 'skypesa-notification'
     };
 
     if (event.data) {
         try {
-            data = { ...data, ...event.data.json() };
+            const pushData = event.data.json();
+            // Merge but ensure icon paths are absolute
+            data = { ...data, ...pushData };
+            // If push data has relative icon paths, convert to absolute
+            if (pushData.icon && !pushData.icon.startsWith('http')) {
+                data.icon = `${baseUrl}${pushData.icon.startsWith('/') ? '' : '/'}${pushData.icon}`;
+            }
+            if (pushData.badge && !pushData.badge.startsWith('http')) {
+                data.badge = `${baseUrl}${pushData.badge.startsWith('/') ? '' : '/'}${pushData.badge}`;
+            }
         } catch (e) {
             data.body = event.data.text();
         }
@@ -201,16 +214,20 @@ self.addEventListener('push', (event) => {
 
     const options = {
         body: data.body,
-        icon: data.icon || '/icons/icon-192x192.png',
-        badge: data.badge || '/icons/icon-96x96.png',
+        icon: data.icon,
+        badge: data.badge,
         tag: data.tag,
         vibrate: [100, 50, 100],
+        renotify: true,
+        requireInteraction: false,
         data: data.data || {},
         actions: data.actions || [
             { action: 'open', title: 'Fungua' },
             { action: 'close', title: 'Funga' }
         ]
     };
+
+    console.log('[PWA] Showing notification with icon:', options.icon);
 
     event.waitUntil(
         self.registration.showNotification(data.title, options)
