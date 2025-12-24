@@ -152,10 +152,10 @@
     
 
     
-    /* Enhanced Task Cards */
+    /* Enhanced Task Cards - Compact */
     .task-card-enhanced {
         background: var(--bg-card);
-        border-radius: var(--radius-xl);
+        border-radius: var(--radius-lg);
         border: 1px solid rgba(255, 255, 255, 0.05);
         overflow: hidden;
         transition: all var(--transition-base);
@@ -163,162 +163,222 @@
     }
     
     .task-card-enhanced:hover {
-        transform: translateY(-8px);
+        transform: translateY(-4px);
         border-color: var(--primary);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(16, 185, 129, 0.2);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 0 20px rgba(16, 185, 129, 0.15);
     }
     
     .task-card-enhanced.featured {
-        border: 2px solid var(--primary);
-        box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+        border: 1px solid var(--primary);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
     }
     
     .task-card-enhanced.featured::before {
-        content: '⭐ MAALUM';
+        content: '⭐';
         position: absolute;
-        top: 0;
-        right: 0;
+        top: 8px;
+        right: 8px;
         background: var(--gradient-primary);
         color: white;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 700;
-        padding: var(--space-1) var(--space-3);
-        border-radius: 0 0 0 var(--radius-lg);
+        padding: 2px 6px;
+        border-radius: var(--radius-md);
         z-index: 10;
-        letter-spacing: 0.05em;
     }
     
     .task-header {
-        padding: var(--space-5);
+        padding: var(--space-3) var(--space-4);
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        gap: var(--space-4);
+        align-items: center;
+        gap: var(--space-3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    
+    /* Task Type Icon - Colorful with Emoji */
+    .task-type-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1.3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .task-type-icon::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        opacity: 0.15;
+        border-radius: inherit;
+    }
+    
+    .task-type-icon.monetag {
+        background: linear-gradient(135deg, #FF6B35 0%, #FF8F00 100%);
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    }
+    
+    .task-type-icon.adsterra {
+        background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%);
+        box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+    }
+    
+    .task-type-icon.default, .task-type-icon:not(.monetag):not(.adsterra) {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    
+    .task-type-icon .emoji {
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
     
     .task-provider-badge {
         display: inline-flex;
         align-items: center;
-        gap: var(--space-1);
-        padding: var(--space-1) var(--space-2);
-        border-radius: var(--radius-md);
-        font-size: 0.65rem;
-        font-weight: 700;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: var(--radius-sm);
+        font-size: 0.6rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.03em;
     }
     
     .task-provider-badge.monetag {
-        background: rgba(255, 107, 53, 0.2);
+        background: rgba(255, 107, 53, 0.15);
         color: #FF6B35;
     }
     
     .task-provider-badge.adsterra {
-        background: rgba(0, 180, 216, 0.2);
+        background: rgba(0, 180, 216, 0.15);
         color: #00B4D8;
     }
     
     .task-provider-badge.cpx {
-        background: rgba(155, 93, 229, 0.2);
+        background: rgba(155, 93, 229, 0.15);
         color: #9B5DE5;
     }
     
     .task-reward-badge {
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
+        align-items: center;
     }
     
     .reward-amount {
         display: flex;
         align-items: center;
-        gap: var(--space-1);
-        padding: var(--space-2) var(--space-3);
+        gap: 4px;
+        padding: 4px 10px;
         background: var(--gradient-primary);
         color: white;
-        font-weight: 800;
-        font-size: 0.9rem;
-        border-radius: var(--radius-lg);
-        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        font-weight: 700;
+        font-size: 0.8rem;
+        border-radius: var(--radius-md);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+    }
+    
+    .reward-amount svg {
+        width: 14px;
+        height: 14px;
     }
     
     .task-content {
-        padding: 0 var(--space-5) var(--space-5);
+        padding: var(--space-3) var(--space-4) var(--space-4);
     }
     
     .task-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: var(--space-2);
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: var(--space-1);
         color: var(--text-primary);
         line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
     
     .task-description {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-bottom: var(--space-4);
-        line-height: 1.5;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: var(--space-3);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
     
     .task-meta {
         display: flex;
         align-items: center;
-        gap: var(--space-4);
+        gap: var(--space-3);
         flex-wrap: wrap;
-        margin-bottom: var(--space-4);
+        margin-bottom: var(--space-3);
     }
     
     .task-meta-item {
         display: flex;
         align-items: center;
-        gap: var(--space-1);
-        font-size: 0.8rem;
+        gap: 4px;
+        font-size: 0.7rem;
         color: var(--text-muted);
     }
     
     .task-meta-item svg {
-        width: 14px;
-        height: 14px;
+        width: 12px;
+        height: 12px;
     }
     
     .task-action-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: var(--space-2);
+        gap: 6px;
         width: 100%;
-        padding: var(--space-4);
-        font-size: 0.9rem;
-        font-weight: 700;
-        border-radius: var(--radius-lg);
+        padding: var(--space-3);
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: var(--radius-md);
         border: none;
         cursor: pointer;
         transition: all var(--transition-base);
         text-decoration: none;
     }
     
+    .task-action-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
     .task-action-btn.start {
         background: var(--gradient-primary);
         color: white;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
     }
     
     .task-action-btn.start:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.35);
     }
     
     .task-action-btn.disabled {
         background: var(--bg-elevated);
         color: var(--text-muted);
         cursor: not-allowed;
+        font-size: 0.75rem;
     }
     
     .task-action-btn.completed {
         background: rgba(16, 185, 129, 0.1);
         color: var(--success);
-        border: 1px solid rgba(16, 185, 129, 0.3);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        font-size: 0.75rem;
     }
     
     /* Empty State */
@@ -458,14 +518,27 @@
         color: white;
     }
     
-    /* Task Grid */
+    /* Task Grid - Compact */
     .tasks-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: var(--space-6);
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: var(--space-4);
+    }
+    
+    @media (min-width: 1200px) {
+        .tasks-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
     }
     
     @media (max-width: 768px) {
+        .tasks-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-3);
+        }
+    }
+    
+    @media (max-width: 480px) {
         .tasks-grid {
             grid-template-columns: 1fr;
         }
@@ -618,24 +691,30 @@
     @forelse($tasks as $task)
     <div class="task-card-enhanced {{ $task->is_featured ? 'featured' : '' }}">
         <div class="task-header">
-            <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                {{-- Task Type Icon with Emoji --}}
+                <div class="task-type-icon {{ $task->provider }}">
+                    @if($task->provider === 'monetag')
+                        <span class="emoji">🚀</span>
+                    @elseif($task->provider === 'adsterra')
+                        <span class="emoji">🔗</span>
+                    @else
+                        <span class="emoji">⭐</span>
+                    @endif
+                </div>
                 <span class="task-provider-badge {{ $task->provider }}">
                     @if($task->provider === 'monetag')
-                        <i data-lucide="rocket" style="width: 12px; height: 12px;"></i>
                         SkyBoost™
                     @elseif($task->provider === 'adsterra')
-                        <i data-lucide="link" style="width: 12px; height: 12px;"></i>
                         SkyLinks™
                     @else
-                        <i data-lucide="star" style="width: 12px; height: 12px;"></i>
                         SkyTask™
                     @endif
                 </span>
             </div>
             <div class="task-reward-badge">
                 <span class="reward-amount">
-                    <i data-lucide="coins" style="width: 16px; height: 16px;"></i>
-                    TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
+                    💰 TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
                 </span>
             </div>
         </div>
@@ -646,14 +725,12 @@
             
             <div class="task-meta">
                 <div class="task-meta-item">
-                    <i data-lucide="clock"></i>
-                    <span>{{ $task->duration_seconds }} {{ __('messages.tasks.seconds') }}</span>
+                    ⏱️ <span>{{ $task->duration_seconds }}s</span>
                 </div>
                 
                 @if($task->daily_limit)
                 <div class="task-meta-item">
-                    <i data-lucide="repeat"></i>
-                    <span>{{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }} {{ __('messages.tasks.today') }}</span>
+                    🔄 <span>{{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }}</span>
                 </div>
                 @endif
             </div>
