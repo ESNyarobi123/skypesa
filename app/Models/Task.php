@@ -207,14 +207,19 @@ class Task extends Model
             return false;
         }
 
-        // VIP/Unlimited users have no task limits
+        // VIP/Unlimited users (null plan limit) have no task limits at all
         if (is_null($user->getDailyTaskLimit())) {
             return true;
         }
 
-        // Check task-specific limit for non-VIP users
-        if ($this->daily_limit) {
-            if ($this->userCompletionsToday($user) >= $this->daily_limit) {
+        // For users with plan limits, use TaskDistributionService to get dynamic limit
+        // This ensures consistency between UI display and validation
+        $distributionService = app(\App\Services\TaskDistributionService::class);
+        $dynamicLimit = $distributionService->getDynamicLimitForTask($user, $this);
+        
+        // Check if user has reached task-specific limit
+        if ($dynamicLimit !== null && $dynamicLimit > 0) {
+            if ($this->userCompletionsToday($user) >= $dynamicLimit) {
                 return false;
             }
         }
