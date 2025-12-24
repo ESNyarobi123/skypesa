@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Transaction;
+use App\Services\TaskDistributionService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    protected TaskDistributionService $distributionService;
+
+    public function __construct(TaskDistributionService $distributionService)
+    {
+        $this->distributionService = $distributionService;
+    }
+
     public function index()
     {
         $user = auth()->user();
@@ -17,12 +25,12 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
         
-        // Get available tasks
-        $tasks = Task::available()
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('sort_order')
-            ->take(6)
-            ->get();
+        // Get available tasks with dynamic limits using TaskDistributionService
+        $result = $this->distributionService->getTasksForUser($user);
+        
+        // Take only first 6 tasks for dashboard display
+        $tasks = collect($result['tasks'])->take(6);
+        $planInfo = $result['plan_info'];
         
         // Get recent transactions
         $recentTransactions = Transaction::where('user_id', $user->id)
@@ -30,6 +38,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
         
-        return view('dashboard', compact('tasks', 'recentTransactions'));
+        return view('dashboard', compact('tasks', 'planInfo', 'recentTransactions'));
     }
 }

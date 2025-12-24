@@ -162,24 +162,31 @@
 </div>
 
 <div class="dashboard-tasks-grid mb-8">
-    @forelse($tasks ?? [] as $task)
-    <div class="dash-task-card {{ $task->is_featured ? 'featured' : '' }}">
+    @forelse($tasks ?? [] as $taskData)
+    @php
+        $taskObj = $taskData['task'];
+        $isUnlimited = $taskData['is_unlimited'] ?? false;
+        $dynamicLimit = $taskData['daily_limit'];
+        $completionsToday = $taskData['completions_today'];
+        $canComplete = $taskData['can_complete'];
+    @endphp
+    <div class="dash-task-card {{ $taskData['is_featured'] ? 'featured' : '' }}">
         <div class="dash-task-header">
             <div class="dash-task-left">
                 {{-- Task Type Icon with Emoji --}}
-                <div class="dash-task-icon {{ $task->provider }}">
-                    @if($task->provider === 'monetag')
+                <div class="dash-task-icon {{ $taskData['provider'] }}">
+                    @if($taskData['provider'] === 'monetag')
                         <span>🚀</span>
-                    @elseif($task->provider === 'adsterra')
+                    @elseif($taskData['provider'] === 'adsterra')
                         <span>🔗</span>
                     @else
                         <span>⭐</span>
                     @endif
                 </div>
-                <span class="dash-task-badge {{ $task->provider }}">
-                    @if($task->provider === 'monetag')
+                <span class="dash-task-badge {{ $taskData['provider'] }}">
+                    @if($taskData['provider'] === 'monetag')
                         SkyBoost™
-                    @elseif($task->provider === 'adsterra')
+                    @elseif($taskData['provider'] === 'adsterra')
                         SkyLinks™
                     @else
                         SkyTask™
@@ -187,23 +194,25 @@
                 </span>
             </div>
             <div class="dash-task-reward">
-                💰 TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
+                💰 TZS {{ number_format($taskData['reward'], 0) }}
             </div>
         </div>
         
         <div class="dash-task-body">
-            <h4 class="dash-task-title">{{ Str::limit($task->title, 25) }}</h4>
-            <p class="dash-task-desc">{{ Str::limit($task->description, 50) }}</p>
+            <h4 class="dash-task-title">{{ Str::limit($taskData['title'], 25) }}</h4>
+            <p class="dash-task-desc">{{ Str::limit($taskData['description'], 50) }}</p>
             
             <div class="dash-task-meta">
-                <span>⏱️ {{ $task->duration_seconds }}s</span>
-                @if($task->daily_limit)
-                <span>🔄 {{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }}</span>
+                <span>⏱️ {{ $taskData['duration_seconds'] }}s</span>
+                @if($isUnlimited)
+                    <span style="color: #f59e0b; font-weight: 600;">♾️ ∞</span>
+                @elseif($dynamicLimit)
+                    <span>🔄 {{ $completionsToday }}/{{ $dynamicLimit }}</span>
                 @endif
             </div>
             
-            @if($task->canUserComplete(auth()->user()) && auth()->user()->canCompleteMoreTasks())
-            <a href="{{ route('tasks.show', $task) }}" class="dash-task-btn start">
+            @if($canComplete && auth()->user()->canCompleteMoreTasks())
+            <a href="{{ route('tasks.show', $taskObj) }}" class="dash-task-btn start">
                 ▶️ {{ __('messages.tasks.start_task') }}
             </a>
             @elseif(!auth()->user()->canCompleteMoreTasks())
