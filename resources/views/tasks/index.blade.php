@@ -786,15 +786,15 @@
                     ⏱️ <span>{{ $taskData['duration_seconds'] }}s</span>
                 </div>
                 
-                @if($dynamicLimit)
+                @if(isset($planInfo) && $planInfo['is_unlimited'])
+                {{-- VIP/Unlimited plan - ALWAYS show infinity symbol --}}
+                <div class="task-meta-item" style="color: #f59e0b;">
+                    <span style="font-weight: 600;">♾️ ∞</span>
+                </div>
+                @elseif($dynamicLimit)
                 {{-- Limited plan - show numeric limit --}}
                 <div class="task-meta-item" style="{{ $remaining <= 0 ? 'color: var(--danger);' : ($remaining <= 2 ? 'color: var(--warning);' : '') }}">
                     🔄 <span>{{ $completionsToday }}/{{ $dynamicLimit }}</span>
-                </div>
-                @elseif(isset($planInfo) && $planInfo['is_unlimited'])
-                {{-- VIP/Unlimited plan - show infinity symbol --}}
-                <div class="task-meta-item" style="color: var(--primary);">
-                    ♾️ <span style="font-weight: 600;">∞ Unlimited</span>
                 </div>
                 @endif
             </div>
