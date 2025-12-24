@@ -207,6 +207,12 @@ class Task extends Model
             return false;
         }
 
+        // VIP/Unlimited users have no task limits
+        if (is_null($user->getDailyTaskLimit())) {
+            return true;
+        }
+
+        // Check task-specific limit for non-VIP users
         if ($this->daily_limit) {
             if ($this->userCompletionsToday($user) >= $this->daily_limit) {
                 return false;
