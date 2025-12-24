@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Leaderboard')
-@section('page-title', '🏆 Leaderboard')
-@section('page-subtitle', 'Washindi wa Wiki na Mwezi')
+@section('title', __('messages.leaderboard.title'))
+@section('page-title', '🏆 ' . __('messages.leaderboard.title'))
+@section('page-subtitle', __('messages.leaderboard.subtitle'))
 
 @push('styles')
 <style>
@@ -329,12 +329,12 @@
         <a href="{{ route('leaderboard', ['period' => 'weekly']) }}" 
            class="period-tab {{ $period === 'weekly' ? 'active' : '' }}">
             <i data-lucide="calendar" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i>
-            Wiki Hii
+            {{ __('messages.leaderboard.this_week') }}
         </a>
         <a href="{{ route('leaderboard', ['period' => 'monthly']) }}" 
            class="period-tab {{ $period === 'monthly' ? 'active' : '' }}">
             <i data-lucide="calendar-days" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i>
-            Mwezi Huu
+            {{ __('messages.leaderboard.this_month') }}
         </a>
     </div>
     
@@ -351,14 +351,14 @@
                 @endif
             </div>
             <div>
-                <div style="font-weight: 600; font-size: 1.1rem;">Nafasi Yako</div>
+                <div style="font-weight: 600; font-size: 1.1rem;">{{ __('messages.leaderboard.your_position') }}</div>
                 <div style="color: var(--text-muted); font-size: 0.875rem;">
-                    {{ $userStats['tasks_completed'] }} tasks wiki hii
+                    {{ $userStats['tasks_completed'] }} tasks
                 </div>
             </div>
         </div>
         <div style="text-align: right;">
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Umepata Wiki Hii</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ __('messages.dashboard.earnings') }}</div>
             <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">
                 TZS {{ number_format($userStats['earnings'], 0) }}
             </div>
@@ -442,11 +442,11 @@
     @elseif(count($leaderboard) == 0)
     <div class="card card-body empty-leaderboard">
         <i data-lucide="trophy" style="width: 64px; height: 64px; margin: 0 auto var(--space-4); opacity: 0.3;"></i>
-        <h4>Hakuna data bado</h4>
-        <p>Anza kufanya tasks kuonekana kwenye leaderboard!</p>
+        <h4>{{ __('messages.leaderboard.no_data') }}</h4>
+        <p>{{ __('messages.tasks.start_task') }}</p>
         <a href="{{ route('tasks.index') }}" class="btn btn-primary mt-4">
             <i data-lucide="briefcase"></i>
-            Anza Kufanya Kazi
+            {{ __('messages.tasks.start_task') }}
         </a>
     </div>
     @endif

@@ -67,24 +67,7 @@ class WithdrawalController extends Controller
         try {
             DB::beginTransaction();
             
-            // Assess withdrawal risk using FraudDetectionService
-            $riskAssessment = $this->fraudService->assessWithdrawalRisk($user, $amount);
-            
-            // Determine delay based on risk
-            $delayHours = $riskAssessment['delay_hours'];
-            $processableAt = now()->addHours($delayHours);
-            
-            // Log risk assessment
-            Log::channel('fraud')->info('Withdrawal risk assessment', [
-                'user_id' => $user->id,
-                'amount' => $amount,
-                'risk_score' => $riskAssessment['score'],
-                'risk_level' => $riskAssessment['level'],
-                'delay_hours' => $delayHours,
-                'factors' => $riskAssessment['factors'],
-            ]);
-            
-            // Create withdrawal request with risk data
+            // Create withdrawal request first (needed for risk assessment)
             $withdrawal = Withdrawal::create([
                 'user_id' => $user->id,
                 'amount' => $amount,
@@ -95,14 +78,33 @@ class WithdrawalController extends Controller
                 'payment_name' => $request->payment_name,
                 'payment_provider' => $request->payment_provider,
                 'status' => 'pending',
-                // New fraud prevention fields
+            ]);
+            
+            // Now assess withdrawal risk using FraudDetectionService
+            $riskAssessment = $this->fraudService->assessWithdrawalRisk($withdrawal);
+            
+            // Determine delay based on risk
+            $delayHours = $riskAssessment['delay_hours'];
+            $processableAt = now()->addHours($delayHours);
+            
+            // Log risk assessment
+            Log::channel('fraud')->info('Withdrawal risk assessment', [
+                'user_id' => $user->id,
+                'amount' => $amount,
+                'risk_score' => $riskAssessment['score'],
+                'risk_level' => $riskAssessment['risk_level'],
+                'delay_hours' => $delayHours,
+                'factors' => $riskAssessment['factors'],
+            ]);
+            
+            // Update withdrawal with risk data
+            $withdrawal->update([
                 'processable_at' => $processableAt,
                 'delay_hours' => $delayHours,
                 'risk_score' => $riskAssessment['score'],
                 'risk_factors' => $riskAssessment['factors'],
-                // Auto-freeze if very high risk
-                'is_frozen' => $riskAssessment['action'] === 'freeze',
-                'freeze_reason' => $riskAssessment['action'] === 'freeze' 
+                'is_frozen' => $riskAssessment['should_freeze'] ?? false,
+                'freeze_reason' => ($riskAssessment['should_freeze'] ?? false)
                     ? 'Auto-frozen: High risk score (' . $riskAssessment['score'] . ')'
                     : null,
             ]);

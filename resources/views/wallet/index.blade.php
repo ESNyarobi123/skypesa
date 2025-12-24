@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Wallet')
-@section('page-title', 'Wallet Yako')
-@section('page-subtitle', 'Angalia salio na historia ya shughuli')
+@section('title', __('messages.wallet.title'))
+@section('page-title', __('messages.wallet.title'))
+@section('page-subtitle', __('messages.wallet.subtitle'))
 
 @push('styles')
 <style>
@@ -68,16 +68,16 @@
     <!-- Main Balance -->
     <div class="wallet-card">
         <div style="position: relative; z-index: 10;">
-            <div class="wallet-label">Salio Lako</div>
+            <div class="wallet-label">{{ __('messages.wallet.current_balance') }}</div>
             <div class="wallet-balance">TZS {{ number_format($wallet->balance ?? 0, 0) }}</div>
             <div class="flex gap-4 mt-4 wallet-buttons">
                 <a href="{{ route('withdrawals.create') }}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
                     <i data-lucide="send"></i>
-                    Toa Pesa
+                    {{ __('messages.wallet.withdraw') }}
                 </a>
                 <a href="{{ route('tasks.index') }}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
                     <i data-lucide="briefcase"></i>
-                    Fanya Kazi
+                    {{ __('messages.tasks.title') }}
                 </a>
             </div>
         </div>
@@ -90,7 +90,7 @@
                 <i data-lucide="trending-up" style="color: var(--success);"></i>
             </div>
             <div style="min-width: 0;">
-                <div style="font-size: 0.875rem; color: var(--text-muted);">Jumla Umepata</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted);">{{ __('messages.wallet.total_earned') }}</div>
                 <div style="font-size: 1.25rem; font-weight: 700; color: var(--success);">TZS {{ number_format($wallet->total_earned ?? 0, 0) }}</div>
             </div>
         </div>
@@ -103,7 +103,7 @@
                 <i data-lucide="arrow-up-right" style="color: var(--error);"></i>
             </div>
             <div style="min-width: 0;">
-                <div style="font-size: 0.875rem; color: var(--text-muted);">Jumla Umetoa</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted);">{{ __('messages.wallet.total_withdrawn') }}</div>
                 <div style="font-size: 1.25rem; font-weight: 700; color: var(--error);">TZS {{ number_format($wallet->total_withdrawn ?? 0, 0) }}</div>
             </div>
         </div>
@@ -119,7 +119,7 @@
 
 <!-- Transaction History -->
 <div class="flex justify-between items-center mb-4">
-    <h3>Historia ya Shughuli</h3>
+    <h3>{{ __('messages.wallet.transaction_history') }}</h3>
 </div>
 
 <!-- Desktop Table View -->
@@ -128,12 +128,12 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Tarehe</th>
+                    <th>{{ __('messages.common.date') }}</th>
                     <th>Reference</th>
-                    <th>Maelezo</th>
-                    <th>Aina</th>
-                    <th style="text-align: right;">Kiasi</th>
-                    <th style="text-align: right;">Salio</th>
+                    <th>{{ __('messages.common.description') }}</th>
+                    <th>{{ __('messages.common.status') }}</th>
+                    <th style="text-align: right;">{{ __('messages.common.amount') }}</th>
+                    <th style="text-align: right;">{{ __('messages.common.balance') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -167,7 +167,7 @@
                 <tr>
                     <td colspan="6" class="text-center" style="padding: var(--space-8); color: var(--text-muted);">
                         <i data-lucide="inbox" style="width: 48px; height: 48px; margin: 0 auto var(--space-4); display: block;"></i>
-                        Hakuna shughuli bado. Anza kufanya tasks kupata pesa!
+                        {{ __('messages.wallet.no_transactions') }}
                     </td>
                 </tr>
                 @endforelse
@@ -213,7 +213,7 @@
     @empty
     <div class="card card-body text-center">
         <i data-lucide="inbox" style="width: 48px; height: 48px; color: var(--text-muted); margin: 0 auto var(--space-4);"></i>
-        <p style="color: var(--text-muted);">Hakuna shughuli bado. Anza kufanya tasks kupata pesa!</p>
+        <p style="color: var(--text-muted);">{{ __('messages.wallet.no_transactions') }}</p>
     </div>
     @endforelse
 </div>

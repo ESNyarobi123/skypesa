@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Kazi')
-@section('page-title', 'Kazi Zinazopatikana')
-@section('page-subtitle', 'Kamilisha kazi na upate malipo!')
+@section('title', __('messages.tasks.title'))
+@section('page-title', __('messages.tasks.available'))
+@section('page-subtitle', __('messages.tasks.subtitle'))
 
 @push('styles')
 <style>
@@ -483,19 +483,19 @@
         </div>
         <div>
             <h4 style="color: var(--warning); margin-bottom: 0.25rem; font-size: 1rem;">
-                ⚠️ Una Kazi Inayoendelea!
+                ⚠️ {{ __('messages.tasks.in_progress') }}!
             </h4>
             <p style="font-size: 0.875rem; margin-bottom: 0.25rem; color: var(--text-primary);">
                 <strong>{{ $activitySummary['active_task']['task']->title }}</strong>
             </p>
             <p style="font-size: 0.85rem; color: var(--text-muted);">
-                Sekunde {{ $activitySummary['active_task']['remaining_seconds'] }} zimebaki - Kamilisha kwanza!
+                {{ $activitySummary['active_task']['remaining_seconds'] }} {{ __('messages.time.seconds_ago') }} - {{ __('messages.tasks.complete_task') }}!
             </p>
         </div>
     </div>
     <a href="{{ route('tasks.show', $activitySummary['active_task']['task']) }}" class="btn btn-warning btn-lg">
         <i data-lucide="arrow-right"></i>
-        Endelea na Kazi
+        {{ __('messages.common.next') }}
     </a>
 </div>
 @endif
@@ -507,9 +507,9 @@
             <i data-lucide="briefcase" style="color: white; width: 40px; height: 40px;"></i>
         </div>
         <div>
-            <h2 style="font-size: 1.75rem; margin-bottom: var(--space-2);">Kazi za Leo 🔥</h2>
+            <h2 style="font-size: 1.75rem; margin-bottom: var(--space-2);">{{ __('messages.tasks.todays_tasks') }} 🔥</h2>
             <p style="color: var(--text-secondary); font-size: 0.95rem;">
-                Chagua kazi unayoipenda na uanze kupata malipo. Kazi zaidi = Pesa zaidi!
+                {{ __('messages.tasks.choose_task') }}
             </p>
         </div>
     </div>
@@ -522,7 +522,7 @@
             <i data-lucide="check-circle"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Umekamilisha Leo</div>
+            <div class="stat-label">{{ __('messages.tasks.completed') }}</div>
             <div class="stat-value">{{ auth()->user()->tasksCompletedToday() }}</div>
         </div>
     </div>
@@ -532,7 +532,7 @@
             <i data-lucide="target"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Limit ya Leo</div>
+            <div class="stat-label">{{ __('messages.tasks.daily_limit') }}</div>
             <div class="stat-value">{{ auth()->user()->getDailyTaskLimit() ?? '∞' }}</div>
         </div>
     </div>
@@ -542,7 +542,7 @@
             <i data-lucide="coins"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Malipo kwa Task</div>
+            <div class="stat-label">{{ __('messages.tasks.reward') }}</div>
             <div class="stat-value">TZS {{ number_format(auth()->user()->getRewardPerTask(), 0) }}</div>
         </div>
     </div>
@@ -552,7 +552,7 @@
 @if(auth()->user()->getDailyTaskLimit())
 <div class="card card-body mb-8">
     <div class="flex justify-between items-center mb-2">
-        <span style="font-size: 0.875rem; color: var(--text-secondary);">Maendeleo ya Leo</span>
+        <span style="font-size: 0.875rem; color: var(--text-secondary);">{{ __('messages.tasks.todays_progress') }}</span>
         <span style="font-size: 0.875rem; font-weight: 600; color: var(--primary);">
             {{ auth()->user()->tasksCompletedToday() }} / {{ auth()->user()->getDailyTaskLimit() }}
         </span>
@@ -568,7 +568,7 @@
     @if($percentage >= 100)
     <div class="alert alert-warning mt-4">
         <i data-lucide="alert-circle"></i>
-        <span>Umefika limit ya leo! <a href="{{ route('subscriptions.index') }}">Upgrade</a> kwa tasks zaidi.</span>
+        <span>{{ __('messages.tasks.limit_reached') }} <a href="{{ route('subscriptions.index') }}">{{ __('subscriptions.upgrade') }}</a> {{ __('messages.tasks.upgrade_for_more') }}</span>
     </div>
     @endif
 </div>
@@ -578,7 +578,7 @@
 <div class="filter-container">
     <a href="{{ route('tasks.index') }}" class="filter-tab {{ !$provider ? 'active' : '' }}">
         <i data-lucide="layers" class="filter-icon"></i>
-        <span>Zote</span>
+        <span>{{ __('messages.common.all') }}</span>
         <span class="filter-count">{{ $providerCounts['all'] ?? 0 }}</span>
     </a>
     
@@ -605,11 +605,11 @@
         @elseif($provider === 'adsterra')
             <span style="color: #00B4D8;">🔗 SkyLinks™</span>
         @else
-            <span style="color: var(--primary);">📋 Kazi Zote</span>
+            <span style="color: var(--primary);">📋 {{ __('messages.tasks.available') }}</span>
         @endif
     </h3>
     <span style="font-size: 0.85rem; color: var(--text-muted);">
-            {{ $tasks->count() }} fursa zinapatikana
+            {{ $tasks->count() }} {{ __('messages.tasks.available') }}
     </span>
 </div>
 
@@ -647,13 +647,13 @@
             <div class="task-meta">
                 <div class="task-meta-item">
                     <i data-lucide="clock"></i>
-                    <span>{{ $task->duration_seconds }} sekunde</span>
+                    <span>{{ $task->duration_seconds }} {{ __('messages.tasks.seconds') }}</span>
                 </div>
                 
                 @if($task->daily_limit)
                 <div class="task-meta-item">
                     <i data-lucide="repeat"></i>
-                    <span>{{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }} leo</span>
+                    <span>{{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }} {{ __('messages.tasks.today') }}</span>
                 </div>
                 @endif
             </div>
@@ -662,22 +662,22 @@
             {{-- User has active task - show locked button --}}
             <a href="{{ route('tasks.show', $activitySummary['active_task']['task']) }}" class="task-action-btn disabled" style="background: rgba(234, 179, 8, 0.2); color: var(--warning); border: 1px solid var(--warning);">
                 <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
-                Kamilisha Kazi Inayoendelea Kwanza
+                {{ __('messages.tasks.in_progress') }}
             </a>
             @elseif($task->canUserComplete(auth()->user()) && auth()->user()->canCompleteMoreTasks())
             <a href="{{ route('tasks.show', $task) }}" class="task-action-btn start">
                 <i data-lucide="play" style="width: 18px; height: 18px;"></i>
-                Anza Kazi
+                {{ __('messages.tasks.start_task') }}
             </a>
             @elseif(!auth()->user()->canCompleteMoreTasks())
             <button class="task-action-btn disabled" disabled>
                 <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
-                Umefika Limit ya Leo
+                {{ __('messages.tasks.task_locked') }}
             </button>
             @else
             <button class="task-action-btn completed" disabled>
                 <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
-                Umekamilisha Leo
+                {{ __('messages.tasks.task_completed') }}
             </button>
             @endif
         </div>
@@ -689,22 +689,18 @@
         </div>
         <h3 style="margin-bottom: var(--space-2);">
             @if($provider)
-                Hakuna Kazi za {{ ucfirst($provider) }}
+                {{ __('messages.tasks.no_tasks') }} {{ ucfirst($provider) }}
             @else
-                Hakuna Kazi Kwa Sasa
+                {{ __('messages.tasks.no_tasks') }}
             @endif
         </h3>
         <p style="color: var(--text-secondary); margin-bottom: var(--space-6);">
-            @if($provider)
-                Kazi za {{ ucfirst($provider) }} zitaongezwa hivi karibuni. Jaribu filter nyingine!
-            @else
-                Kazi mpya zitaongezwa hivi karibuni. Rudi baadaye!
-            @endif
+            {{ __('messages.tasks.wait_message') }}
         </p>
         @if($provider)
         <a href="{{ route('tasks.index') }}" class="btn btn-primary">
             <i data-lucide="layers"></i>
-            Angalia Kazi Zote
+            {{ __('messages.common.view') }} {{ __('messages.common.all') }}
         </a>
         @endif
     </div>

@@ -18,18 +18,18 @@
         </div>
         
         <div class="welcome-text">
-            <h3>Karibu SKYpesa! 🎉</h3>
-            <p>Kazi yako ya <strong>kwanza</strong> itakupatia</p>
+            <h3>{{ __('messages.dashboard.welcome_skypesa') }}</h3>
+            <p>{!! __('messages.dashboard.first_task_gets') !!}</p>
             <div class="multiplier-badge">
                 <span class="multiplier">x10</span>
-                <span class="multiplier-text">REWARD!</span>
+                <span class="multiplier-text">{{ __('messages.dashboard.reward_text') }}</span>
             </div>
-            <p class="welcome-hint">Badala ya TZS {{ number_format($user->getRewardPerTask()) }}, utapata TZS {{ number_format($user->getRewardPerTask() * 10) }}!</p>
+            <p class="welcome-hint">{{ __('messages.dashboard.instead_of', ['normal' => number_format($user->getRewardPerTask()), 'bonus' => number_format($user->getRewardPerTask() * 10)]) }}</p>
         </div>
         
         <a href="{{ route('tasks.index') }}" class="btn btn-lg welcome-cta">
             <i data-lucide="play"></i>
-            Anza Sasa - Pata x10!
+            {{ __('messages.dashboard.start_now_get') }}
         </a>
     </div>
     

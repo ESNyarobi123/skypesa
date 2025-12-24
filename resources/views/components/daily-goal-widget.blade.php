@@ -17,8 +17,8 @@
             <i data-lucide="target"></i>
         </div>
         <div class="daily-goal-title">
-            <h4>🎯 Mkakamavu wa Leo</h4>
-            <p>Kamilisha tasks {{ $dailyGoal['target'] }} upate bonus!</p>
+            <h4>🎯 {{ __('messages.dashboard.daily_goal') }}</h4>
+            <p>{!! __('messages.dashboard.complete_tasks_get_bonus', ['count' => $dailyGoal['target']]) !!}</p>
         </div>
         <div class="daily-goal-bonus">
             <span class="bonus-amount">+TZS {{ number_format($dailyGoal['bonus_amount']) }}</span>
@@ -41,17 +41,17 @@
     @if($dailyGoal['is_complete'] && !$dailyGoal['is_claimed'])
     <button class="btn btn-primary claim-bonus-btn" onclick="claimDailyBonus()" id="claimBonusBtn">
         <i data-lucide="gift"></i>
-        Chukua Bonus TZS {{ number_format($dailyGoal['bonus_amount']) }}!
+        {{ __('messages.dashboard.claim_bonus', ['amount' => number_format($dailyGoal['bonus_amount'])]) }}
     </button>
     @elseif($dailyGoal['is_claimed'])
     <div class="bonus-claimed">
         <i data-lucide="check-circle"></i>
-        <span>Umeshachukua bonus ya leo! 🎉</span>
+        <span>{{ __('messages.dashboard.bonus_claimed') }}</span>
     </div>
     @else
     <div class="tasks-remaining">
         <i data-lucide="arrow-right"></i>
-        <span>Fanya tasks <strong>{{ $dailyGoal['remaining'] }}</strong> zaidi!</span>
+        <span>{!! __('messages.dashboard.do_more_tasks', ['count' => $dailyGoal['remaining']]) !!}</span>
     </div>
     @endif
 </div>
@@ -259,7 +259,7 @@
     function claimDailyBonus() {
         const btn = document.getElementById('claimBonusBtn');
         btn.disabled = true;
-        btn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Inachakata...';
+        btn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> {{ __('messages.dashboard.processing') }}';
         if (typeof lucide !== 'undefined') lucide.createIcons();
         
         fetch('{{ route("daily-goal.claim") }}', {
@@ -287,14 +287,14 @@
             } else {
                 alert(data.message);
                 btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="gift"></i> Chukua Bonus!';
+                btn.innerHTML = '<i data-lucide="gift"></i> {{ __('messages.dashboard.claim_bonus', ['amount' => '']) }}';
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         })
         .catch(error => {
             console.error('Error:', error);
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="gift"></i> Jaribu Tena';
+            btn.innerHTML = '<i data-lucide="gift"></i> {{ __('messages.dashboard.try_again') }}';
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     }

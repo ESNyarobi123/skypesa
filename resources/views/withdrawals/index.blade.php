@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Withdrawals')
-@section('page-title', 'Maombi ya Kutoa Pesa')
-@section('page-subtitle', 'Historia na hali ya maombi yako')
+@section('title', __('messages.withdrawals.title'))
+@section('page-title', __('messages.withdrawals.title'))
+@section('page-subtitle', __('messages.withdrawals.subtitle'))
 
 @section('content')
 <!-- Quick Actions -->
@@ -10,7 +10,7 @@
     <div class="flex gap-4">
         <a href="{{ route('withdrawals.create') }}" class="btn btn-primary">
             <i data-lucide="plus"></i>
-            Omba Kutoa Pesa
+            {{ __('messages.withdrawals.request') }}
         </a>
     </div>
     
@@ -18,7 +18,7 @@
         <div class="flex items-center gap-3">
             <i data-lucide="wallet" style="color: var(--primary);"></i>
             <div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">Salio</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ __('messages.common.balance') }}</div>
                 <div style="font-weight: 700;">TZS {{ number_format(auth()->user()->wallet->balance ?? 0, 0) }}</div>
             </div>
         </div>
@@ -30,13 +30,13 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Tarehe</th>
+                <th>{{ __('messages.common.date') }}</th>
                 <th>Reference</th>
-                <th>Kiasi</th>
-                <th>Ada</th>
-                <th>Utapata</th>
-                <th>Malipo</th>
-                <th>Hali</th>
+                <th>{{ __('messages.common.amount') }}</th>
+                <th>{{ __('messages.withdrawals.fee') }}</th>
+                <th>{{ __('messages.withdrawals.net_amount') }}</th>
+                <th>{{ __('messages.withdrawals.payment_method') }}</th>
+                <th>{{ __('messages.common.status') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -88,7 +88,7 @@
             <tr>
                 <td colspan="7" class="text-center" style="padding: var(--space-8); color: var(--text-muted);">
                     <i data-lucide="banknote" style="width: 48px; height: 48px; margin: 0 auto var(--space-4); display: block;"></i>
-                    Hujatoa pesa bado
+                    {{ __('messages.withdrawals.no_withdrawals') }}
                 </td>
             </tr>
             @endforelse

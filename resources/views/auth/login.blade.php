@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Ingia - SKYpesa')
+@section('title', __('messages.auth.login') . ' - SKYpesa')
 
 @section('content')
 <div class="hero" style="min-height: 100vh;">
@@ -12,7 +12,7 @@
                     <i data-lucide="coins" style="color: var(--primary); width: 40px; height: 40px;"></i>
                     SKY<span>pesa</span>
                 </a>
-                <p class="mt-2" style="color: var(--text-muted);">Karibu tena! Ingia kwenye akaunti yako</p>
+                <p class="mt-2" style="color: var(--text-muted);">{{ __('messages.auth.login_subtitle') }}</p>
             </div>
             
             <!-- Login Card -->
@@ -28,15 +28,15 @@
                     @csrf
                     
                     <div class="form-group">
-                        <label class="form-label">Email au Namba ya Simu</label>
+                        <label class="form-label">{{ __('messages.auth.email') }}</label>
                         <div style="position: relative;">
                             <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
-                            <input type="text" name="email" class="form-control" placeholder="mfano@email.com" value="{{ old('email') }}" required autofocus style="padding-left: 44px;">
+                            <input type="text" name="email" class="form-control" placeholder="example@email.com" value="{{ old('email') }}" required autofocus style="padding-left: 44px;">
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Nenosiri</label>
+                        <label class="form-label">{{ __('messages.auth.password') }}</label>
                         <div style="position: relative;">
                             <i data-lucide="lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
                             <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required style="padding-left: 44px; padding-right: 44px;">
@@ -49,21 +49,21 @@
                     <div class="flex justify-between items-center mb-6">
                         <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: 0.875rem; color: var(--text-secondary);">
                             <input type="checkbox" name="remember" style="accent-color: var(--primary);">
-                            Nikumbuke
+                            {{ __('messages.common.remember_me') }}
                         </label>
-                        <a href="{{ route('password.request') }}" style="font-size: 0.875rem;">Umesahau nenosiri?</a>
+                        <a href="{{ route('password.request') }}" style="font-size: 0.875rem;">{{ __('messages.auth.forgot_password') }}</a>
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
                         <i data-lucide="log-in"></i>
-                        Ingia
+                        {{ __('messages.auth.login') }}
                     </button>
                 </form>
                 
                 <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255,255,255,0.1);">
                     <p style="font-size: 0.875rem; color: var(--text-muted);">
-                        Huna akaunti? 
-                        <a href="{{ route('register') }}" style="color: var(--primary); font-weight: 600;">Jiunge sasa</a>
+                        {{ __('messages.auth.dont_have_account') }} 
+                        <a href="{{ route('register') }}" style="color: var(--primary); font-weight: 600;">{{ __('messages.auth.register') }}</a>
                     </p>
                 </div>
             </div>
@@ -72,7 +72,7 @@
             <div class="text-center mt-6">
                 <a href="/" class="flex items-center justify-center gap-2" style="color: var(--text-muted); font-size: 0.875rem;">
                     <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
-                    Rudi Nyumbani
+                    {{ __('messages.common.back') }} {{ __('messages.nav.home') }}
                 </a>
             </div>
         </div>

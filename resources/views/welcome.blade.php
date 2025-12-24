@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sw">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1109,15 +1109,16 @@
                 </a>
 
                 <ul class="nav-links">
-                    <li><a href="#how-it-works">Jinsi Inavyofanya Kazi</a></li>
-                    <li><a href="#features">Faida</a></li>
-                    <li><a href="#pricing">Mipango</a></li>
-                    <li><a href="#testimonials">Maoni</a></li>
+                    <li><a href="#how-it-works">{{ __('messages.welcome.how_it_works') }}</a></li>
+                    <li><a href="#features">{{ __('messages.welcome.features') }}</a></li>
+                    <li><a href="#pricing">{{ __('messages.subscriptions.title') }}</a></li>
+                    <li><a href="#testimonials">{{ __('messages.welcome.testimonials') }}</a></li>
                 </ul>
 
                 <div class="nav-buttons">
-                    <a href="{{ route('login') }}" class="btn btn-secondary">Ingia</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">Jiunge Sasa</a>
+                    @include('components.language-switcher')
+                    <a href="{{ route('login') }}" class="btn btn-secondary">{{ __('messages.auth.login') }}</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">{{ __('messages.welcome.join_now') }}</a>
                 </div>
 
                 <button class="mobile-menu-btn">
@@ -1134,44 +1135,41 @@
                 <div class="hero-content fade-in">
                     <div class="badge">
                         <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
-                        Jukwaa Halali la Tanzania
+                        {{ __('messages.welcome.badge_text') }}
                     </div>
 
-                    <h1>Pata Pesa Kwa<br><span>Tazama Maudhui, Jipatie Rewards</span></h1>
+                    <h1>{{ __('messages.welcome.hero_title') }}<br><span>{{ __('messages.welcome.hero_title_span') }}</span></h1>
 
-                    <p>
-                        Jiunge na maelfu ya Watanzania wanaopata pesa kila siku kwa kukamilisha 
-                        kazi rahisi. Hakuna udanganyifu, hakuna minyororo - malipo halali tu!
-                    </p>
+                    <p>{{ __('messages.welcome.hero_subtitle') }}</p>
 
                     <div class="hero-buttons">
                         <a href="{{ route('register') }}" class="btn btn-primary btn-lg">
                             <i data-lucide="rocket" style="width: 20px; height: 20px;"></i>
-                            Anza Sasa - Bure!
+                            {{ __('messages.welcome.get_started') }}
                         </a>
                         <a href="#how-it-works" class="btn btn-outline btn-lg">
                             <i data-lucide="play-circle" style="width: 20px; height: 20px;"></i>
-                            Jinsi Inavyofanya Kazi
+                            {{ __('messages.welcome.learn_more') }}
                         </a>
                         <!-- PWA Install Button - Visible for all browsers -->
                         <button id="pwa-hero-install" class="btn btn-secondary btn-lg pwa-install-hero-btn" onclick="handlePWAInstall()">
                             <i data-lucide="download" style="width: 20px; height: 20px;"></i>
-                            Pakua App
+                            {{ __('messages.welcome.download_app') }}
                         </button>
                     </div>
 
                     <div class="hero-stats">
                         <div class="stat-item">
                             <div class="stat-value">10K+</div>
-                            <div class="stat-label">Watumiaji</div>
+                            <div class="stat-label">{{ __('messages.welcome.users_stat') }}</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">TZS 50M+</div>
-                            <div class="stat-label">Imelipwa</div>
+                            <div class="stat-label">{{ __('messages.welcome.paid_stat') }}</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">24/7</div>
-                            <div class="stat-label">Msaada</div>
+                            <div class="stat-label">{{ __('messages.welcome.support_stat') }}</div>
                         </div>
                     </div>
                 </div>
@@ -1181,7 +1179,7 @@
                         <div class="phone-mockup">
                             <div class="phone-screen">
                                 <div class="phone-balance">
-                                    <div class="phone-balance-label">Salio Lako</div>
+                                    <div class="phone-balance-label">{{ __('messages.welcome.your_balance') }}</div>
                                     <div class="phone-balance-value">TZS 15,420</div>
                                 </div>
 
@@ -1190,8 +1188,8 @@
                                         <i data-lucide="play" style="width: 24px; height: 24px;"></i>
                                     </div>
                                     <div class="phone-task-info">
-                                        <h4>Tazama Video</h4>
-                                        <p>30 sekunde</p>
+                                        <h4>{{ __('messages.welcome.watch_video') }}</h4>
+                                        <p>30 {{ __('messages.welcome.seconds') }}</p>
                                     </div>
                                     <div class="phone-task-reward">+TZS 5</div>
                                 </div>
@@ -1201,8 +1199,8 @@
                                         <i data-lucide="eye" style="width: 24px; height: 24px;"></i>
                                     </div>
                                     <div class="phone-task-info">
-                                        <h4>Angalia Tangazo</h4>
-                                        <p>45 sekunde</p>
+                                        <h4>{{ __('messages.welcome.view_ad') }}</h4>
+                                        <p>45 {{ __('messages.welcome.seconds') }}</p>
                                     </div>
                                     <div class="phone-task-reward">+TZS 7</div>
                                 </div>
@@ -1212,8 +1210,8 @@
                                         <i data-lucide="gift" style="width: 24px; height: 24px;"></i>
                                     </div>
                                     <div class="phone-task-info">
-                                        <h4>Ofa Maalum</h4>
-                                        <p>60 sekunde</p>
+                                        <h4>{{ __('messages.welcome.special_offer') }}</h4>
+                                        <p>60 {{ __('messages.welcome.seconds') }}</p>
                                     </div>
                                     <div class="phone-task-reward">+TZS 10</div>
                                 </div>
@@ -1231,10 +1229,10 @@
             <div class="section-title">
                 <div class="badge">
                     <i data-lucide="zap" style="width: 16px; height: 16px;"></i>
-                    Rahisi Sana
+                    {{ __('messages.welcome.how_it_works_badge') }}
                 </div>
-                <h2>Jinsi Inavyofanya Kazi</h2>
-                <p>Hatua 4 rahisi za kuanza kupata pesa leo</p>
+                <h2>{{ __('messages.welcome.how_it_works') }}</h2>
+                <p>{{ __('messages.welcome.how_it_works_subtitle') }}</p>
             </div>
 
             <div class="steps-grid">
@@ -1243,8 +1241,8 @@
                     <div class="step-icon">
                         <i data-lucide="user-plus" style="width: 40px; height: 40px;"></i>
                     </div>
-                    <h3>Jiunge Bure</h3>
-                    <p>Fungua akaunti kwa dakika 1 tu. Hakuna malipo ya kwanza.</p>
+                    <h3>{{ __('messages.welcome.step1_title') }}</h3>
+                    <p>{{ __('messages.welcome.step1_desc') }}</p>
                 </div>
 
                 <div class="step-card">
@@ -1252,8 +1250,8 @@
                     <div class="step-icon">
                         <i data-lucide="play-circle" style="width: 40px; height: 40px;"></i>
                     </div>
-                    <h3>Kamilisha Kazi</h3>
-                    <p>Tazama matangazo mafupi na ukamilishe tasks rahisi.</p>
+                    <h3>{{ __('messages.welcome.step2_title') }}</h3>
+                    <p>{{ __('messages.welcome.step2_desc') }}</p>
                 </div>
 
                 <div class="step-card">
@@ -1261,8 +1259,8 @@
                     <div class="step-icon">
                         <i data-lucide="wallet" style="width: 40px; height: 40px;"></i>
                     </div>
-                    <h3>Kusanya Pesa</h3>
-                    <p>Pesa inaingia wallet yako moja kwa moja kwa sekunde.</p>
+                    <h3>{{ __('messages.welcome.step3_title') }}</h3>
+                    <p>{{ __('messages.welcome.step3_desc') }}</p>
                 </div>
 
                 <div class="step-card">
@@ -1270,8 +1268,8 @@
                     <div class="step-icon">
                         <i data-lucide="banknote" style="width: 40px; height: 40px;"></i>
                     </div>
-                    <h3>Toa Pesa</h3>
-                    <p>Toa pesa kupitia M-Pesa, Tigo Pesa, au Airtel Money.</p>
+                    <h3>{{ __('messages.welcome.step4_title') }}</h3>
+                    <p>{{ __('messages.welcome.step4_desc') }}</p>
                 </div>
             </div>
         </div>
@@ -1283,10 +1281,10 @@
             <div class="section-title">
                 <div class="badge">
                     <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
-                    Kwa Nini Sisi
+                    {{ __('messages.welcome.features_badge') }}
                 </div>
-                <h2>Faida za SKYpesa</h2>
-                <p>Tunalichotofautisha na wengine</p>
+                <h2>{{ __('messages.welcome.features_title') }}</h2>
+                <p>{{ __('messages.welcome.features_subtitle') }}</p>
             </div>
 
             <div class="features-grid">
@@ -1294,48 +1292,48 @@
                     <div class="feature-icon">
                         <i data-lucide="shield-check" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h3>Salama & Halali</h3>
-                    <p>Tunafanya kazi na advertising networks halali. Hakuna minyororo wala udanganyifu.</p>
+                    <h3>{{ __('messages.welcome.feature1_title') }}</h3>
+                    <p>{{ __('messages.welcome.feature1_desc') }}</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i data-lucide="zap" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h3>Malipo ya Haraka</h3>
-                    <p>Omba kutoa pesa na upate ndani ya masaa 24-48 kulingana na mpango wako.</p>
+                    <h3>{{ __('messages.welcome.feature2_title') }}</h3>
+                    <p>{{ __('messages.welcome.feature2_desc') }}</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i data-lucide="smartphone" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h3>Simu Yoyote</h3>
-                    <p>Inafanya kazi kwenye simu yoyote yenye internet. Huhitaji smartphone ghali.</p>
+                    <h3>{{ __('messages.welcome.feature3_title') }}</h3>
+                    <p>{{ __('messages.welcome.feature3_desc') }}</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i data-lucide="clock" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h3>24/7 Availability</h3>
-                    <p>Asubuhi, mchana, au usiku - kazi zinapatikana masaa 24/7.</p>
+                    <h3>{{ __('messages.welcome.feature4_title') }}</h3>
+                    <p>{{ __('messages.welcome.feature4_desc') }}</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i data-lucide="users" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h3>Referral Bonus</h3>
-                    <p>Alika marafiki na upate bonus kwa kila mtu anayejiunga kupitia wewe.</p>
+                    <h3>{{ __('messages.welcome.feature5_title') }}</h3>
+                    <p>{{ __('messages.welcome.feature5_desc') }}</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i data-lucide="headphones" style="width: 32px; height: 32px;"></i>
                     </div>
-                    <h3>Msaada 24/7</h3>
-                    <p>Timu yetu iko tayari kukusaidia wakati wowote unapohitaji.</p>
+                    <h3>{{ __('messages.welcome.feature6_title') }}</h3>
+                    <p>{{ __('messages.welcome.feature6_desc') }}</p>
                 </div>
             </div>
         </div>
@@ -1347,10 +1345,10 @@
             <div class="section-title">
                 <div class="badge">
                     <i data-lucide="crown" style="width: 16px; height: 16px;"></i>
-                    Mipango
+                    {{ __('messages.welcome.pricing_badge') }}
                 </div>
-                <h2>Chagua Mpango Wako</h2>
-                <p>Anza bure au upgrade kwa faida zaidi</p>
+                <h2>{{ __('messages.welcome.pricing_title') }}</h2>
+                <p>{{ __('messages.welcome.pricing_subtitle') }}</p>
             </div>
 
             <div class="pricing-grid" style="grid-template-columns: repeat({{ min(count($plans ?? []), 5) }}, 1fr);">
@@ -1363,48 +1361,48 @@
                         <div class="plan-price">
                             TZS {{ number_format($plan->price, 0) }}
                             @if($plan->price > 0)
-                                <span>/mwezi</span>
+                                <span>{{ __('messages.subscriptions.per_month') }}</span>
                             @endif
                         </div>
                         <ul class="plan-features">
                             <li>
                                 @if($plan->daily_task_limit)
-                                    <i data-lucide="check"></i> Tasks {{ $plan->daily_task_limit }}/siku
+                                    <i data-lucide="check"></i> Tasks {{ $plan->daily_task_limit }}{{ __('messages.welcome.per_day') }}
                                 @else
-                                    <i data-lucide="infinity"></i> UNLIMITED
+                                    <i data-lucide="infinity"></i> {{ __('messages.subscriptions.unlimited') }}
                                 @endif
                             </li>
                             <li>
-                                <i data-lucide="coins"></i> TZS {{ number_format($plan->reward_per_task, 0) }}/task
+                                <i data-lucide="coins"></i> TZS {{ number_format($plan->reward_per_task, 0) }}{{ __('messages.welcome.per_task') }}
                             </li>
                             <li>
-                                <i data-lucide="banknote"></i> Min: TZS {{ number_format($plan->min_withdrawal, 0) }}
+                                <i data-lucide="banknote"></i> {{ __('messages.welcome.min_withdrawal') }}: TZS {{ number_format($plan->min_withdrawal, 0) }}
                             </li>
                             <li>
-                                <i data-lucide="percent"></i> Fee: {{ number_format($plan->withdrawal_fee_percent, 0) }}%
+                                <i data-lucide="percent"></i> {{ __('messages.welcome.fee') }}: {{ number_format($plan->withdrawal_fee_percent, 0) }}%
                             </li>
                         </ul>
                         <a href="{{ route('register') }}" class="btn {{ $plan->is_featured ? 'btn-primary' : 'btn-secondary' }}" style="width: 100%;">
                             @if($plan->price == 0)
-                                Jiunge Bure
+                                {{ __('messages.welcome.join_free') }}
                             @else
-                                Chagua
+                                {{ __('messages.welcome.select_plan') }}
                             @endif
                         </a>
                     </div>
                 @empty
                     <!-- Fallback if no plans exist yet -->
                     <div class="plan-card">
-                        <div class="plan-tier">Bure</div>
+                        <div class="plan-tier">{{ __('messages.welcome.free_tier') }}</div>
                         <div class="plan-name">Free</div>
                         <div class="plan-price">TZS 0</div>
                         <ul class="plan-features">
-                            <li><i data-lucide="check"></i> Tasks 20/siku</li>
-                            <li><i data-lucide="coins"></i> TZS 3/task</li>
-                            <li><i data-lucide="banknote"></i> Min: TZS 5,000</li>
-                            <li><i data-lucide="percent"></i> Fee: 20%</li>
+                            <li><i data-lucide="check"></i> Tasks 20{{ __('messages.welcome.per_day') }}</li>
+                            <li><i data-lucide="coins"></i> TZS 3{{ __('messages.welcome.per_task') }}</li>
+                            <li><i data-lucide="banknote"></i> {{ __('messages.welcome.min_withdrawal') }}: TZS 5,000</li>
+                            <li><i data-lucide="percent"></i> {{ __('messages.welcome.fee') }}: 20%</li>
                         </ul>
-                        <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">Jiunge Bure</a>
+                        <a href="{{ route('register') }}" class="btn btn-secondary" style="width: 100%;">{{ __('messages.welcome.join_free') }}</a>
                     </div>
                 @endforelse
             </div>
@@ -1417,10 +1415,10 @@
             <div class="section-title">
                 <div class="badge">
                     <i data-lucide="message-circle" style="width: 16px; height: 16px;"></i>
-                    Maoni
+                    {{ __('messages.welcome.testimonials_badge') }}
                 </div>
-                <h2>Watumiaji Wanasema Nini</h2>
-                <p>Maoni kutoka kwa watumiaji wetu</p>
+                <h2>{{ __('messages.welcome.testimonials') }}</h2>
+                <p>{{ __('messages.welcome.testimonials_subtitle') }}</p>
             </div>
 
             <div class="testimonials-grid">
@@ -1429,7 +1427,7 @@
                         ★★★★★
                     </div>
                     <p class="testimonial-text">
-                        "Nimekuwa nikitumia SKYpesa kwa miezi 3 sasa. Nimepata zaidi ya TZS 150,000. Inafanya kazi kweli!"
+                        "{{ __('messages.welcome.testimonial1') }}"
                     </p>
                     <div class="testimonial-author">
                         <div class="author-avatar">JM</div>
@@ -1445,7 +1443,7 @@
                         ★★★★★
                     </div>
                     <p class="testimonial-text">
-                        "Malipo yanakuja haraka sana. Nimealika marafiki 20 na napata bonus kila wakati."
+                        "{{ __('messages.welcome.testimonial2') }}"
                     </p>
                     <div class="testimonial-author">
                         <div class="author-avatar">AM</div>
@@ -1461,7 +1459,7 @@
                         ★★★★★
                     </div>
                     <p class="testimonial-text">
-                        "Kazi rahisi sana! Ninafanya wakati wa mapumziko na ninapata pesa ya ziada kwa mwezi."
+                        "{{ __('messages.welcome.testimonial3') }}"
                     </p>
                     <div class="testimonial-author">
                         <div class="author-avatar">SE</div>
@@ -1479,13 +1477,11 @@
     <section class="cta-section">
         <div class="container">
             <div class="cta-content">
-                <h2>Tayari Kuanza Kupata Pesa?</h2>
-                <p>
-                    Jiunge sasa na uanze kupata pesa leo! Ni bure kuanza na unaweza upgrade wakati wowote.
-                </p>
+                <h2>{{ __('messages.welcome.cta_title') }}</h2>
+                <p>{{ __('messages.welcome.cta_subtitle') }}</p>
                 <a href="{{ route('register') }}" class="btn btn-lg">
                     <i data-lucide="rocket" style="width: 20px; height: 20px;"></i>
-                    Jiunge Sasa - Bure!
+                    {{ __('messages.welcome.join_now') }}
                 </a>
             </div>
         </div>
@@ -1502,33 +1498,31 @@
                         </div>
                         SKY<span>pesa</span>
                     </a>
-                    <p>
-                        Jukwaa halali la Tanzania la kujipatia pesa mtandaoni kwa kutazama matangazo na kukamilisha kazi rahisi.
-                    </p>
+                    <p>{{ __('messages.welcome.footer_desc') }}</p>
                 </div>
 
                 <div class="footer-links">
-                    <h4>Haraka</h4>
+                    <h4>{{ __('messages.welcome.quick_links') }}</h4>
                     <ul>
-                        <li><a href="{{ route('login') }}">Ingia</a></li>
-                        <li><a href="{{ route('register') }}">Jiunge</a></li>
-                        <li><a href="#how-it-works">Jinsi Inavyofanya Kazi</a></li>
-                        <li><a href="#pricing">Mipango</a></li>
+                        <li><a href="{{ route('login') }}">{{ __('messages.welcome.login') }}</a></li>
+                        <li><a href="{{ route('register') }}">{{ __('messages.welcome.register') }}</a></li>
+                        <li><a href="#how-it-works">{{ __('messages.welcome.how_it_works') }}</a></li>
+                        <li><a href="#pricing">{{ __('messages.welcome.plans') }}</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-links">
-                    <h4>Msaada</h4>
+                    <h4>{{ __('messages.welcome.support_title') }}</h4>
                     <ul>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Wasiliana Nasi</a></li>
-                        <li><a href="#">Masharti</a></li>
-                        <li><a href="#">Faragha</a></li>
+                        <li><a href="#">{{ __('messages.welcome.faq') }}</a></li>
+                        <li><a href="#">{{ __('messages.welcome.contact') }}</a></li>
+                        <li><a href="#">{{ __('messages.welcome.terms') }}</a></li>
+                        <li><a href="#">{{ __('messages.welcome.privacy') }}</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-links">
-                    <h4>Wasiliana</h4>
+                    <h4>{{ __('messages.welcome.contact_title') }}</h4>
                     <ul>
                         <li><a href="mailto:support@skypesa.com">support@skypesa.com</a></li>
                         <li><a href="tel:+255700000000">+255 700 000 000</a></li>
@@ -1538,7 +1532,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; {{ date('Y') }} SKYpesa. Haki zote zimehifadhiwa.</p>
+                <p>&copy; {{ date('Y') }} SKYpesa. {{ __('messages.welcome.all_rights') }}</p>
                 <div class="social-links">
                     <a href="#"><i data-lucide="facebook" style="width: 20px; height: 20px;"></i></a>
                     <a href="#"><i data-lucide="instagram" style="width: 20px; height: 20px;"></i></a>

@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminDirectLinkController;
 use App\Http\Controllers\Admin\AdminLinkPoolController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\LanguageController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,11 @@ Route::get('/', function () {
         ->get();
     return view('welcome', compact('plans'));
 })->name('home');
+
+// Language switching route (accessible to all users)
+Route::get('/language/{locale}', [LanguageController::class, 'switch'])
+    ->where('locale', 'en|sw')
+    ->name('language.switch');
 
 /*
 |--------------------------------------------------------------------------

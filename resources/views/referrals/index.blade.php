@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Referrals')
-@section('page-title', 'Programu ya Referral')
-@section('page-subtitle', 'Alika marafiki na upate bonus!')
+@section('title', __('messages.referrals.title'))
+@section('page-title', __('messages.referrals.title'))
+@section('page-subtitle', __('messages.referrals.subtitle')))
 
 @push('styles')
 <style>
@@ -128,15 +128,15 @@
 <div class="grid grid-3 mb-8">
     <div class="stat-card">
         <div class="stat-value">{{ $totalReferrals }}</div>
-        <div class="stat-label">Jumla ya Referrals</div>
+        <div class="stat-label">{{ __('messages.referrals.total_referrals') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ $referrals->where('is_active', true)->count() }}</div>
-        <div class="stat-label">Wanaofanya Kazi</div>
+        <div class="stat-label">{{ __('messages.referrals.active_referrals') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value" style="color: var(--primary);">TZS {{ number_format($referralEarnings, 0) }}</div>
-        <div class="stat-label">Bonus Uliyopata</div>
+        <div class="stat-label">{{ __('messages.referrals.bonus_earned') }}</div>
     </div>
 </div>
 
@@ -246,7 +246,7 @@
 
 <!-- Referrals List -->
 <div class="flex justify-between items-center mb-4">
-    <h3>Marafiki Waliojiunga</h3>
+    <h3>{{ __('messages.referrals.invited_friends') }}</h3>
 </div>
 
 <!-- Desktop Table View -->

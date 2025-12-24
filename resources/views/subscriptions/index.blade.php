@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Subscription')
-@section('page-title', 'Mipango ya Subscription')
-@section('page-subtitle', 'Chagua mpango unaokufaa')
+@section('title', __('messages.subscriptions.title'))
+@section('page-title', __('messages.subscriptions.title'))
+@section('page-subtitle', __('messages.subscriptions.subtitle'))
 
 @push('styles')
 <style>
@@ -173,7 +173,7 @@
 @endif
 
 <!-- All Plans -->
-<h3 class="mb-4">Mipango Yote</h3>
+<h3 class="mb-4">{{ __('messages.subscriptions.title') }}</h3>
 
 <!-- Swipe Hint for Mobile -->
 <div class="swipe-hint">
@@ -186,7 +186,7 @@
     <div class="plan-card {{ $plan->is_featured ? 'featured' : '' }} {{ $currentSubscription?->plan_id == $plan->id ? 'current' : '' }}">
         @if($currentSubscription?->plan_id == $plan->id)
         <div style="position: absolute; top: var(--space-4); left: var(--space-4); padding: var(--space-1) var(--space-3); background: var(--primary); color: white; font-size: 0.625rem; font-weight: 700; border-radius: var(--radius-full); letter-spacing: 0.1em;">
-            MPANGO WAKO
+            {{ __('messages.subscriptions.current_plan') }}
         </div>
         @endif
         
@@ -239,7 +239,7 @@
         @if($currentSubscription?->plan_id == $plan->id)
         <button class="btn btn-secondary" style="width: 100%;" disabled>
             <i data-lucide="check"></i>
-            Mpango Wako
+            {{ __('messages.subscriptions.current_plan') }}
         </button>
         @elseif($plan->isFree())
         <form action="{{ route('subscriptions.subscribe', $plan) }}" method="POST">

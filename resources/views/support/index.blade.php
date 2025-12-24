@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Support Center')
-@section('page-title', 'Support Center')
-@section('page-subtitle', 'Wasiliana nasi kwa msaada zaidi')
+@section('title', __('messages.support.title'))
+@section('page-title', __('messages.support.title'))
+@section('page-subtitle', __('messages.support.subtitle'))
 
 @section('content')
 <div class="grid grid-responsive-3 gap-6">
@@ -45,10 +45,10 @@
     <div class="grid-responsive-2" style="grid-column: span 2;">
         <div class="card glass" style="padding: 1.5rem;">
             <div class="flex justify-between items-center mb-6">
-                <h3 style="margin: 0;">Tiketi Zako</h3>
+                <h3 style="margin: 0;">{{ __('messages.support.your_tickets') }}</h3>
                 <a href="{{ route('support.create') }}" class="btn btn-primary btn-sm">
                     <i data-lucide="plus"></i>
-                    Tiketi Mpya
+                    {{ __('messages.support.new_ticket') }}
                 </a>
             </div>
 
@@ -57,8 +57,8 @@
                     <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.03); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--text-muted);">
                         <i data-lucide="message-square" style="width: 40px; height: 40px;"></i>
                     </div>
-                    <h4 style="color: var(--text-muted);">Huna tiketi yoyote kwa sasa</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted);">Ukipata shida yoyote, fungua tiketi hapa.</p>
+                    <h4 style="color: var(--text-muted);">{{ __('messages.support.no_tickets') }}</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">{{ __('messages.support.no_tickets_desc') }}</p>
                 </div>
             @else
                 <div class="table-responsive">

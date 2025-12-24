@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
-@section('page-title', 'Dashboard')
-@section('page-subtitle', 'Karibu ' . auth()->user()->name . '!')
+@section('title', __('messages.dashboard.title'))
+@section('page-title', __('messages.dashboard.title'))
+@section('page-subtitle', __('messages.common.welcome_back') . ' ' . auth()->user()->name . '!')
 
 @push('styles')
 <style>
@@ -63,12 +63,12 @@
     <!-- Balance Card -->
     <div class="wallet-card">
         <div style="position: relative; z-index: 10;">
-            <div class="wallet-label">Salio Lako</div>
+            <div class="wallet-label">{{ __('messages.wallet.current_balance') }}</div>
             <div class="wallet-balance">TZS {{ number_format(auth()->user()->wallet?->balance ?? 0, 0) }}</div>
             <div class="flex gap-4 mt-4">
                 <a href="{{ route('withdrawals.create') }}" class="btn w-full-mobile" style="background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(10px);">
                     <i data-lucide="send"></i>
-                    Toa Pesa
+                    {{ __('messages.wallet.withdraw') }}
                 </a>
             </div>
         </div>
@@ -81,13 +81,13 @@
                 <i data-lucide="trending-up" style="color: var(--primary);"></i>
             </div>
             <div style="min-width: 0; flex: 1;">
-                <div style="font-size: 0.875rem; color: var(--text-muted);">Mapato ya Leo</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted);">{{ __('messages.dashboard.todays_earnings') }}</div>
                 <div style="font-size: 1.25rem; font-weight: 700;">TZS {{ number_format(auth()->user()->earningsToday(), 0) }}</div>
             </div>
         </div>
         <div class="mt-4">
             <div class="flex justify-between" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-2);">
-                <span>Tasks Zilizobaki</span>
+                <span>{{ __('messages.tasks.tasks_remaining') }}</span>
                 <span>{{ auth()->user()->remainingTasksToday() ?? '∞' }} / {{ auth()->user()->getDailyTaskLimit() ?? '∞' }}</span>
             </div>
             @php
@@ -108,7 +108,7 @@
                 <i data-lucide="crown" style="color: var(--primary);"></i>
             </div>
             <div style="min-width: 0; flex: 1;">
-                <div style="font-size: 0.875rem; color: var(--text-muted);">Mpango Wako</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted);">{{ __('messages.dashboard.current_plan') }}</div>
                 <div style="font-size: 1.25rem; font-weight: 700;">{{ auth()->user()->getPlanName() }}</div>
             </div>
         </div>
@@ -120,13 +120,13 @@
         <div class="mt-4">
             <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem;">
                 <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
-                <span>Inaisha baada ya siku {{ $daysRemaining }}</span>
+                <span>{{ __('messages.subscriptions.expires_in') }} {{ $daysRemaining }} {{ __('messages.time.days') }}</span>
             </div>
         </div>
         @endif
         <a href="{{ route('subscriptions.index') }}" class="btn btn-secondary btn-sm mt-4" style="width: 100%;">
             <i data-lucide="arrow-up-circle"></i>
-            Upgrade
+            {{ __('messages.subscriptions.upgrade') }}
         </a>
     </div>
 </div>
@@ -136,27 +136,27 @@
 <div class="grid grid-4 mb-8">
     <div class="stat-card">
         <div class="stat-value">{{ auth()->user()->tasksCompletedToday() }}</div>
-        <div class="stat-label">Tasks Leo</div>
+        <div class="stat-label">{{ __('messages.dashboard.tasks_today') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">TZS {{ number_format(auth()->user()->earningsThisMonth(), 0) }}</div>
-        <div class="stat-label">Mapato ya Mwezi</div>
+        <div class="stat-label">{{ __('messages.dashboard.monthly_earnings') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">TZS {{ number_format(auth()->user()->wallet?->total_withdrawn ?? 0, 0) }}</div>
-        <div class="stat-label">Jumla Uliyotoa</div>
+        <div class="stat-label">{{ __('messages.wallet.total_withdrawn') }}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ auth()->user()->referrals()->count() }}</div>
-        <div class="stat-label">Referrals</div>
+        <div class="stat-label">{{ __('messages.referrals.title') }}</div>
     </div>
 </div>
 
 <!-- Available Tasks -->
 <div class="flex justify-between items-center mb-4">
-    <h3>Kazi Zinazopatikana</h3>
+    <h3>{{ __('messages.tasks.available') }}</h3>
     <a href="{{ route('tasks.index') }}" class="btn btn-secondary btn-sm">
-        Angalia Zote
+        {{ __('messages.common.view') }} {{ __('messages.common.all') }}
         <i data-lucide="arrow-right"></i>
     </a>
 </div>
@@ -181,24 +181,24 @@
             @if($task->daily_limit)
             <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-4);">
                 <i data-lucide="repeat" style="width: 12px; height: 12px; display: inline;"></i>
-                {{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }} leo
+                {{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }} {{ __('messages.tasks.today') }}
             </div>
             @endif
             
             @if($task->canUserComplete(auth()->user()) && auth()->user()->canCompleteMoreTasks())
             <a href="{{ route('tasks.show', $task) }}" class="btn btn-primary" style="width: 100%;">
                 <i data-lucide="play"></i>
-                Anza Kazi
+                {{ __('messages.tasks.start_task') }}
             </a>
             @elseif(!auth()->user()->canCompleteMoreTasks())
             <button class="btn btn-secondary" style="width: 100%;" disabled>
                 <i data-lucide="lock"></i>
-                Umefika Limit
+                {{ __('messages.tasks.task_locked') }}
             </button>
             @else
             <button class="btn btn-secondary" style="width: 100%;" disabled>
                 <i data-lucide="check"></i>
-                Imekamilika
+                {{ __('messages.tasks.task_completed') }}
             </button>
             @endif
         </div>
@@ -206,17 +206,17 @@
     @empty
     <div class="card card-body text-center" style="grid-column: span 3;">
         <i data-lucide="inbox" style="width: 48px; height: 48px; color: var(--text-muted); margin: 0 auto var(--space-4);"></i>
-        <h4 class="mb-2">Hakuna Kazi Kwa Sasa</h4>
-        <p>Rudi baadaye kuangalia kazi mpya!</p>
+        <h4 class="mb-2">{{ __('messages.tasks.no_tasks') }}</h4>
+        <p>{{ __('messages.tasks.wait_message') }}</p>
     </div>
     @endforelse
 </div>
 
 <!-- Recent Transactions -->
 <div class="flex justify-between items-center mb-4">
-    <h3>Shughuli za Hivi Karibuni</h3>
+    <h3>{{ __('messages.dashboard.recent_activity') }}</h3>
     <a href="{{ route('wallet.index') }}" class="btn btn-secondary btn-sm">
-        Angalia Zote
+        {{ __('messages.common.view') }} {{ __('messages.common.all') }}
         <i data-lucide="arrow-right"></i>
     </a>
 </div>
@@ -225,10 +225,10 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Tarehe</th>
-                <th>Maelezo</th>
-                <th>Aina</th>
-                <th style="text-align: right;">Kiasi</th>
+                <th>{{ __('messages.common.date') }}</th>
+                <th>{{ __('messages.common.description') }}</th>
+                <th>{{ __('messages.common.status') }}</th>
+                <th style="text-align: right;">{{ __('messages.dashboard.amount_label') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -238,7 +238,7 @@
                 <td>{{ $transaction->getCategoryLabel() }}</td>
                 <td>
                     <span class="badge {{ $transaction->isCredit() ? 'badge-success' : 'badge-error' }}">
-                        {{ $transaction->isCredit() ? 'Credit' : 'Debit' }}
+                        {{ $transaction->isCredit() ? __('messages.dashboard.credit') : __('messages.dashboard.debit') }}
                     </span>
                 </td>
                 <td style="text-align: right; font-weight: 600; color: {{ $transaction->isCredit() ? 'var(--success)' : 'var(--error)' }};">
@@ -248,7 +248,7 @@
             @empty
             <tr>
                 <td colspan="4" class="text-center" style="padding: var(--space-8); color: var(--text-muted);">
-                    Hakuna shughuli bado
+                    {{ __('messages.dashboard.no_transactions') }}
                 </td>
             </tr>
             @endforelse
@@ -262,9 +262,9 @@
         <div>
             <h4 class="mb-2">
                 <i data-lucide="gift" style="color: var(--primary); display: inline;"></i>
-                Alika Marafiki, Pata Bonus!
+                {{ __('messages.dashboard.invite_friends_bonus') }}
             </h4>
-            <p style="font-size: 0.875rem;">Shiriki referral code yako na upate bonus kwa kila mtu anayejiunga.</p>
+            <p style="font-size: 0.875rem;">{{ __('messages.dashboard.share_referral_code') }}</p>
         </div>
         <div class="flex gap-4 items-center">
             <div style="padding: var(--space-3) var(--space-4); background: var(--bg-dark); border-radius: var(--radius-lg); font-family: monospace; font-size: 1.25rem; font-weight: 700; color: var(--primary);">
@@ -272,7 +272,7 @@
             </div>
             <button onclick="copyReferralCode()" class="btn btn-primary">
                 <i data-lucide="copy"></i>
-                Copy
+                {{ __('messages.dashboard.copy') }}
             </button>
         </div>
     </div>
@@ -284,7 +284,7 @@
         const code = '{{ auth()->user()->referral_code }}';
         const url = '{{ url('/register?ref=' . auth()->user()->referral_code) }}';
         navigator.clipboard.writeText(url).then(() => {
-            alert('Link ya referral imekopishwa!');
+            alert('{{ __('messages.dashboard.referral_copied') }}');
         });
     }
 </script>

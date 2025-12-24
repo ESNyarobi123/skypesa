@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $task->title)
-@section('page-title', 'Kamilisha Kazi')
+@section('page-title', __('messages.tasks.complete_task'))
 @section('page-subtitle', $task->title)
 
 @push('styles')
@@ -250,7 +250,7 @@
             <div class="flex justify-between items-center" style="padding: var(--space-4); background: var(--gradient-glow); border-radius: var(--radius-lg); margin-bottom: var(--space-6);">
                 <div class="flex items-center gap-3">
                     <i data-lucide="coins" style="color: var(--primary);"></i>
-                    <span style="font-weight: 600;">Malipo</span>
+                    <span style="font-weight: 600;">{{ __('messages.tasks.payment') }}</span>
                 </div>
                 <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
                     TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
@@ -263,8 +263,8 @@
                     <div class="flex items-center gap-3">
                         <i data-lucide="clock" style="color: var(--primary);"></i>
                         <div>
-                            <div style="font-size: 1.25rem; font-weight: 700;">{{ $task->duration_seconds }} sekunde</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Muda wa Kazi</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">{{ $task->duration_seconds }} {{ __('messages.tasks.seconds') }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ __('messages.tasks.task_duration') }}</div>
                         </div>
                     </div>
                 </div>
@@ -272,8 +272,8 @@
                     <div class="flex items-center gap-3">
                         <i data-lucide="eye" style="color: var(--primary);"></i>
                         <div>
-                            <div style="font-size: 1.25rem; font-weight: 700;">Tazama Tangazo</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Aina ya Kazi</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">{{ __('messages.tasks.view_ad') }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ __('messages.tasks.task_type') }}</div>
                         </div>
                     </div>
                 </div>
@@ -287,7 +287,7 @@
                                background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); 
                                border-radius: var(--radius-lg); color: var(--info); cursor: pointer; font-size: 0.875rem;">
                     <i data-lucide="info" style="width: 18px; height: 18px;"></i>
-                    <span>Jinsi Inavyofanya Kazi</span>
+                    <span>{{ __('messages.tasks.how_it_works') }}</span>
                     <i data-lucide="chevron-down" id="instructionsChevron" style="width: 16px; height: 16px; margin-left: auto; transition: transform 0.3s;"></i>
                 </button>
                 
@@ -295,9 +295,9 @@
                 <div id="instructionsContent" style="overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; max-height: 0; padding: 0 var(--space-4);">
                     <div style="padding-top: var(--space-3);">
                         <ul style="padding-left: var(--space-4); color: var(--text-secondary); font-size: 0.875rem; line-height: 1.8;">
-                            <li>Tangazo litafunguka ndani ya page hii</li>
-                            <li>Timer itaanza kuhesabu - <strong style="color: var(--warning);">huwezi kuanza kazi nyingine</strong></li>
-                            <li>Baada ya muda kuisha, bonyeza "Pata Malipo"</li>
+                            <li>{{ __('messages.tasks.ad_opens_here') }}</li>
+                            <li>{{ __('messages.tasks.timer_starts') }} - <strong style="color: var(--warning);">{{ __('messages.tasks.cannot_start_another') }}</strong></li>
+                            <li>{{ __('messages.tasks.after_time_click') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -306,7 +306,7 @@
             <!-- Start Button -->
             <button id="startButton" class="btn btn-primary btn-lg" style="width: 100%;" onclick="startTask()">
                 <i data-lucide="play"></i>
-                Anza Kazi - Pata TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
+                {{ __('messages.tasks.start_task_earn') }} {{ number_format($task->getRewardFor(auth()->user()), 0) }}
             </button>
         </div>
     </div>
@@ -315,7 +315,7 @@
     <div class="text-center mt-6">
         <a href="{{ route('tasks.index') }}" class="flex items-center justify-center gap-2" style="color: var(--text-muted);">
             <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
-            Rudi kwenye Kazi
+            {{ __('messages.tasks.back_to_tasks') }}
         </a>
     </div>
 </div>
@@ -330,7 +330,7 @@
             </div>
             <div>
                 <h4 style="margin: 0;">{{ $task->title }}</h4>
-                <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Tazama tangazo hadi timer imalizike</p>
+                <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">{{ __('messages.tasks.watch_ad_until') }}</p>
             </div>
         </div>
         
@@ -339,7 +339,7 @@
                 <i data-lucide="clock" style="color: var(--primary);"></i>
                 <div>
                     <div id="timerNumber" class="timer-number">{{ $task->duration_seconds }}</div>
-                    <div class="timer-label">Sekunde</div>
+                    <div class="timer-label">{{ __('messages.tasks.seconds') }}</div>
                 </div>
             </div>
             
@@ -353,12 +353,12 @@
     <!-- Iframe Container -->
     <div class="task-iframe-container">
         <div id="warningOverlay" class="warning-overlay">
-            ⚠️ Usitoke kwenye page hii! Timer inaendelea...
+            ⚠️ {{ __('messages.tasks.dont_leave') }}
         </div>
         
         <div id="iframeLoading" class="iframe-loading">
             <div class="spinner"></div>
-            <p>Inapakia tangazo...</p>
+            <p>{{ __('messages.tasks.loading_ad') }}</p>
         </div>
         
         <iframe id="taskIframe" class="task-iframe" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" allowfullscreen></iframe>
@@ -375,17 +375,17 @@
         
         <button id="completeButton" class="btn btn-primary complete-btn" style="display: none;" onclick="completeTask()">
             <i data-lucide="check"></i>
-            Pata Malipo!
+            {{ __('messages.tasks.get_payment') }}
         </button>
         
         <div id="waitingText" style="color: var(--text-muted); font-size: 0.875rem;">
             <i data-lucide="loader" class="animate-spin" style="width: 16px; height: 16px; display: inline;"></i>
-            Subiri timer imalizike...
+            {{ __('messages.tasks.wait_timer') }}
         </div>
         
         <button id="abandonButton" class="btn btn-ghost" style="color: var(--danger); font-size: 0.75rem; padding: 0.5rem 1rem;" onclick="abandonTask()">
             <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-            Acha Kazi
+            {{ __('messages.tasks.abandon_task') }}
         </button>
     </div>
 </div>
@@ -396,15 +396,15 @@
         <div class="success-icon">
             <i data-lucide="check" style="width: 60px; height: 60px; color: white;"></i>
         </div>
-        <h1 style="color: var(--primary); margin-bottom: 0.5rem;">Hongera! 🎉</h1>
-        <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">Umepata <strong>TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}</strong></p>
+        <h1 style="color: var(--primary); margin-bottom: 0.5rem;">{{ __('messages.tasks.congratulations') }} 🎉</h1>
+        <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">{{ __('messages.tasks.you_earned') }} <strong>TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}</strong></p>
         <p id="newBalanceText" style="color: var(--text-muted); margin-bottom: 1rem;"></p>
         
         <!-- Daily Goal Progress Update -->
         <div id="dailyGoalUpdateBox" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1.5rem; display: none;">
             <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                 <i data-lucide="target" style="width: 18px; height: 18px; color: var(--primary);"></i>
-                <span style="font-weight: 600; color: var(--primary);">🎯 Mkakamavu wa Leo</span>
+                <span style="font-weight: 600; color: var(--primary);">🎯 {{ __('messages.tasks.daily_goal') }}</span>
             </div>
             <div id="dailyGoalUpdateText" style="font-size: 0.9rem; color: var(--text-secondary);"></div>
             <div style="margin-top: 0.5rem;">
@@ -417,11 +417,11 @@
         <div class="flex gap-4 justify-center">
             <a href="{{ route('tasks.index') }}" class="btn btn-primary btn-lg">
                 <i data-lucide="arrow-left"></i>
-                Kazi Zaidi
+                {{ __('messages.tasks.more_tasks') }}
             </a>
             <a href="{{ route('wallet.index') }}" class="btn btn-secondary btn-lg">
                 <i data-lucide="wallet"></i>
-                Wallet
+                {{ __('messages.nav.wallet') }}
             </a>
         </div>
     </div>
@@ -435,6 +435,27 @@
     const startUrl = "{{ route('tasks.start', $task) }}";
     const completeUrl = "{{ route('tasks.complete', $task) }}";
     const csrfToken = "{{ csrf_token() }}";
+    
+    // Translation strings for JavaScript
+    const translations = {
+        starting: "{{ __('messages.tasks.starting') }}",
+        processing: "{{ __('messages.tasks.processing') }}",
+        deleting: "{{ __('messages.tasks.deleting') }}",
+        server_error: "{{ __('messages.tasks.server_error') }}",
+        failed_start: "{{ __('messages.tasks.failed_start') }}",
+        problem_try_again: "{{ __('messages.tasks.problem_try_again') }}",
+        failed_complete: "{{ __('messages.tasks.failed_complete') }}",
+        confirm_abandon: "{{ __('messages.tasks.confirm_abandon') }}",
+        start_task: "{{ __('messages.tasks.start_task') }}",
+        get_payment: "{{ __('messages.tasks.get_payment') }}",
+        new_balance: "{{ __('messages.tasks.new_balance') }}",
+        watching: "{{ __('messages.tasks.watching') }}",
+        done: "{{ __('messages.tasks.done') }}",
+        completed_goal: "{{ __('messages.tasks.completed_goal') }}",
+        claim_bonus: "{{ __('messages.tasks.claim_bonus') }}",
+        already_claimed: "{{ __('messages.tasks.already_claimed') }}",
+        remaining_for_bonus: "{{ __('messages.tasks.remaining_for_bonus') }}"
+    };
     
     let lockToken = {!! json_encode($lockToken) !!};
     let countdown = taskDuration; // Always start fresh with full duration
@@ -513,7 +534,7 @@
     function startTask() {
         const startBtn = document.getElementById('startButton');
         startBtn.disabled = true;
-        startBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Inaanza...';
+        startBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> ' + translations.starting;
         lucide.createIcons();
         
         fetch(startUrl, {
@@ -529,7 +550,7 @@
             if (!contentType || !contentType.includes('application/json')) {
                 const text = await response.text();
                 console.error('Server error:', text.substring(0, 500));
-                throw new Error('Server error. Jaribu tena.');
+                throw new Error(translations.server_error);
             }
             
             const data = await response.json();
@@ -554,15 +575,15 @@
                 activeUrl = data.used_url || defaultTaskUrl;
                 showFullscreenView(activeUrl);
             } else {
-                throw new Error(data.message || 'Imeshindwa kuanza kazi');
+                throw new Error(data.message || translations.failed_start);
             }
         })
         .catch(error => {
             console.error('Start task error:', error);
             if (error.message !== 'Task locked') {
-                alert(error.message || 'Kuna tatizo. Jaribu tena.');
+                alert(error.message || translations.problem_try_again);
                 startBtn.disabled = false;
-                startBtn.innerHTML = '<i data-lucide="play"></i> Anza Kazi';
+                startBtn.innerHTML = '<i data-lucide="play"></i> ' + translations.start_task;
                 lucide.createIcons();
             }
         });
@@ -624,7 +645,7 @@
             timerEl.textContent = '✓';
             timerEl.style.color = 'var(--success)';
             progressEl.style.width = '100%';
-            progressTextEl.textContent = '100% - Imekamilika!';
+            progressTextEl.textContent = '100% - ' + translations.done;
             lucide.createIcons();
             return;
         }
@@ -642,7 +663,7 @@
             const progress = Math.max(0, Math.min(100, ((taskDuration - countdown) / taskDuration) * 100));
             progressEl.style.width = progress + '%';
             progressTextEl.textContent = Math.round(progress) + '% - ' + 
-                (countdown > 0 ? 'Tazama tangazo...' : 'Imekamilika!');
+                (countdown > 0 ? translations.watching : translations.done);
             
             // Timer complete
             if (countdown <= 0) {
@@ -664,7 +685,7 @@
     function completeTask() {
         const completeBtn = document.getElementById('completeButton');
         completeBtn.disabled = true;
-        completeBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Inachakatwa...';
+        completeBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> ' + translations.processing;
         lucide.createIcons();
         
         fetch(completeUrl, {
@@ -690,26 +711,26 @@
                 taskStarted = false;
                 showSuccessModal(data.new_balance, data.daily_goal);
             } else {
-                throw new Error(data.message || 'Imeshindwa kukamilika');
+                throw new Error(data.message || translations.failed_complete);
             }
         })
         .catch(error => {
             console.error('Complete task error:', error);
-            alert(error.message || 'Kuna tatizo. Jaribu tena.');
+            alert(error.message || translations.problem_try_again);
             completeBtn.disabled = false;
-            completeBtn.innerHTML = '<i data-lucide="check"></i> Pata Malipo!';
+            completeBtn.innerHTML = '<i data-lucide="check"></i> ' + translations.get_payment;
             lucide.createIcons();
         });
     }
     
     function abandonTask() {
-        if (!confirm('Una uhakika unataka kuacha kazi hii? Hutapata malipo na utaanza upya.')) {
+        if (!confirm(translations.confirm_abandon)) {
             return;
         }
         
         const abandonBtn = document.getElementById('abandonButton');
         abandonBtn.disabled = true;
-        abandonBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Inafuta...';
+        abandonBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> ' + translations.deleting;
         lucide.createIcons();
         
         // Cancel the task on server
@@ -745,7 +766,7 @@
     function showSuccessModal(newBalance, dailyGoal) {
         document.getElementById('taskFullscreen').style.display = 'none';
         document.getElementById('successModal').style.display = 'flex';
-        document.getElementById('newBalanceText').textContent = 'Salio jipya: TZS ' + new Intl.NumberFormat().format(newBalance);
+        document.getElementById('newBalanceText').textContent = translations.new_balance + ': TZS ' + new Intl.NumberFormat().format(newBalance);
         
         // Update daily goal progress with animation
         if (dailyGoal) {
@@ -756,11 +777,11 @@
             goalBox.style.display = 'block';
             
             if (dailyGoal.is_complete && !dailyGoal.is_claimed) {
-                goalText.innerHTML = `<strong style="color: var(--success);">🎉 Umekamilisha! ${dailyGoal.completed}/${dailyGoal.target}</strong><br>Chukua bonus yako TZS ${new Intl.NumberFormat().format(dailyGoal.bonus_amount)}!`;
+                goalText.innerHTML = `<strong style="color: var(--success);">\ud83c\udf89 ${translations.completed_goal} ${dailyGoal.completed}/${dailyGoal.target}</strong><br>${translations.claim_bonus} TZS ${new Intl.NumberFormat().format(dailyGoal.bonus_amount)}!`;
             } else if (dailyGoal.is_claimed) {
-                goalText.innerHTML = `<strong style="color: var(--success);">✓ ${dailyGoal.completed}/${dailyGoal.target}</strong><br>Umeshachukua bonus ya leo!`;
+                goalText.innerHTML = `<strong style="color: var(--success);">\u2713 ${dailyGoal.completed}/${dailyGoal.target}</strong><br>${translations.already_claimed}`;
             } else {
-                goalText.innerHTML = `<strong>${dailyGoal.completed}/${dailyGoal.target}</strong> tasks<br>Baki <strong style="color: var(--primary);">${dailyGoal.remaining}</strong> kwa bonus!`;
+                goalText.innerHTML = `<strong>${dailyGoal.completed}/${dailyGoal.target}</strong> tasks<br><strong style="color: var(--primary);">${dailyGoal.remaining}</strong> ${translations.remaining_for_bonus}`;
             }
             
             // Animate progress bar

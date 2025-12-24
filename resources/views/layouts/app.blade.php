@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sw">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -61,6 +61,9 @@
             SKY<span>pesa</span>
         </div>
         <div class="flex items-center gap-2">
+            <!-- Language Switcher -->
+            @include('components.language-switcher')
+            
             <!-- Notifications -->
             <a href="{{ route('notifications.index') }}" class="mobile-header-icon" style="position: relative;">
                 <i data-lucide="bell"></i>
@@ -98,49 +101,49 @@
                 <li>
                     <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i data-lucide="layout-dashboard"></i>
-                        Dashboard
+                        {{ __('messages.nav.dashboard') }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('tasks.index') }}" class="sidebar-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
                         <i data-lucide="clipboard-list"></i>
-                        Kazi
+                        {{ __('messages.nav.tasks') }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('wallet.index') }}" class="sidebar-link {{ request()->routeIs('wallet.*') ? 'active' : '' }}">
                         <i data-lucide="wallet"></i>
-                        Wallet
+                        {{ __('messages.nav.wallet') }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('withdrawals.index') }}" class="sidebar-link {{ request()->routeIs('withdrawals.*') ? 'active' : '' }}">
                         <i data-lucide="banknote"></i>
-                        Withdrawals
+                        {{ __('messages.nav.withdrawals') }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('subscriptions.index') }}" class="sidebar-link {{ request()->routeIs('subscriptions.*') ? 'active' : '' }}">
                         <i data-lucide="crown"></i>
-                        Subscription
+                        {{ __('messages.nav.subscription') }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('referrals.index') }}" class="sidebar-link {{ request()->routeIs('referrals.*') ? 'active' : '' }}">
                         <i data-lucide="users"></i>
-                        Referrals
+                        {{ __('messages.nav.referrals') }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('leaderboard') }}" class="sidebar-link {{ request()->routeIs('leaderboard') ? 'active' : '' }}">
                         <i data-lucide="trophy"></i>
-                        Leaderboard
+                        {{ __('messages.nav.leaderboard') }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('support.index') }}" class="sidebar-link {{ request()->routeIs('support.*') ? 'active' : '' }}">
                         <i data-lucide="message-square"></i>
-                        Support
+                        {{ __('messages.nav.support') }}
                         @php 
                             $unreadSupport = auth()->user()->supportTickets()
                                 ->whereHas('messages', function($q) {

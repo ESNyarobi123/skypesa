@@ -37,6 +37,8 @@ class User extends Authenticatable
         'last_daily_goal_date',
         'daily_goal_progress',
         'daily_goal_claimed',
+        // Language preference
+        'locale',
     ];
 
     protected $hidden = [

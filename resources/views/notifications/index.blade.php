@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Notifications')
-@section('page-title', 'Notifications')
-@section('page-subtitle', 'Taarifa zako na matukio muhimu')
+@section('title', __('messages.notifications.title'))
+@section('page-title', __('messages.notifications.title'))
+@section('page-subtitle', __('messages.notifications.subtitle'))
 
 @section('content')
 <div class="container-fluid">
@@ -10,15 +10,15 @@
         <div class="col-12" style="max-width: 800px; margin: 0 auto;">
             <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h1 style="font-size: 1.5rem; font-weight: 800; margin: 0;">Taarifa Zako</h1>
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">Fuatilia matukio na bonus zako zote hapa.</p>
+                    <h1 style="font-size: 1.5rem; font-weight: 800; margin: 0;">{{ __('messages.notifications.title') }}</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">{{ __('messages.notifications.subtitle') }}</p>
                 </div>
                 @if(auth()->user()->notifications()->where('is_read', false)->exists())
                     <form action="{{ route('notifications.read', 'all') }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-secondary btn-sm">
                             <i data-lucide="check-check" style="width: 14px; height: 14px;"></i>
-                            Soma Zote
+                            {{ __('messages.notifications.mark_all_read') }}
                         </button>
                     </form>
                 @endif
@@ -31,9 +31,9 @@
                             <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.03); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
                                 <i data-lucide="bell-off" style="width: 32px; height: 32px; color: var(--text-muted);"></i>
                             </div>
-                            <h3 style="color: white; margin-bottom: 0.5rem;">Huna taarifa yoyote</h3>
-                            <p style="color: var(--text-muted); max-width: 300px; margin: 0 auto;">Tutakujulisha pindi utakapopata bonus au mualiko mpya.</p>
-                            <a href="{{ route('tasks.index') }}" class="btn btn-primary mt-6">Anza Kazi Sasa</a>
+                            <h3 style="color: white; margin-bottom: 0.5rem;">{{ __('messages.notifications.no_notifications') }}</h3>
+                            <p style="color: var(--text-muted); max-width: 300px; margin: 0 auto;">{{ __('messages.notifications.no_notifications_desc') }}</p>
+                            <a href="{{ route('tasks.index') }}" class="btn btn-primary mt-6">{{ __('messages.tasks.start_task') }}</a>
                         </div>
                     @else
                         <div class="notification-list">
