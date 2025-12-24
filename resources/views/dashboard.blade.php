@@ -161,56 +161,255 @@
     </a>
 </div>
 
-<div class="grid grid-3 mb-8">
+<div class="dashboard-tasks-grid mb-8">
     @forelse($tasks ?? [] as $task)
-    <div class="task-card">
-        <div class="task-card-header flex justify-between items-center">
-            <span class="task-reward">
-                <i data-lucide="coins" style="width: 14px; height: 14px;"></i>
-                TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
-            </span>
-            <span class="task-timer">
-                <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
-                {{ $task->duration_seconds }}s
-            </span>
-        </div>
-        <div class="task-card-body">
-            <h4 class="mb-2">{{ $task->title }}</h4>
-            <p style="font-size: 0.875rem; margin-bottom: var(--space-4);">{{ $task->description }}</p>
-            
-            @if($task->daily_limit)
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-4);">
-                <i data-lucide="repeat" style="width: 12px; height: 12px; display: inline;"></i>
-                {{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }} {{ __('messages.tasks.today') }}
+    <div class="dash-task-card {{ $task->is_featured ? 'featured' : '' }}">
+        <div class="dash-task-header">
+            <div class="dash-task-left">
+                {{-- Task Type Icon with Emoji --}}
+                <div class="dash-task-icon {{ $task->provider }}">
+                    @if($task->provider === 'monetag')
+                        <span>🚀</span>
+                    @elseif($task->provider === 'adsterra')
+                        <span>🔗</span>
+                    @else
+                        <span>⭐</span>
+                    @endif
+                </div>
+                <span class="dash-task-badge {{ $task->provider }}">
+                    @if($task->provider === 'monetag')
+                        SkyBoost™
+                    @elseif($task->provider === 'adsterra')
+                        SkyLinks™
+                    @else
+                        SkyTask™
+                    @endif
+                </span>
             </div>
-            @endif
+            <div class="dash-task-reward">
+                💰 TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
+            </div>
+        </div>
+        
+        <div class="dash-task-body">
+            <h4 class="dash-task-title">{{ Str::limit($task->title, 25) }}</h4>
+            <p class="dash-task-desc">{{ Str::limit($task->description, 50) }}</p>
+            
+            <div class="dash-task-meta">
+                <span>⏱️ {{ $task->duration_seconds }}s</span>
+                @if($task->daily_limit)
+                <span>🔄 {{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }}</span>
+                @endif
+            </div>
             
             @if($task->canUserComplete(auth()->user()) && auth()->user()->canCompleteMoreTasks())
-            <a href="{{ route('tasks.show', $task) }}" class="btn btn-primary" style="width: 100%;">
-                <i data-lucide="play"></i>
-                {{ __('messages.tasks.start_task') }}
+            <a href="{{ route('tasks.show', $task) }}" class="dash-task-btn start">
+                ▶️ {{ __('messages.tasks.start_task') }}
             </a>
             @elseif(!auth()->user()->canCompleteMoreTasks())
-            <button class="btn btn-secondary" style="width: 100%;" disabled>
-                <i data-lucide="lock"></i>
-                {{ __('messages.tasks.task_locked') }}
+            <button class="dash-task-btn locked" disabled>
+                🔒 {{ __('messages.tasks.task_locked') }}
             </button>
             @else
-            <button class="btn btn-secondary" style="width: 100%;" disabled>
-                <i data-lucide="check"></i>
-                {{ __('messages.tasks.task_completed') }}
+            <button class="dash-task-btn completed" disabled>
+                ✅ {{ __('messages.tasks.task_completed') }}
             </button>
             @endif
         </div>
     </div>
     @empty
     <div class="card card-body text-center" style="grid-column: span 3;">
-        <i data-lucide="inbox" style="width: 48px; height: 48px; color: var(--text-muted); margin: 0 auto var(--space-4);"></i>
+        <div style="font-size: 3rem; margin-bottom: var(--space-4);">📭</div>
         <h4 class="mb-2">{{ __('messages.tasks.no_tasks') }}</h4>
-        <p>{{ __('messages.tasks.wait_message') }}</p>
+        <p style="color: var(--text-muted);">{{ __('messages.tasks.wait_message') }}</p>
     </div>
     @endforelse
 </div>
+
+<style>
+/* Dashboard Task Cards - Compact with Emojis */
+.dashboard-tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+}
+
+@media (max-width: 768px) {
+    .dashboard-tasks-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-tasks-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dash-task-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.dash-task-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.dash-task-card.featured {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.dash-task-header {
+    padding: var(--space-3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.dash-task-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dash-task-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.dash-task-icon.monetag {
+    background: linear-gradient(135deg, #FF6B35, #FF8F00);
+    box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+}
+
+.dash-task-icon.adsterra {
+    background: linear-gradient(135deg, #00B4D8, #0077B6);
+    box-shadow: 0 3px 10px rgba(0, 180, 216, 0.3);
+}
+
+.dash-task-icon:not(.monetag):not(.adsterra) {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+}
+
+.dash-task-badge {
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+.dash-task-badge.monetag {
+    background: rgba(255, 107, 53, 0.15);
+    color: #FF6B35;
+}
+
+.dash-task-badge.adsterra {
+    background: rgba(0, 180, 216, 0.15);
+    color: #00B4D8;
+}
+
+.dash-task-badge:not(.monetag):not(.adsterra) {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--primary);
+}
+
+.dash-task-reward {
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.dash-task-body {
+    padding: var(--space-3);
+}
+
+.dash-task-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dash-task-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+.dash-task-meta {
+    display: flex;
+    gap: var(--space-3);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-3);
+}
+
+.dash-task-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: var(--space-2);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.dash-task-btn.start {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
+}
+
+.dash-task-btn.start:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.35);
+}
+
+.dash-task-btn.locked {
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.dash-task-btn.completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+</style>
 
 <!-- Recent Transactions -->
 <div class="flex justify-between items-center mb-4">
