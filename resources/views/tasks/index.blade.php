@@ -647,6 +647,32 @@
 </div>
 @endif
 
+<!-- Plan-based Task Limit Info Banner -->
+@if(isset($planInfo) && !$planInfo['is_unlimited'])
+<div class="card mb-8" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-xl); padding: var(--space-5);">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #10b981, #3b82f6); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                <i data-lucide="target" style="color: white; width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+                <h4 style="font-size: 1rem; margin-bottom: 0.25rem; color: var(--text-primary);">
+                    📊 Mpango: <span style="color: var(--primary); font-weight: 700;">{{ $planInfo['name'] }}</span>
+                </h4>
+                <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                    Una <strong style="color: var(--primary);">{{ $planInfo['total_slots'] }}</strong> task slots kwa siku
+                    (Tasks {{ $planInfo['tasks_shown'] }} × limits tofauti)
+                </p>
+            </div>
+        </div>
+        <a href="{{ route('subscriptions.index') }}" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981, #3b82f6); border: none; padding: 0.75rem 1.5rem;">
+            <i data-lucide="crown" style="width: 18px; height: 18px;"></i>
+            Upgrade kwa Zaidi
+        </a>
+    </div>
+</div>
+@endif
+
 <!-- Filter Tabs -->
 <div class="filter-container">
     <a href="{{ route('tasks.index') }}" class="filter-tab {{ !$provider ? 'active' : '' }}">
@@ -682,30 +708,42 @@
         @endif
     </h3>
     <span style="font-size: 0.85rem; color: var(--text-muted);">
-            {{ $tasks->count() }} {{ __('messages.tasks.available') }}
+        @if(isset($planInfo) && !$planInfo['is_unlimited'])
+            <span style="color: var(--primary); font-weight: 600;">{{ collect($tasks)->sum('daily_limit') }}</span> slots
+            <span style="font-size: 0.7rem; color: var(--text-secondary);">({{ $planInfo['name'] }} - {{ count($tasks) }} tasks)</span>
+        @else
+            {{ count($tasks) }} {{ __('messages.tasks.available') }}
+        @endif
     </span>
 </div>
 
 <!-- Tasks Grid (for Monetag, Adsterra, or All) -->
 <div class="tasks-grid">
-    @forelse($tasks as $task)
-    <div class="task-card-enhanced {{ $task->is_featured ? 'featured' : '' }}">
+    @forelse($tasks as $taskData)
+    @php
+        $taskObj = $taskData['task'];
+        $dynamicLimit = $taskData['daily_limit'];
+        $completionsToday = $taskData['completions_today'];
+        $canComplete = $taskData['can_complete'];
+        $remaining = $taskData['remaining'] ?? 0;
+    @endphp
+    <div class="task-card-enhanced {{ $taskData['is_featured'] ? 'featured' : '' }}">
         <div class="task-header">
             <div style="display: flex; align-items: center; gap: 8px;">
                 {{-- Task Type Icon with Emoji --}}
-                <div class="task-type-icon {{ $task->provider }}">
-                    @if($task->provider === 'monetag')
+                <div class="task-type-icon {{ $taskData['provider'] }}">
+                    @if($taskData['provider'] === 'monetag')
                         <span class="emoji">🚀</span>
-                    @elseif($task->provider === 'adsterra')
+                    @elseif($taskData['provider'] === 'adsterra')
                         <span class="emoji">🔗</span>
                     @else
                         <span class="emoji">⭐</span>
                     @endif
                 </div>
-                <span class="task-provider-badge {{ $task->provider }}">
-                    @if($task->provider === 'monetag')
+                <span class="task-provider-badge {{ $taskData['provider'] }}">
+                    @if($taskData['provider'] === 'monetag')
                         SkyBoost™
-                    @elseif($task->provider === 'adsterra')
+                    @elseif($taskData['provider'] === 'adsterra')
                         SkyLinks™
                     @else
                         SkyTask™
@@ -714,23 +752,23 @@
             </div>
             <div class="task-reward-badge">
                 <span class="reward-amount">
-                    💰 TZS {{ number_format($task->getRewardFor(auth()->user()), 0) }}
+                    💰 TZS {{ number_format($taskData['reward'], 0) }}
                 </span>
             </div>
         </div>
         
         <div class="task-content">
-            <h4 class="task-title">{{ $task->title }}</h4>
-            <p class="task-description">{{ Str::limit($task->description, 80) }}</p>
+            <h4 class="task-title">{{ $taskData['title'] }}</h4>
+            <p class="task-description">{{ Str::limit($taskData['description'], 80) }}</p>
             
             <div class="task-meta">
                 <div class="task-meta-item">
-                    ⏱️ <span>{{ $task->duration_seconds }}s</span>
+                    ⏱️ <span>{{ $taskData['duration_seconds'] }}s</span>
                 </div>
                 
-                @if($task->daily_limit)
-                <div class="task-meta-item">
-                    🔄 <span>{{ $task->userCompletionsToday(auth()->user()) }}/{{ $task->daily_limit }}</span>
+                @if($dynamicLimit)
+                <div class="task-meta-item" style="{{ $remaining <= 0 ? 'color: var(--danger);' : ($remaining <= 2 ? 'color: var(--warning);' : '') }}">
+                    🔄 <span>{{ $completionsToday }}/{{ $dynamicLimit }}</span>
                 </div>
                 @endif
             </div>
@@ -741,8 +779,8 @@
                 <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
                 {{ __('messages.tasks.in_progress') }}
             </a>
-            @elseif($task->canUserComplete(auth()->user()) && auth()->user()->canCompleteMoreTasks())
-            <a href="{{ route('tasks.show', $task) }}" class="task-action-btn start">
+            @elseif($canComplete && auth()->user()->canCompleteMoreTasks())
+            <a href="{{ route('tasks.show', $taskObj) }}" class="task-action-btn start">
                 <i data-lucide="play" style="width: 18px; height: 18px;"></i>
                 {{ __('messages.tasks.start_task') }}
             </a>

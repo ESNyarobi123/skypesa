@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\TaskCompletion;
 use App\Services\TaskLockService;
 use App\Services\GamificationService;
+use App\Services\TaskDistributionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,11 +14,16 @@ class TaskController extends Controller
 {
     protected TaskLockService $lockService;
     protected GamificationService $gamificationService;
+    protected TaskDistributionService $distributionService;
 
-    public function __construct(TaskLockService $lockService, GamificationService $gamificationService)
-    {
+    public function __construct(
+        TaskLockService $lockService, 
+        GamificationService $gamificationService,
+        TaskDistributionService $distributionService
+    ) {
         $this->lockService = $lockService;
         $this->gamificationService = $gamificationService;
+        $this->distributionService = $distributionService;
     }
 
     public function index(Request $request)
@@ -25,28 +31,23 @@ class TaskController extends Controller
         $user = auth()->user();
         $provider = $request->query('provider');
         
-        $query = Task::available()
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('sort_order');
+        // Use TaskDistributionService for smart task distribution
+        $result = $this->distributionService->getTasksForUser($user, $provider);
         
-        // Filter by provider if specified
-        if ($provider && in_array($provider, ['monetag', 'adsterra'])) {
-            $query->where('provider', $provider);
-        }
-        
-        $tasks = $query->get();
+        $tasks = $result['tasks'];
+        $planInfo = $result['plan_info'];
 
         // Get user's active task status
         $activitySummary = $this->lockService->getActivitySummary($user);
         
-        // Get task counts per provider
+        // Calculate provider counts based on task slots (not just task count)
         $providerCounts = [
-            'all' => Task::available()->count(),
-            'monetag' => Task::available()->where('provider', 'monetag')->count(),
-            'adsterra' => Task::available()->where('provider', 'adsterra')->count(),
+            'all' => $planInfo['total_slots'] ?? collect($tasks)->count(),
+            'monetag' => collect($tasks)->where('provider', 'monetag')->sum('daily_limit') ?: collect($tasks)->where('provider', 'monetag')->count(),
+            'adsterra' => collect($tasks)->where('provider', 'adsterra')->sum('daily_limit') ?: collect($tasks)->where('provider', 'adsterra')->count(),
         ];
         
-        return view('tasks.index', compact('tasks', 'activitySummary', 'provider', 'providerCounts'));
+        return view('tasks.index', compact('tasks', 'activitySummary', 'provider', 'providerCounts', 'planInfo'));
     }
 
     public function show(Task $task)

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Services\TaskLockService;
 use App\Services\GamificationService;
+use App\Services\TaskDistributionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,27 +14,33 @@ class TaskController extends Controller
 {
     protected TaskLockService $lockService;
     protected GamificationService $gamificationService;
+    protected TaskDistributionService $distributionService;
 
-    public function __construct(TaskLockService $lockService, GamificationService $gamificationService)
-    {
+    public function __construct(
+        TaskLockService $lockService, 
+        GamificationService $gamificationService,
+        TaskDistributionService $distributionService
+    ) {
         $this->lockService = $lockService;
         $this->gamificationService = $gamificationService;
+        $this->distributionService = $distributionService;
     }
 
     /**
-     * List available tasks
+     * List available tasks with smart distribution based on user's plan
      */
     public function index(Request $request)
     {
         $user = $request->user();
-
-        $tasks = Task::available()
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('sort_order')
-            ->get()
-            ->map(function ($task) use ($user) {
-                return $this->taskResource($task, $user);
-            });
+        
+        // Use TaskDistributionService for smart distribution
+        $result = $this->distributionService->getTasksForUser($user);
+        
+        // Remove the 'task' object from each task (not needed in API response)
+        $tasks = collect($result['tasks'])->map(function ($task) {
+            unset($task['task']);
+            return $task;
+        });
 
         $activitySummary = $this->lockService->getActivitySummary($user);
 
@@ -48,6 +55,7 @@ class TaskController extends Controller
                     'remaining_today' => $user->remainingTasksToday(),
                     'reward_per_task' => $user->getRewardPerTask(),
                 ],
+                'plan_info' => $result['plan_info'],
             ],
         ]);
     }
