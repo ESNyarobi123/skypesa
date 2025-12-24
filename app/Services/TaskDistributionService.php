@@ -149,7 +149,10 @@ class TaskDistributionService
     protected function formatTask(Task $task, User $user, ?int $dynamicLimit): array
     {
         $completionsToday = $task->userCompletionsToday($user);
-        $effectiveLimit = $dynamicLimit ?? $task->daily_limit;
+        
+        // For VIP/unlimited users, effective limit should be null (unlimited)
+        $isUnlimited = is_null($user->getDailyTaskLimit());
+        $effectiveLimit = $isUnlimited ? null : ($dynamicLimit ?? $task->daily_limit);
         
         return [
             'id' => $task->id,
@@ -162,11 +165,12 @@ class TaskDistributionService
             'is_featured' => $task->is_featured,
             'thumbnail' => $task->thumbnail,
             'icon' => $task->icon,
-            // Dynamic limit based on plan
+            // Dynamic limit based on plan (null = unlimited for VIP)
             'daily_limit' => $effectiveLimit,
             'completions_today' => $completionsToday,
             'remaining' => $effectiveLimit ? max(0, $effectiveLimit - $completionsToday) : null,
             'can_complete' => $this->canUserCompleteTask($user, $task, $dynamicLimit),
+            'is_unlimited' => $isUnlimited,
             // Original task object for routing
             'task' => $task,
         ];
@@ -177,12 +181,19 @@ class TaskDistributionService
      */
     public function canUserCompleteTask(User $user, Task $task, ?int $dynamicLimit = null): bool
     {
+        // VIP/Unlimited users can always complete tasks (no daily limit)
+        $planLimit = $user->getDailyTaskLimit();
+        if (is_null($planLimit)) {
+            // VIP has no restrictions - just check if task is available
+            return $task->isAvailable();
+        }
+        
         // Check if user has reached their overall daily limit
         if (!$user->canCompleteMoreTasks()) {
             return false;
         }
         
-        // Check task-specific limit
+        // Check task-specific limit (only for non-VIP users)
         $completionsToday = $task->userCompletionsToday($user);
         $effectiveLimit = $dynamicLimit ?? $task->daily_limit;
         
