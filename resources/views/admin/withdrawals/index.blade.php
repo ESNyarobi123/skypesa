@@ -98,140 +98,143 @@
     </div>
 </div>
 
-<!-- Bulk Actions -->
-<form id="bulkForm" method="POST">
-    @csrf
-    <div id="bulkActions" style="display: none; margin-bottom: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.3);">
-        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-            <span style="color: var(--primary); font-weight: 600;">
-                <span id="selectedCount">0</span> selected
-            </span>
-            <button type="button" onclick="bulkApprove()" class="btn btn-primary btn-sm">
-                <i data-lucide="check" style="width: 14px; height: 14px;"></i>
-                Approve All
-            </button>
-            <button type="button" onclick="showBulkRejectModal()" class="btn btn-sm" style="background: var(--error);">
-                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-                Reject All
-            </button>
-            <button type="button" onclick="clearSelection()" class="btn btn-secondary btn-sm">
-                Clear Selection
-            </button>
-        </div>
+<!-- Bulk Actions Bar -->
+<div id="bulkActions" style="display: none; margin-bottom: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.3);">
+    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <span style="color: var(--primary); font-weight: 600;">
+            <span id="selectedCount">0</span> selected
+        </span>
+        <button type="button" onclick="bulkApprove()" class="btn btn-primary btn-sm">
+            <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+            Approve All
+        </button>
+        <button type="button" onclick="showBulkRejectModal()" class="btn btn-sm" style="background: var(--error);">
+            <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+            Reject All
+        </button>
+        <button type="button" onclick="clearSelection()" class="btn btn-secondary btn-sm">
+            Clear Selection
+        </button>
     </div>
+</div>
 
-    <!-- Withdrawals Table -->
-    <div class="data-table-container">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th style="width: 40px;">
-                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()" style="width: 18px; height: 18px; accent-color: var(--primary);">
-                    </th>
-                    <th>Tarehe</th>
-                    <th>Mtumiaji</th>
-                    <th>Kiasi</th>
-                    <th>Ada</th>
-                    <th>Net</th>
-                    <th>Malipo</th>
-                    <th>Hali</th>
-                    <th style="text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($withdrawals as $withdrawal)
-                <tr>
-                    <td>
-                        @if($withdrawal->isPending())
-                        <input type="checkbox" name="withdrawal_ids[]" value="{{ $withdrawal->id }}" class="withdrawal-checkbox" onchange="updateBulkActions()" style="width: 18px; height: 18px; accent-color: var(--primary);">
-                        @endif
-                    </td>
-                    <td style="white-space: nowrap;">
-                        {{ $withdrawal->created_at->format('d/m/Y') }}
-                        <br>
-                        <small style="color: var(--text-muted);">{{ $withdrawal->created_at->format('H:i') }}</small>
-                    </td>
-                    <td>
-                        <div class="user-cell">
-                            <img src="{{ $withdrawal->user->getAvatarUrl() }}" alt="{{ $withdrawal->user->name }}" class="user-avatar">
-                            <div class="user-details">
-                                <div class="user-name">{{ $withdrawal->user->name }}</div>
-                                <div class="user-email">{{ $withdrawal->user->getPlanName() }}</div>
-                            </div>
+<!-- Hidden Bulk Form -->
+<form id="bulkForm" method="POST" style="display: none;">
+    @csrf
+    <div id="bulkFormIds"></div>
+</form>
+
+<!-- Withdrawals Table -->
+<div class="data-table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 40px;">
+                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll()" style="width: 18px; height: 18px; accent-color: var(--primary);">
+                </th>
+                <th>Tarehe</th>
+                <th>Mtumiaji</th>
+                <th>Kiasi</th>
+                <th>Ada</th>
+                <th>Net</th>
+                <th>Malipo</th>
+                <th>Hali</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($withdrawals as $withdrawal)
+            <tr>
+                <td>
+                    @if($withdrawal->isPending())
+                    <input type="checkbox" class="withdrawal-checkbox" value="{{ $withdrawal->id }}" onchange="updateBulkActions()" style="width: 18px; height: 18px; accent-color: var(--primary);">
+                    @endif
+                </td>
+                <td style="white-space: nowrap;">
+                    {{ $withdrawal->created_at->format('d/m/Y') }}
+                    <br>
+                    <small style="color: var(--text-muted);">{{ $withdrawal->created_at->format('H:i') }}</small>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <img src="{{ $withdrawal->user->getAvatarUrl() }}" alt="" style="width: 32px; height: 32px; border-radius: 50%;">
+                        <div>
+                            <div style="font-weight: 500;">{{ $withdrawal->user->name }}</div>
+                            <small style="color: var(--text-muted);">{{ $withdrawal->user->phone }}</small>
                         </div>
-                    </td>
-                    <td>TZS {{ number_format($withdrawal->amount, 0) }}</td>
-                    <td style="color: var(--text-muted);">TZS {{ number_format($withdrawal->fee, 0) }}</td>
-                    <td style="font-weight: 600; color: var(--success);">TZS {{ number_format($withdrawal->net_amount, 0) }}</td>
-                    <td>
-                        <div style="font-weight: 500;">{{ $withdrawal->payment_number }}</div>
-                        @if($withdrawal->payment_name)
-                        <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ $withdrawal->payment_name }}</div>
-                        @endif
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">{{ ucfirst($withdrawal->payment_provider) }}</div>
-                    </td>
-                    <td>
-                        @php
-                            $statusClasses = [
-                                'pending' => 'pending',
-                                'processing' => 'active',
-                                'approved' => 'active',
-                                'paid' => 'active',
-                                'rejected' => 'inactive',
-                            ];
-                        @endphp
-                        <span class="status-badge {{ $statusClasses[$withdrawal->status] ?? 'pending' }}">
-                            {{ $withdrawal->getStatusLabel() }}
-                        </span>
-                    </td>
-                    <td style="text-align: right;">
-                        @if($withdrawal->isPending())
-                        <div class="action-btns">
-                            <form action="{{ route('admin.withdrawals.approve', $withdrawal) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="action-btn" title="Approve" onclick="return confirm('Kubali ombi hili?')">
-                                    <i data-lucide="check" style="width: 14px; height: 14px;"></i>
-                                </button>
-                            </form>
-                            <button type="button" class="action-btn danger" onclick="showRejectModal({{ $withdrawal->id }})" title="Reject">
-                                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-                            </button>
-                        </div>
-                        @elseif($withdrawal->isApproved())
-                        <form action="{{ route('admin.withdrawals.mark-paid', $withdrawal) }}" method="POST" style="display: inline;">
+                    </div>
+                </td>
+                <td>TZS {{ number_format($withdrawal->amount, 0) }}</td>
+                <td style="color: var(--error);">-{{ number_format($withdrawal->fee, 0) }}</td>
+                <td style="font-weight: 600; color: var(--primary);">TZS {{ number_format($withdrawal->net_amount, 0) }}</td>
+                <td>
+                    <div style="font-size: 0.75rem;">
+                        <div>{{ $withdrawal->payment_number }}</div>
+                        <div style="color: var(--text-muted);">{{ $withdrawal->payment_name }}</div>
+                        <div><span class="status-badge pending" style="font-size: 0.6rem;">{{ strtoupper($withdrawal->payment_provider) }}</span></div>
+                    </div>
+                </td>
+                <td>
+                    @php
+                        $statusClasses = [
+                            'pending' => 'pending',
+                            'approved' => 'warning',
+                            'paid' => 'active',
+                            'processing' => 'warning',
+                            'rejected' => 'inactive',
+                        ];
+                    @endphp
+                    <span class="status-badge {{ $statusClasses[$withdrawal->status] ?? 'pending' }}">
+                        {{ $withdrawal->getStatusLabel() }}
+                    </span>
+                </td>
+                <td style="text-align: right;">
+                    @if($withdrawal->isPending())
+                    <div class="action-btns">
+                        <form action="{{ route('admin.withdrawals.approve', $withdrawal) }}" method="POST" style="display: inline;">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Weka kama limelipwa?')">
-                                <i data-lucide="banknote" style="width: 14px; height: 14px;"></i>
-                                Lipwa
+                            <button type="submit" class="action-btn" title="Approve" onclick="return confirm('Kubali ombi hili?')">
+                                <i data-lucide="check" style="width: 14px; height: 14px;"></i>
                             </button>
                         </form>
-                        @elseif($withdrawal->isPaid())
-                        <span style="color: var(--success); font-size: 0.75rem;">
-                            <i data-lucide="check-circle" style="width: 14px; height: 14px; display: inline;"></i>
-                            {{ $withdrawal->paid_at->format('d/m H:i') }}
-                        </span>
-                        @elseif($withdrawal->status === 'rejected')
-                        <span style="color: var(--error); font-size: 0.75rem;" title="{{ $withdrawal->rejection_reason }}">
-                            <i data-lucide="info" style="width: 14px; height: 14px; display: inline;"></i>
-                            Rejected
-                        </span>
-                        @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="9" style="text-align: center; padding: 3rem; color: var(--text-muted);">
-                        <i data-lucide="inbox" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i>
-                        <p>Hakuna maombi</p>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</form>
+                        <button type="button" class="action-btn danger" onclick="showRejectModal({{ $withdrawal->id }})" title="Reject">
+                            <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                        </button>
+                    </div>
+                    @elseif($withdrawal->isApproved())
+                    <form action="{{ route('admin.withdrawals.mark-paid', $withdrawal) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Weka kama limelipwa?')">
+                            <i data-lucide="banknote" style="width: 14px; height: 14px;"></i>
+                            Lipwa
+                        </button>
+                    </form>
+                    @elseif($withdrawal->isPaid())
+                    <span style="color: var(--success); font-size: 0.75rem;">
+                        <i data-lucide="check-circle" style="width: 14px; height: 14px; display: inline;"></i>
+                        {{ $withdrawal->paid_at->format('d/m H:i') }}
+                    </span>
+                    @elseif($withdrawal->status === 'rejected')
+                    <span style="color: var(--error); font-size: 0.75rem;" title="{{ $withdrawal->rejection_reason }}">
+                        <i data-lucide="info" style="width: 14px; height: 14px; display: inline;"></i>
+                        Rejected
+                    </span>
+                    @endif
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                    <i data-lucide="inbox" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p>Hakuna maombi</p>
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 
 <!-- Pagination -->
 @if($withdrawals->hasPages())
@@ -287,9 +290,11 @@
 @push('scripts')
 <script>
     lucide.createIcons();
+    
+    const baseUrl = '{{ url("admin/withdrawals") }}';
 
     function showRejectModal(id) {
-        document.getElementById('rejectForm').action = '/admin/withdrawals/' + id + '/reject';
+        document.getElementById('rejectForm').action = baseUrl + '/' + id + '/reject';
         document.getElementById('rejectModal').style.display = 'flex';
     }
     
@@ -332,6 +337,17 @@
         if (!confirm('Kubali maombi ' + ids.length + '?')) {
             return;
         }
+
+        // Add hidden inputs for IDs
+        const container = document.getElementById('bulkFormIds');
+        container.innerHTML = '';
+        ids.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'withdrawal_ids[]';
+            input.value = id;
+            container.appendChild(input);
+        });
 
         const form = document.getElementById('bulkForm');
         form.action = '{{ route("admin.withdrawals.bulk-approve") }}';
