@@ -671,6 +671,23 @@
         </a>
     </div>
 </div>
+@elseif(isset($planInfo) && $planInfo['is_unlimited'])
+<!-- VIP Unlimited Banner -->
+<div class="card mb-8" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(16, 185, 129, 0.1)); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-xl); padding: var(--space-5);">
+    <div class="flex items-center gap-4">
+        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #f59e0b, #10b981); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5); animation: pulse 2s infinite;">
+            <span style="font-size: 1.5rem;">👑</span>
+        </div>
+        <div>
+            <h4 style="font-size: 1rem; margin-bottom: 0.25rem; color: var(--text-primary);">
+                ✨ <span style="background: linear-gradient(135deg, #f59e0b, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">{{ $planInfo['name'] }}</span> - Unlimited Access!
+            </h4>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                Una <strong style="color: #f59e0b;">∞ UNLIMITED</strong> tasks kwa siku. Fanya tasks kadri unavyotaka! 🚀
+            </p>
+        </div>
+    </div>
+</div>
 @endif
 
 <!-- Filter Tabs -->
@@ -678,19 +695,19 @@
     <a href="{{ route('tasks.index') }}" class="filter-tab {{ !$provider ? 'active' : '' }}">
         <i data-lucide="layers" class="filter-icon"></i>
         <span>{{ __('messages.common.all') }}</span>
-        <span class="filter-count">{{ $providerCounts['all'] ?? 0 }}</span>
+        <span class="filter-count">{{ isset($planInfo) && $planInfo['is_unlimited'] ? '∞' : ($providerCounts['all'] ?? 0) }}</span>
     </a>
     
     <a href="{{ route('tasks.index', ['provider' => 'monetag']) }}" class="filter-tab monetag {{ $provider === 'monetag' ? 'active' : '' }}">
         <i data-lucide="rocket" class="filter-icon"></i>
         <span>SkyBoost™</span>
-        <span class="filter-count">{{ $providerCounts['monetag'] ?? 0 }}</span>
+        <span class="filter-count">{{ isset($planInfo) && $planInfo['is_unlimited'] ? '∞' : ($providerCounts['monetag'] ?? 0) }}</span>
     </a>
     
     <a href="{{ route('tasks.index', ['provider' => 'adsterra']) }}" class="filter-tab adsterra {{ $provider === 'adsterra' ? 'active' : '' }}">
         <i data-lucide="link" class="filter-icon"></i>
         <span>SkyLinks™</span>
-        <span class="filter-count">{{ $providerCounts['adsterra'] ?? 0 }}</span>
+        <span class="filter-count">{{ isset($planInfo) && $planInfo['is_unlimited'] ? '∞' : ($providerCounts['adsterra'] ?? 0) }}</span>
     </a>
     
 
@@ -711,6 +728,9 @@
         @if(isset($planInfo) && !$planInfo['is_unlimited'])
             <span style="color: var(--primary); font-weight: 600;">{{ collect($tasks)->sum('daily_limit') }}</span> slots
             <span style="font-size: 0.7rem; color: var(--text-secondary);">({{ $planInfo['name'] }} - {{ count($tasks) }} tasks)</span>
+        @elseif(isset($planInfo) && $planInfo['is_unlimited'])
+            <span style="color: #f59e0b; font-weight: 600;">∞ Unlimited</span>
+            <span style="font-size: 0.7rem; color: #f59e0b;">👑 {{ $planInfo['name'] }} - {{ count($tasks) }} tasks</span>
         @else
             {{ count($tasks) }} {{ __('messages.tasks.available') }}
         @endif
@@ -767,8 +787,14 @@
                 </div>
                 
                 @if($dynamicLimit)
+                {{-- Limited plan - show numeric limit --}}
                 <div class="task-meta-item" style="{{ $remaining <= 0 ? 'color: var(--danger);' : ($remaining <= 2 ? 'color: var(--warning);' : '') }}">
                     🔄 <span>{{ $completionsToday }}/{{ $dynamicLimit }}</span>
+                </div>
+                @elseif(isset($planInfo) && $planInfo['is_unlimited'])
+                {{-- VIP/Unlimited plan - show infinity symbol --}}
+                <div class="task-meta-item" style="color: var(--primary);">
+                    ♾️ <span style="font-weight: 600;">∞ Unlimited</span>
                 </div>
                 @endif
             </div>
