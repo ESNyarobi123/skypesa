@@ -18,6 +18,7 @@ class UserSubscription extends Model
         'status',
         'payment_reference',
         'amount_paid',
+        'payment_id',
     ];
 
     protected $casts = [

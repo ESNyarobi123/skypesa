@@ -195,7 +195,21 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // TODO: Send reset email
+        $email = $request->email;
+        $otp = rand(100000, 999999);
+        
+        // Store OTP in cache for 15 minutes
+        \Cache::put('password_reset_otp_' . $email, $otp, 900);
+
+        try {
+            Mail::to($email)->send(new \App\Mail\PasswordResetOtpMail($otp));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Imeshindikana kutuma email. Jaribu tena baadaye.',
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
@@ -210,7 +224,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
-            'token' => 'required|string',
+            'token' => 'required|string', // This is the OTP
             'password' => ['required', 'confirmed', Password::min(6)],
         ]);
 
@@ -221,7 +235,23 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // TODO: Validate token and reset password
+        $email = $request->email;
+        $otp = $request->token;
+        
+        $cachedOtp = \Cache::get('password_reset_otp_' . $email);
+        
+        if (!$cachedOtp || $cachedOtp != $otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kodi ya uhakiki si sahihi au imeisha muda wake',
+            ], 400);
+        }
+
+        $user = User::where('email', $email)->first();
+        $user->update(['password' => Hash::make($request->password)]);
+        
+        // Clear OTP
+        \Cache::forget('password_reset_otp_' . $email);
 
         return response()->json([
             'success' => true,
@@ -246,7 +276,31 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // TODO: Verify code
+        $email = $request->email;
+        $otp = $request->code;
+        
+        $cachedOtp = \Cache::get('email_verification_otp_' . $email);
+        
+        if (!$cachedOtp || $cachedOtp != $otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kodi ya uhakiki si sahihi au imeisha muda wake',
+            ], 400);
+        }
+
+        $user = User::where('email', $email)->first();
+        
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Email tayari imethibitishwa!',
+            ]);
+        }
+        
+        $user->markEmailAsVerified();
+        
+        // Clear OTP
+        \Cache::forget('email_verification_otp_' . $email);
 
         return response()->json([
             'success' => true,
@@ -270,7 +324,27 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // TODO: Resend verification email
+        $user = User::where('email', $request->email)->first();
+        
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email tayari imethibitishwa',
+            ], 400);
+        }
+
+        $otp = rand(100000, 999999);
+        \Cache::put('email_verification_otp_' . $user->email, $otp, 900);
+
+        try {
+            Mail::to($user->email)->send(new \App\Mail\EmailVerificationOtpMail($otp));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send verification email: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Imeshindikana kutuma email. Jaribu tena baadaye.',
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,

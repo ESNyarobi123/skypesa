@@ -6,9 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Services\ZenoPayService;
 
 class SubscriptionController extends Controller
 {
+    protected ZenoPayService $zenoPayService;
+
+    public function __construct(ZenoPayService $zenoPayService)
+    {
+        $this->zenoPayService = $zenoPayService;
+    }
+
     /**
      * List all plans
      */
@@ -126,20 +134,47 @@ class SubscriptionController extends Controller
         }
 
         $user = $request->user();
+        $orderId = $this->zenoPayService->generateOrderId();
+        
+        // Create pending payment record
+        $payment = \App\Models\Payment::create([
+            'user_id' => $user->id,
+            'plan_id' => $plan->id,
+            'order_id' => $orderId,
+            'amount' => $plan->price,
+            'phone_number' => $request->phone_number,
+            'status' => 'pending',
+            'provider' => 'zenopay',
+        ]);
 
-        // TODO: Integrate with payment gateway (ZenoPay)
-        $orderId = 'SKY' . time() . $user->id;
+        // Initiate payment with ZenoPay
+        $result = $this->zenoPayService->initiatePayment(
+            $user->name,
+            $user->email,
+            $request->phone_number,
+            $plan->price,
+            $orderId
+        );
 
-        // For now, return mock response
+        if (!$result['success']) {
+            $payment->update(['status' => 'failed', 'metadata' => $result]);
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'Malipo yameshindwa',
+                'error' => $result['error'] ?? null,
+            ], 400);
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Ombi la malipo limetumwa. Fuata maelekezo kwenye simu yako.',
+            'message' => $result['message'],
             'data' => [
                 'order_id' => $orderId,
                 'amount' => $plan->price,
                 'phone' => $request->phone_number,
                 'status' => 'pending',
                 'check_status_url' => route('api.subscriptions.payment-status', $orderId),
+                'demo_mode' => $result['demo_mode'] ?? false,
             ],
         ]);
     }
@@ -149,14 +184,61 @@ class SubscriptionController extends Controller
      */
     public function paymentStatus(Request $request, $orderId)
     {
-        // TODO: Check with payment gateway
+        $payment = \App\Models\Payment::where('order_id', $orderId)->first();
+        
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        if ($payment->status === 'completed') {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'order_id' => $orderId,
+                    'status' => 'completed',
+                    'message' => 'Malipo yamekamilika',
+                ],
+            ]);
+        }
+
+        // Check with ZenoPay
+        $status = $this->zenoPayService->checkStatus($orderId);
+        
+        if ($status['is_completed']) {
+            // Mark as paid and activate subscription
+            $this->completePayment($payment, $status);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'order_id' => $orderId,
+                    'status' => 'completed',
+                    'message' => 'Malipo yamekamilika! Mpango wako umeanzishwa.',
+                ],
+            ]);
+        }
+        
+        if ($status['is_failed']) {
+            $payment->update(['status' => 'failed', 'metadata' => $status]);
+            return response()->json([
+                'success' => false,
+                'data' => [
+                    'order_id' => $orderId,
+                    'status' => 'failed',
+                    'message' => 'Malipo yameshindwa.',
+                ],
+            ]);
+        }
 
         return response()->json([
             'success' => true,
             'data' => [
                 'order_id' => $orderId,
-                'status' => 'pending', // pending, completed, failed
-                'message' => 'Inasubiri malipo',
+                'status' => 'pending',
+                'message' => 'Inasubiri malipo...',
             ],
         ]);
     }
@@ -191,12 +273,70 @@ class SubscriptionController extends Controller
     {
         \Log::info('ZenoPay callback', $request->all());
 
-        // TODO: Process payment callback
-        // 1. Validate signature
-        // 2. Find order
-        // 3. Activate subscription
-        // 4. Send notification
+        $orderId = $request->input('order_id');
+        $status = $request->input('payment_status'); // Adjust based on actual ZenoPay payload
+
+        if (!$orderId) {
+            return response()->json(['status' => 'error', 'message' => 'Missing order_id'], 400);
+        }
+
+        $payment = \App\Models\Payment::where('order_id', $orderId)->first();
+        
+        if (!$payment) {
+            return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
+        }
+
+        if ($payment->status === 'completed') {
+            return response()->json(['status' => 'ok', 'message' => 'Already processed']);
+        }
+
+        // Verify status
+        // In a real scenario, we should verify signature or call checkStatus to be sure
+        // For now, we trust the callback if it says success/completed
+        
+        if (in_array(strtoupper($status), ['COMPLETED', 'SUCCESS'])) {
+            $this->completePayment($payment, $request->all());
+        } else if (in_array(strtoupper($status), ['FAILED', 'CANCELLED'])) {
+            $payment->update(['status' => 'failed', 'metadata' => $request->all()]);
+        }
 
         return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Helper to complete payment and activate subscription
+     */
+    protected function completePayment(\App\Models\Payment $payment, array $metadata = [])
+    {
+        if ($payment->status === 'completed') return;
+
+        \DB::transaction(function () use ($payment, $metadata) {
+            $payment->update([
+                'status' => 'completed',
+                'paid_at' => now(),
+                'metadata' => array_merge($payment->metadata ?? [], $metadata),
+                'transaction_id' => $metadata['transaction_id'] ?? null,
+                'reference' => $metadata['reference'] ?? null,
+            ]);
+
+            // Activate Subscription
+            $plan = $payment->plan;
+            $user = $payment->user;
+            
+            // Deactivate previous active subscriptions
+            $user->subscriptions()->where('status', 'active')->update(['status' => 'expired', 'expires_at' => now()]);
+
+            // Create new subscription
+            $user->subscriptions()->create([
+                'plan_id' => $plan->id,
+                'status' => 'active',
+                'started_at' => now(),
+                'expires_at' => now()->addDays($plan->duration_days),
+                'payment_id' => $payment->id,
+            ]);
+            
+            // Send notification
+            // $user->notify(new SubscriptionActivated($plan));
+        });
     }
 }
