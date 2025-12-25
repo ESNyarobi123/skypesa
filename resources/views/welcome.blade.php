@@ -861,7 +861,8 @@
         }
 
         @media (max-width: 768px) {
-            .nav-links {
+            .nav-links,
+            .nav-buttons {
                 display: none;
             }
 
@@ -1066,6 +1067,81 @@
             }
         }
 
+        /* Mobile Menu Styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 300px;
+            height: 100%;
+            background: var(--bg-card);
+            z-index: 2001;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .mobile-menu.active {
+            right: 0;
+        }
+        .mobile-menu-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .close-menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .mobile-menu-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .mobile-nav-links {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        .mobile-nav-links li {
+            margin-bottom: 1rem;
+        }
+        .mobile-link {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 0;
+        }
+        .mobile-menu-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
         /* Very Small Screens - Fix any overflow issues */
         @media (max-width: 360px) {
             .hero-content h1 {
@@ -1087,11 +1163,6 @@
 
             .logo {
                 font-size: 1.1rem;
-            }
-
-            .nav-buttons .btn {
-                padding: 0.4rem 0.6rem;
-                font-size: 0.7rem;
             }
         }
     </style>
@@ -1127,6 +1198,35 @@
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="coins" style="width: 24px; height: 24px; color: white;"></i>
+                </div>
+                SKY<span>pesa</span>
+            </a>
+            <button class="close-menu-btn" id="closeMenuBtn">
+                <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-content">
+            <ul class="mobile-nav-links">
+                <li><a href="#how-it-works" class="mobile-link">{{ __('messages.welcome.how_it_works') }}</a></li>
+                <li><a href="#features" class="mobile-link">{{ __('messages.welcome.features') }}</a></li>
+                <li><a href="#pricing" class="mobile-link">{{ __('messages.subscriptions.title') }}</a></li>
+                <li><a href="#testimonials" class="mobile-link">{{ __('messages.welcome.testimonials') }}</a></li>
+            </ul>
+            <div class="mobile-menu-actions">
+                @include('components.language-switcher')
+                <a href="{{ route('login') }}" class="btn btn-secondary" style="width: 100%; justify-content: center;">{{ __('messages.auth.login') }}</a>
+                <a href="{{ route('register') }}" class="btn btn-primary" style="width: 100%; justify-content: center;">{{ __('messages.welcome.join_now') }}</a>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -1546,6 +1646,27 @@
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMenu);
+        if (closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMenu);
+        if (mobileMenuOverlay) mobileMenuOverlay.addEventListener('click', toggleMenu);
+        
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', toggleMenu);
+        });
 
         // Navbar scroll effect
         window.addEventListener('scroll', () => {
