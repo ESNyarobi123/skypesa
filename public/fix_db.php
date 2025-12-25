@@ -12,7 +12,13 @@ echo "=== SKYpesa Database Fixer ===\n\n";
 
 $root = dirname(__DIR__);
 require $root . '/vendor/autoload.php';
+
+// Bootstrap Laravel properly
 $app = require_once $root . '/bootstrap/app.php';
+
+// IMPORTANT: Boot the Kernel to load Facades (DB, Schema, etc.)
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -46,5 +52,6 @@ try {
 
 } catch (\Exception $e) {
     echo "\n❌ ERROR: " . $e->getMessage() . "\n";
+    echo "Trace: " . $e->getTraceAsString();
 }
 echo "</pre>";
