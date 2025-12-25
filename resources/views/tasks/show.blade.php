@@ -596,7 +596,7 @@
         document.getElementById('beforeStartView').style.display = 'none';
         document.getElementById('taskFullscreen').style.display = 'flex';
         
-        // Load iframe with the URL
+        // Load iframe with the URL (may be random from pool)
         const iframe = document.getElementById('taskIframe');
         iframe.src = urlToLoad || defaultTaskUrl;
         
