@@ -66,8 +66,9 @@
                 
                 <!-- URL -->
                 <div class="form-group-modern">
-                    <label class="form-label-modern">Target URL *</label>
-                    <input type="url" name="url" class="form-input-modern" value="{{ old('url', $directlink->url) }}" required>
+                    <label class="form-label-modern">Target URL</label>
+                    <input type="url" name="url" class="form-input-modern" value="{{ old('url', $directlink->url) }}" placeholder="https://... (optional - leave empty for random)">
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Leave empty to use random link from pool</p>
                     @error('url')
                     <span style="color: var(--error); font-size: 0.75rem;">{{ $message }}</span>
                     @enderror
