@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\WithdrawalController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\ReferralController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\LeaderboardController;
+use App\Http\Controllers\Api\SupportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -267,6 +269,51 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{notification}', [NotificationController::class, 'destroy']);
         });
         
+        /*
+        |--------------------------------------------------------------------------
+        | Leaderboard
+        |--------------------------------------------------------------------------
+        */
+        
+        Route::prefix('leaderboard')->group(function () {
+            // Get Main Leaderboard (Top Earners)
+            Route::get('/', [LeaderboardController::class, 'index']);
+            
+            // Get Top Referrers
+            Route::get('/referrers', [LeaderboardController::class, 'referrers']);
+            
+            // Get Task Champions
+            Route::get('/tasks', [LeaderboardController::class, 'taskChampions']);
+        });
+        
+        /*
+        |--------------------------------------------------------------------------
+        | Support
+        |--------------------------------------------------------------------------
+        */
+        
+        Route::prefix('support')->group(function () {
+            // Get Contact Info
+            Route::get('/contact', [SupportController::class, 'contact']);
+            
+            // Get FAQs
+            Route::get('/faq', [SupportController::class, 'faq']);
+            
+            // Get User's Tickets
+            Route::get('/tickets', [SupportController::class, 'tickets']);
+            
+            // Create Support Ticket
+            Route::post('/tickets', [SupportController::class, 'createTicket']);
+            
+            // Get Single Ticket
+            Route::get('/tickets/{ticketNumber}', [SupportController::class, 'showTicket']);
+            
+            // Reply to Ticket
+            Route::post('/tickets/{ticketNumber}/reply', [SupportController::class, 'replyTicket']);
+            
+            // Report Bug
+            Route::post('/bug-report', [SupportController::class, 'bugReport']);
+        });
 
     });
     

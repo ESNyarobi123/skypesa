@@ -1164,6 +1164,331 @@ All responses follow this structure:
 
 ---
 
+# 🏅 LEADERBOARD
+
+## 1. Get Main Leaderboard (Top Earners)
+
+**Endpoint:** `GET /leaderboard`  
+**Auth Required:** ✅ Yes  
+**Query Params:**
+- `period`: `daily` | `weekly` | `monthly` | `all-time` (default: weekly)
+- `limit`: 1-100 (default: 20)
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "data": {
+    "leaderboard": [
+      {
+        "rank": 1,
+        "user": {
+          "id": 45,
+          "name": "John D.",
+          "avatar": "https://skypesa.site/storage/avatars/user-45.png"
+        },
+        "total_earnings": 150000,
+        "tasks_completed": 300
+      },
+      {
+        "rank": 2,
+        "user": {
+          "id": 32,
+          "name": "Maria S.",
+          "avatar": null
+        },
+        "total_earnings": 125000,
+        "tasks_completed": 250
+      }
+    ],
+    "period": "weekly",
+    "my_rank": {
+      "rank": 15,
+      "total_earnings": 25000,
+      "tasks_completed": 50
+    }
+  }
+}
+```
+
+---
+
+## 2. Get Top Referrers
+
+**Endpoint:** `GET /leaderboard/referrers`  
+**Auth Required:** ✅ Yes
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "data": {
+    "leaderboard": [
+      {
+        "rank": 1,
+        "user": {
+          "id": 12,
+          "name": "Peter M.",
+          "avatar": "https://skypesa.site/storage/avatars/user-12.png"
+        },
+        "referral_count": 50
+      }
+    ],
+    "my_rank": {
+      "rank": 25,
+      "referral_count": 5
+    }
+  }
+}
+```
+
+---
+
+## 3. Get Task Champions
+
+**Endpoint:** `GET /leaderboard/tasks`  
+**Auth Required:** ✅ Yes  
+**Query Params:**
+- `period`: `daily` | `weekly` | `monthly` | `all-time`
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "data": {
+    "leaderboard": [
+      {
+        "rank": 1,
+        "user": {
+          "id": 78,
+          "name": "Grace K.",
+          "avatar": null
+        },
+        "tasks_completed": 500
+      }
+    ],
+    "period": "weekly"
+  }
+}
+```
+
+---
+
+# 🆘 SUPPORT
+
+## 1. Get Contact Info
+
+**Endpoint:** `GET /support/contact`  
+**Auth Required:** ✅ Yes
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "data": {
+    "email": "support@skypesa.site",
+    "phone": "+255 700 000 000",
+    "whatsapp": "+255700000000",
+    "working_hours": "Mon-Fri: 9:00 AM - 6:00 PM (EAT)",
+    "response_time": "Within 24-48 hours",
+    "social": {
+      "telegram": "https://t.me/skypesa",
+      "instagram": "https://instagram.com/skypesa",
+      "facebook": "https://facebook.com/skypesa"
+    }
+  }
+}
+```
+
+---
+
+## 2. Get FAQs
+
+**Endpoint:** `GET /support/faq`  
+**Auth Required:** ✅ Yes  
+**Query Params:**
+- `category`: `all` | `general` | `tasks` | `withdrawal` | `subscription` | `referral` | `account`
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "data": {
+    "categories": ["all", "general", "tasks", "withdrawal", "subscription", "referral", "account"],
+    "faqs": [
+      {
+        "id": 1,
+        "category": "general",
+        "question": "SKYpesa ni nini?",
+        "answer": "SKYpesa ni jukwaa la kipekee linalowaruhusu watu kupata pesa kwa kutazama matangazo."
+      },
+      {
+        "id": 2,
+        "category": "withdrawal",
+        "question": "Naweza kutoa pesa lini?",
+        "answer": "Unaweza kutoa pesa unapofikia kiwango cha chini (TZS 5,000 kwa Silver/VIP)."
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 3. Get My Support Tickets
+
+**Endpoint:** `GET /support/tickets`  
+**Auth Required:** ✅ Yes
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "ticket_number": "TKT-ABC12345",
+      "subject": "Cannot complete task",
+      "category": "task",
+      "status": "open",
+      "priority": "medium",
+      "created_at": "2024-12-26T10:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 1,
+    "total": 1
+  }
+}
+```
+
+---
+
+## 4. Create Support Ticket
+
+**Endpoint:** `POST /support/tickets`  
+**Auth Required:** ✅ Yes
+
+### Request Body
+```json
+{
+  "subject": "Task not completing",
+  "category": "task",
+  "message": "I watched the full ad but did not receive my reward. The task ID was 15 and it happened at around 10:30 AM today.",
+  "priority": "high"
+}
+```
+
+### Success Response (201)
+```json
+{
+  "success": true,
+  "message": "Ombi lako limepokelewa. Tutawasiliana nawe ndani ya masaa 24-48.",
+  "data": {
+    "ticket_number": "TKT-XYZ98765",
+    "user_id": 5,
+    "subject": "Task not completing",
+    "category": "task",
+    "status": "open",
+    "priority": "high",
+    "created_at": "2024-12-26T12:00:00.000Z"
+  }
+}
+```
+
+### Categories Available:
+- `general` - Maswali ya jumla
+- `task` - Matatizo ya tasks
+- `withdrawal` - Matatizo ya kutoa pesa
+- `subscription` - Matatizo ya mipango
+- `account` - Matatizo ya akaunti
+- `bug` - Kuripoti hitilafu
+- `other` - Mengineyo
+
+---
+
+## 5. Get Single Ticket
+
+**Endpoint:** `GET /support/tickets/{ticketNumber}`  
+**Auth Required:** ✅ Yes
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "ticket_number": "TKT-XYZ98765",
+    "subject": "Task not completing",
+    "category": "task",
+    "message": "I watched the full ad but...",
+    "status": "in_progress",
+    "priority": "high",
+    "replies": [],
+    "created_at": "2024-12-26T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 6. Reply to Ticket
+
+**Endpoint:** `POST /support/tickets/{ticketNumber}/reply`  
+**Auth Required:** ✅ Yes
+
+### Request Body
+```json
+{
+  "message": "Here is additional information about my issue..."
+}
+```
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "message": "Reply sent successfully",
+  "data": {
+    "ticket_number": "TKT-XYZ98765",
+    "reply": "Here is additional information...",
+    "sent_at": "2024-12-26T14:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 7. Report Bug
+
+**Endpoint:** `POST /support/bug-report`  
+**Auth Required:** ✅ Yes
+
+### Request Body
+```json
+{
+  "title": "App crashes when opening wallet",
+  "description": "The app crashes every time I try to open the wallet screen. It happens on my Samsung Galaxy A52.",
+  "steps_to_reproduce": "1. Open app\n2. Tap on Wallet icon\n3. App crashes",
+  "device_info": "Samsung Galaxy A52, Android 13",
+  "app_version": "1.2.0"
+}
+```
+
+### Success Response (201)
+```json
+{
+  "success": true,
+  "message": "Asante kwa kuripoti tatizo! Timu yetu itashughulikia haraka iwezekanavyo.",
+  "data": {
+    "report_id": "BUG-ABC12345"
+  }
+}
+```
+
+---
+
 # 🔄 WEBHOOKS / CALLBACKS
 
 These endpoints are called by external services (ZenoPay, etc.) to notify the backend of events.
