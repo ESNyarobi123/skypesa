@@ -26,11 +26,13 @@ class Announcement extends Model
 
     /**
      * Get the video URL for playback
+     * Uses Storage facade for cross-hosting compatibility
      */
     public function getVideoUrlAttribute(): ?string
     {
         if ($this->video_path) {
-            return asset('storage/' . $this->video_path);
+            // Use Storage URL for better compatibility
+            return \Storage::disk('public')->url($this->video_path);
         }
         return null;
     }
