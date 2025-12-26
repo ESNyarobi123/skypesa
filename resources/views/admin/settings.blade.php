@@ -117,9 +117,23 @@
                                style="width: 18px; height: 18px; accent-color: var(--primary);">
                         <div>
                             <span style="color: white; font-size: 0.9rem;">Require Task Completion</span>
-                            <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">New user must complete a task before referral bonus is paid</p>
+                            <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">New user must complete tasks before referral bonus is paid</p>
                         </div>
                     </label>
+                </div>
+
+                <div class="form-group-modern" style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                    <label class="form-label-modern" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="shield-check" style="width: 16px; height: 16px; color: var(--info);"></i>
+                        Tasks Required for Referral Bonus
+                    </label>
+                    <input type="number" name="referral_tasks_required" class="form-input-modern" 
+                           value="{{ $settings['referral']['referral_tasks_required'] ?? 15 }}" 
+                           min="1" max="100" placeholder="15" style="max-width: 150px;">
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">
+                        <strong>🛡️ Anti-Cheat:</strong> Referred user must complete this many tasks before referrer gets bonus. 
+                        Higher = less cheating, lower = faster rewards.
+                    </p>
                 </div>
             </div>
         </div>

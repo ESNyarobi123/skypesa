@@ -327,10 +327,11 @@ class TaskLockService
         $gamification->incrementDailyProgress($user);
 
         // ===========================================
-        // REFERRAL BONUS: Pay when first task is completed
+        // REFERRAL BONUS: Check if eligible after task completion
+        // Bonus is paid after user completes required number of tasks
         // ===========================================
-        if ($bonusApplied === 'welcome_bonus' && $user->referred_by) {
-            $this->payReferralBonus($user);
+        if ($user->referred_by && !$user->referral_bonus_paid) {
+            $this->checkAndPayReferralBonus($user);
         }
 
         Log::info('Task completed', [
@@ -418,9 +419,11 @@ class TaskLockService
     }
 
     /**
-     * Pay referral bonus when new user completes first task
+     * Check if referral bonus should be paid and pay it
+     * This is called after every task completion for users who were referred
+     * Bonus is only paid once user completes the required number of tasks
      */
-    protected function payReferralBonus(User $newUser): void
+    protected function checkAndPayReferralBonus(User $newUser): void
     {
         // Get settings
         $referralEnabled = \App\Models\Setting::get('referral_enabled', true);
@@ -428,8 +431,53 @@ class TaskLockService
             return;
         }
 
+        $requireTaskCompletion = \App\Models\Setting::get('referral_require_task_completion', true);
+        if (!$requireTaskCompletion) {
+            // If task completion not required, pay immediately (on registration)
+            // This case is handled elsewhere - skip here
+            return;
+        }
+
+        // Get required number of tasks (NEW: default 15)
+        $tasksRequired = (int) \App\Models\Setting::get('referral_tasks_required', 15);
+        
+        // Count completed tasks by this user
+        $completedTasks = TaskCompletion::where('user_id', $newUser->id)
+            ->where('status', 'completed')
+            ->count();
+
+        Log::info('Checking referral bonus eligibility', [
+            'user_id' => $newUser->id,
+            'completed_tasks' => $completedTasks,
+            'tasks_required' => $tasksRequired,
+            'referrer_id' => $newUser->referred_by,
+        ]);
+
+        // Check if user has completed enough tasks
+        if ($completedTasks < $tasksRequired) {
+            // Not enough tasks completed yet - don't pay bonus
+            Log::info('Referral bonus not yet eligible - need more tasks', [
+                'user_id' => $newUser->id,
+                'completed' => $completedTasks,
+                'required' => $tasksRequired,
+                'remaining' => $tasksRequired - $completedTasks,
+            ]);
+            return;
+        }
+
+        // User has completed required tasks - pay the bonus!
+        $this->payReferralBonus($newUser);
+    }
+
+    /**
+     * Pay referral bonus to referrer and new user
+     * This is called when new user completes the required number of tasks
+     */
+    protected function payReferralBonus(User $newUser): void
+    {
         $referrerBonus = (float) \App\Models\Setting::get('referral_bonus_referrer', 500);
         $newUserBonus = (float) \App\Models\Setting::get('referral_bonus_new_user', 200);
+        $tasksRequired = (int) \App\Models\Setting::get('referral_tasks_required', 15);
 
         try {
             // Get the referrer
@@ -445,7 +493,7 @@ class TaskLockService
                     $referrerBonus,
                     'referral_bonus',
                     $newUser,
-                    '🎁 Referral Bonus! ' . $newUser->name . ' amekamilisha task ya kwanza.'
+                    '🎁 Referral Bonus! ' . $newUser->name . ' amekamilisha tasks ' . $tasksRequired . '.'
                 );
 
                 // Notify referrer
@@ -453,13 +501,14 @@ class TaskLockService
                     $referrer,
                     'referral',
                     '👥 Referral Bonus!',
-                    'Umepata TZS ' . number_format($referrerBonus) . ' kwa sababu ' . $newUser->name . ' amekamilisha task ya kwanza.'
+                    'Umepata TZS ' . number_format($referrerBonus) . ' kwa sababu ' . $newUser->name . ' amekamilisha tasks ' . $tasksRequired . '.'
                 );
 
                 Log::info('Referral bonus paid to referrer', [
                     'referrer_id' => $referrer->id,
                     'new_user_id' => $newUser->id,
                     'amount' => $referrerBonus,
+                    'tasks_required' => $tasksRequired,
                 ]);
             }
 
@@ -469,15 +518,15 @@ class TaskLockService
                     $newUserBonus,
                     'referral_bonus',
                     $newUser,
-                    '🎁 Karibu Bonus! Umejiandikisha kupitia referral.'
+                    '🎁 Hongera! Bonus ya kukamilisha tasks ' . $tasksRequired . ' kupitia referral.'
                 );
 
                 // Notify new user
                 \App\Models\Notification::notify(
                     $newUser,
                     'referral',
-                    '🎁 Karibu Bonus!',
-                    'Umepata TZS ' . number_format($newUserBonus) . ' kama bonus ya kujiunga kupitia referral.'
+                    '🎁 Referral Bonus!',
+                    'Umepata TZS ' . number_format($newUserBonus) . ' kwa kukamilisha tasks ' . $tasksRequired . ' kupitia referral.'
                 );
 
                 Log::info('Referral bonus paid to new user', [
@@ -486,6 +535,16 @@ class TaskLockService
                     'amount' => $newUserBonus,
                 ]);
             }
+
+            // Mark bonus as paid so we don't pay again
+            $newUser->update(['referral_bonus_paid' => true]);
+
+            Log::info('Referral bonus successfully completed', [
+                'new_user_id' => $newUser->id,
+                'referrer_id' => $referrer->id,
+                'referrer_bonus' => $referrerBonus,
+                'new_user_bonus' => $newUserBonus,
+            ]);
         } catch (\Exception $e) {
             Log::error('Failed to pay referral bonus', [
                 'new_user_id' => $newUser->id,

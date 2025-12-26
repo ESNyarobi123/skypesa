@@ -21,7 +21,8 @@ class SettingSeeder extends Seeder
             ['key' => 'referral_enabled', 'value' => 'true', 'type' => 'boolean', 'group' => 'referral', 'description' => 'Enable Referral System'],
             ['key' => 'referral_bonus_referrer', 'value' => '500', 'type' => 'integer', 'group' => 'referral', 'description' => 'Bonus for the Referrer (TZS)'],
             ['key' => 'referral_bonus_new_user', 'value' => '200', 'type' => 'integer', 'group' => 'referral', 'description' => 'Bonus for the New User (TZS)'],
-            ['key' => 'referral_require_task_completion', 'value' => 'true', 'type' => 'boolean', 'group' => 'referral', 'description' => 'Require first task completion for bonus'],
+            ['key' => 'referral_require_task_completion', 'value' => 'true', 'type' => 'boolean', 'group' => 'referral', 'description' => 'Require task completion for bonus'],
+            ['key' => 'referral_tasks_required', 'value' => '15', 'type' => 'integer', 'group' => 'referral', 'description' => 'Number of tasks new user must complete for referrer to get bonus'],
             
             // Withdrawal
             ['key' => 'withdrawal_min_global', 'value' => '10000', 'type' => 'integer', 'group' => 'withdrawal', 'description' => 'Global Minimum Withdrawal (TZS)'],

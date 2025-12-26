@@ -38,6 +38,8 @@ class User extends Authenticatable
         'last_daily_goal_date',
         'daily_goal_progress',
         'daily_goal_claimed',
+        // Referral tracking
+        'referral_bonus_paid',
         // Language preference
         'locale',
     ];
@@ -63,6 +65,7 @@ class User extends Authenticatable
             'first_task_at' => 'datetime',
             'last_daily_goal_date' => 'date',
             'daily_goal_claimed' => 'boolean',
+            'referral_bonus_paid' => 'boolean',
         ];
     }
 

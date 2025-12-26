@@ -42,6 +42,7 @@ class AdminSettingsController extends Controller
             'referral_bonus_new_user' => 'nullable|integer|min:0',
             'referral_enabled' => 'nullable',
             'referral_require_task_completion' => 'nullable',
+            'referral_tasks_required' => 'nullable|integer|min:1|max:100',
             
             // Withdrawal
             'withdrawal_min_global' => 'nullable|integer|min:0',
@@ -72,6 +73,7 @@ class AdminSettingsController extends Controller
             'referral_bonus_new_user' => 'referral',
             'referral_enabled' => 'referral',
             'referral_require_task_completion' => 'referral',
+            'referral_tasks_required' => 'referral',
             'withdrawal_min_global' => 'withdrawal',
             'withdrawal_max_daily' => 'withdrawal',
             'withdrawal_per_day_limit' => 'withdrawal',
