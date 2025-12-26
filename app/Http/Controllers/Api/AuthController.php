@@ -52,18 +52,7 @@ class AuthController extends Controller
             'referred_by' => $referrer?->id,
         ]);
 
-        // Create wallet
-        $user->wallet()->create(['balance' => 0]);
-
-        // Create free subscription
-        $freePlan = \App\Models\SubscriptionPlan::where('slug', 'free')->first();
-        if ($freePlan) {
-            $user->subscriptions()->create([
-                'plan_id' => $freePlan->id,
-                'status' => 'active',
-                'started_at' => now(),
-            ]);
-        }
+        // Wallet and Subscription are created automatically by User model events
 
         // Send Welcome Email
         try {
