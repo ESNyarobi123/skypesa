@@ -125,6 +125,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/support/{id}', [SupportController::class, 'show'])->name('support.show');
     Route::post('/support/{id}/reply', [SupportController::class, 'reply'])->name('support.reply');
 
+    // Announcements (dismiss popup)
+    Route::post('/announcements/{announcement}/dismiss', function (\App\Models\Announcement $announcement) {
+        $user = auth()->user();
+        if ($announcement->isCurrentlyActive()) {
+            $announcement->recordView($user);
+        }
+        return response()->json(['success' => true]);
+    })->name('announcements.dismiss');
+
     // Payments (ZenoPay)
     Route::get('/pay/subscription/{plan}', [PaymentController::class, 'subscriptionPayment'])->name('payments.subscription');
     Route::post('/pay/subscription/{plan}', [PaymentController::class, 'initiateSubscriptionPayment'])->name('payments.subscription.initiate');
@@ -220,6 +229,16 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/linkpools/{linkpool}/links/{link}/toggle-status', [AdminLinkPoolController::class, 'toggleLinkStatus'])->name('linkpools.links.toggle-status');
         Route::post('/linkpools/{linkpool}/links/{link}/reset-clicks', [AdminLinkPoolController::class, 'resetLinkClicks'])->name('linkpools.links.reset-clicks');
         Route::post('/linkpools/{linkpool}/links/bulk-import', [AdminLinkPoolController::class, 'bulkImportLinks'])->name('linkpools.links.bulk-import');
+
+        // Announcements (Broadcast to Users)
+        Route::get('/announcements', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'index'])->name('announcements.index');
+        Route::get('/announcements/create', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'create'])->name('announcements.create');
+        Route::post('/announcements', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'store'])->name('announcements.store');
+        Route::get('/announcements/{announcement}/edit', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'edit'])->name('announcements.edit');
+        Route::put('/announcements/{announcement}', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'update'])->name('announcements.update');
+        Route::delete('/announcements/{announcement}', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'destroy'])->name('announcements.destroy');
+        Route::patch('/announcements/{announcement}/toggle', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'toggleActive'])->name('announcements.toggle');
+        Route::get('/announcements/{announcement}/stats', [App\Http\Controllers\Admin\AdminAnnouncementController::class, 'stats'])->name('announcements.stats');
 
         // Support Management
         Route::get('/support', [App\Http\Controllers\Admin\AdminSupportController::class, 'index'])->name('support.index');

@@ -1080,6 +1080,13 @@
                             </a>
                         </li>
                         <li class="sidebar-nav-item">
+                            <a href="{{ route('admin.announcements.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
+                                <i data-lucide="megaphone" class="nav-icon"></i>
+                                Announcements
+                                <span style="margin-left: auto; font-size: 0.65rem; padding: 0.15rem 0.4rem; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 4px; color: white; font-weight: 600;">NEW</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
                             <a href="{{ route('admin.settings.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                                 <i data-lucide="settings" class="nav-icon"></i>
                                 Settings

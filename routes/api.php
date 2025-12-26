@@ -315,6 +315,23 @@ Route::prefix('v1')->group(function () {
             Route::post('/bug-report', [SupportController::class, 'bugReport']);
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Announcements (Popup News & Updates)
+        |--------------------------------------------------------------------------
+        */
+        
+        Route::prefix('announcements')->group(function () {
+            // Get Active Announcements (include popups)
+            Route::get('/', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
+            
+            // Dismiss/View Announcement (record view)
+            Route::post('/{announcement}/dismiss', [\App\Http\Controllers\Api\AnnouncementController::class, 'dismiss']);
+            
+            // Get Announcement History
+            Route::get('/history', [\App\Http\Controllers\Api\AnnouncementController::class, 'history']);
+        });
+
     });
     
     /*

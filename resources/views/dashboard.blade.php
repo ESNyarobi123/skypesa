@@ -44,10 +44,202 @@
             flex: 0 0 70%;
         }
     }
+
+    /* Announcement Popup Modal */
+    .announcement-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-4);
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .announcement-modal {
+        background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        max-width: 450px;
+        width: 100%;
+        overflow: hidden;
+        animation: slideUp 0.4s ease;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .announcement-modal-header {
+        padding: var(--space-5);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .announcement-modal-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .announcement-modal-icon.info {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+    }
+
+    .announcement-modal-icon.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+    }
+
+    .announcement-modal-icon.warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+
+    .announcement-modal-icon.urgent {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .announcement-modal-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    .announcement-modal-body {
+        padding: var(--space-5);
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .announcement-modal-body p {
+        white-space: pre-wrap;
+    }
+
+    .announcement-modal-footer {
+        padding: var(--space-4) var(--space-5);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .announcement-modal-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .announcement-ok-btn {
+        padding: var(--space-3) var(--space-6);
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .announcement-ok-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+    }
 </style>
 @endpush
 
 @section('content')
+<!-- Announcement Popup Modal -->
+@if(isset($popupAnnouncements) && $popupAnnouncements->count() > 0)
+    @foreach($popupAnnouncements as $index => $announcement)
+    <div class="announcement-modal-overlay" id="announcementModal{{ $announcement->id }}" style="{{ $index > 0 ? 'display: none;' : '' }}">
+        <div class="announcement-modal">
+            <div class="announcement-modal-header">
+                <div class="announcement-modal-icon {{ $announcement->type }}">
+                    @if($announcement->type === 'success')
+                        ✅
+                    @elseif($announcement->type === 'warning')
+                        ⚠️
+                    @elseif($announcement->type === 'urgent')
+                        🚨
+                    @else
+                        📢
+                    @endif
+                </div>
+                <div class="announcement-modal-title">{{ $announcement->title }}</div>
+            </div>
+            <div class="announcement-modal-body">
+                <p>{{ $announcement->body }}</p>
+            </div>
+            <div class="announcement-modal-footer">
+                <span class="announcement-modal-date">
+                    {{ $announcement->created_at->timezone('Africa/Dar_es_Salaam')->format('d M Y, H:i') }}
+                </span>
+                <button class="announcement-ok-btn" onclick="dismissAnnouncement({{ $announcement->id }}, {{ $index }})">
+                    OK, Nimeelewa
+                </button>
+            </div>
+        </div>
+    </div>
+    @endforeach
+
+    <script>
+        const announcementIds = @json($popupAnnouncements->pluck('id')->toArray());
+        let currentAnnouncementIndex = 0;
+
+        function dismissAnnouncement(id, index) {
+            // Hide current modal
+            const modal = document.getElementById('announcementModal' + id);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+
+            // Record the view via AJAX
+            fetch('/announcements/' + id + '/dismiss', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            }).catch(console.error);
+
+            // Show next announcement if exists
+            currentAnnouncementIndex++;
+            if (currentAnnouncementIndex < announcementIds.length) {
+                const nextId = announcementIds[currentAnnouncementIndex];
+                const nextModal = document.getElementById('announcementModal' + nextId);
+                if (nextModal) {
+                    nextModal.style.display = 'flex';
+                }
+            }
+        }
+    </script>
+@endif
+
 <!-- ==========================================
      GAMIFICATION WIDGETS
      ========================================== -->

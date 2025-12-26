@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Transaction;
+use App\Models\Announcement;
 use App\Services\TaskDistributionService;
 use Illuminate\Http\Request;
 
@@ -38,6 +39,12 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
         
-        return view('dashboard', compact('tasks', 'planInfo', 'recentTransactions'));
+        // Get announcements that should show as popup
+        $popupAnnouncements = Announcement::getActiveAnnouncements()
+            ->filter(fn($a) => $a->shouldShowPopupFor($user))
+            ->take(3); // Max 3 popups at once
+        
+        return view('dashboard', compact('tasks', 'planInfo', 'recentTransactions', 'popupAnnouncements'));
     }
 }
+
