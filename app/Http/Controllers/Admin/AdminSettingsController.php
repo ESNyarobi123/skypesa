@@ -53,6 +53,7 @@ class AdminSettingsController extends Controller
             
             // Task
             'task_default_duration' => 'nullable|integer|min:10|max:300',
+            'task_ip_daily_limit' => 'nullable|integer|min:1',
             'task_allow_skip' => 'nullable',
             
             // Profit
@@ -78,6 +79,7 @@ class AdminSettingsController extends Controller
             'withdrawal_auto_approve' => 'withdrawal',
             'withdrawal_auto_approve_max' => 'withdrawal',
             'task_default_duration' => 'task',
+            'task_ip_daily_limit' => 'task',
             'task_allow_skip' => 'task',
             'ad_revenue_per_view' => 'profit',
             'platform_profit_percent' => 'profit',

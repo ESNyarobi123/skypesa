@@ -46,7 +46,7 @@ return [
     'daily_limit' => env('TASK_DAILY_LIMIT', 10),
     
     // Maximum tasks from same IP per day
-    'ip_daily_limit' => env('TASK_IP_DAILY_LIMIT', 15),
+    'ip_daily_limit' => env('TASK_IP_DAILY_LIMIT', 100),
     
     // Minimum seconds between task starts
     'cooldown_seconds' => env('TASK_COOLDOWN_SECONDS', 120),

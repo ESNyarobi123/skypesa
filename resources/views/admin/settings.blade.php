@@ -210,6 +210,14 @@
                 </div>
 
                 <div class="form-group-modern">
+                    <label class="form-label-modern">IP Daily Task Limit</label>
+                    <input type="number" name="task_ip_daily_limit" class="form-input-modern" 
+                           value="{{ $settings['task']['task_ip_daily_limit'] ?? 100 }}" 
+                           min="1" placeholder="100" style="max-width: 200px;">
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">Max tasks allowed from same IP per day</p>
+                </div>
+
+                <div class="form-group-modern">
                     <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
                         <input type="checkbox" name="task_allow_skip" 
                                {{ ($settings['task']['task_allow_skip'] ?? false) ? 'checked' : '' }}

@@ -115,7 +115,7 @@ class TaskLockService
         }
 
         // Check IP daily limit
-        $ipDailyLimit = $task->ip_daily_limit ?? config('directlinks.ip_daily_limit', 15);
+        $ipDailyLimit = (int) \App\Models\Setting::get('task_ip_daily_limit', config('directlinks.ip_daily_limit', 100));
         if ($ipDailyLimit > 0) {
             $ipTodayCount = TaskCompletion::where('ip_address', $ip)
                 ->whereDate('created_at', today())
