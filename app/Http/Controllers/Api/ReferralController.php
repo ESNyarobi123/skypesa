@@ -19,8 +19,13 @@ class ReferralController extends Controller
         $activeReferrals = $user->referrals()->whereHas('activeSubscription')->count();
 
         // Calculate total earnings from referrals
+        // Search by description containing 'referral' since category enum doesn't have 'referral'
         $referralEarnings = $user->wallet?->transactions()
-            ->where('reference_type', 'referral')
+            ->where(function($query) {
+                $query->where('description', 'like', '%referral%')
+                    ->orWhere('description', 'like', '%Referral%');
+            })
+            ->where('type', 'credit')
             ->sum('amount') ?? 0;
 
         return response()->json([
@@ -80,7 +85,11 @@ class ReferralController extends Controller
         $user = $request->user();
 
         $transactions = $user->wallet?->transactions()
-            ->where('reference_type', 'referral')
+            ->where(function($query) {
+                $query->where('description', 'like', '%referral%')
+                    ->orWhere('description', 'like', '%Referral%');
+            })
+            ->where('type', 'credit')
             ->latest()
             ->paginate(20);
 
@@ -121,12 +130,20 @@ class ReferralController extends Controller
 
         // Earnings
         $earningsToday = $user->wallet?->transactions()
-            ->where('reference_type', 'referral')
+            ->where(function($query) {
+                $query->where('description', 'like', '%referral%')
+                    ->orWhere('description', 'like', '%Referral%');
+            })
+            ->where('type', 'credit')
             ->whereDate('created_at', $today)
             ->sum('amount') ?? 0;
 
         $earningsThisMonth = $user->wallet?->transactions()
-            ->where('reference_type', 'referral')
+            ->where(function($query) {
+                $query->where('description', 'like', '%referral%')
+                    ->orWhere('description', 'like', '%Referral%');
+            })
+            ->where('type', 'credit')
             ->where('created_at', '>=', $thisMonth)
             ->sum('amount') ?? 0;
 
