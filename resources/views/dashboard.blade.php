@@ -177,10 +177,12 @@
 @if(isset($popupAnnouncements) && $popupAnnouncements->count() > 0)
     @foreach($popupAnnouncements as $index => $announcement)
     <div class="announcement-modal-overlay" id="announcementModal{{ $announcement->id }}" style="{{ $index > 0 ? 'display: none;' : '' }}">
-        <div class="announcement-modal">
+        <div class="announcement-modal {{ $announcement->isVideo() ? 'video-modal' : '' }}">
             <div class="announcement-modal-header">
                 <div class="announcement-modal-icon {{ $announcement->type }}">
-                    @if($announcement->type === 'success')
+                    @if($announcement->isVideo())
+                        🎬
+                    @elseif($announcement->type === 'success')
                         ✅
                     @elseif($announcement->type === 'warning')
                         ⚠️
@@ -192,9 +194,38 @@
                 </div>
                 <div class="announcement-modal-title">{{ $announcement->title }}</div>
             </div>
+            
             <div class="announcement-modal-body">
-                <p>{{ $announcement->body }}</p>
+                @if($announcement->isVideo())
+                    <!-- Video Announcement -->
+                    <div class="announcement-video-container">
+                        <video 
+                            id="announcementVideo{{ $announcement->id }}"
+                            src="{{ $announcement->video_url }}" 
+                            class="announcement-video"
+                            autoplay 
+                            playsinline
+                            muted
+                            onended="handleVideoEnd({{ $announcement->id }})"
+                        ></video>
+                        <div class="video-progress-container">
+                            <div class="video-progress-bar" id="videoProgress{{ $announcement->id }}"></div>
+                        </div>
+                        <div class="video-controls">
+                            <button class="video-mute-btn" onclick="toggleMute({{ $announcement->id }})" id="muteBtn{{ $announcement->id }}">
+                                🔇 Tap for sound
+                            </button>
+                        </div>
+                    </div>
+                    @if($announcement->body)
+                        <p style="margin-top: 1rem; font-size: 0.9rem;">{{ $announcement->body }}</p>
+                    @endif
+                @else
+                    <!-- Text Announcement -->
+                    <p>{{ $announcement->body }}</p>
+                @endif
             </div>
+            
             <div class="announcement-modal-footer">
                 <span class="announcement-modal-date">
                     {{ $announcement->created_at->timezone('Africa/Dar_es_Salaam')->format('d M Y, H:i') }}
@@ -207,15 +238,114 @@
     </div>
     @endforeach
 
+    <style>
+        /* Video specific styles */
+        .announcement-modal.video-modal {
+            max-width: 500px;
+        }
+        
+        .announcement-video-container {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .announcement-video {
+            width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .video-progress-container {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .video-progress-bar {
+            height: 100%;
+            background: var(--gradient-primary);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .video-controls {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .video-mute-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .video-mute-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+    </style>
+
     <script>
         const announcementIds = @json($popupAnnouncements->pluck('id')->toArray());
         let currentAnnouncementIndex = 0;
+
+        // Initialize video progress tracking
+        document.addEventListener('DOMContentLoaded', function() {
+            announcementIds.forEach(id => {
+                const video = document.getElementById('announcementVideo' + id);
+                if (video) {
+                    video.addEventListener('timeupdate', function() {
+                        const progress = (video.currentTime / video.duration) * 100;
+                        document.getElementById('videoProgress' + id).style.width = progress + '%';
+                    });
+                }
+            });
+        });
+
+        function toggleMute(id) {
+            const video = document.getElementById('announcementVideo' + id);
+            const btn = document.getElementById('muteBtn' + id);
+            if (video) {
+                video.muted = !video.muted;
+                btn.textContent = video.muted ? '🔇 Tap for sound' : '🔊 Sound on';
+            }
+        }
+
+        function handleVideoEnd(id) {
+            // Video finished - could auto-dismiss or wait for user
+            const video = document.getElementById('announcementVideo' + id);
+            if (video) {
+                // Replay the video
+                video.currentTime = 0;
+                video.play();
+            }
+        }
 
         function dismissAnnouncement(id, index) {
             // Hide current modal
             const modal = document.getElementById('announcementModal' + id);
             if (modal) {
                 modal.style.display = 'none';
+            }
+
+            // Pause video if any
+            const video = document.getElementById('announcementVideo' + id);
+            if (video) {
+                video.pause();
             }
 
             // Record the view via AJAX
@@ -234,6 +364,12 @@
                 const nextModal = document.getElementById('announcementModal' + nextId);
                 if (nextModal) {
                     nextModal.style.display = 'flex';
+                    
+                    // Play next video if exists
+                    const nextVideo = document.getElementById('announcementVideo' + nextId);
+                    if (nextVideo) {
+                        nextVideo.play();
+                    }
                 }
             }
         }

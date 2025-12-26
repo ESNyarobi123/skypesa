@@ -11,6 +11,9 @@ class Announcement extends Model
     protected $fillable = [
         'title',
         'body',
+        'media_type',
+        'video_path',
+        'video_duration',
         'type',
         'icon',
         'is_active',
@@ -20,6 +23,25 @@ class Announcement extends Model
         'expires_at',
         'created_by',
     ];
+
+    /**
+     * Get the video URL for playback
+     */
+    public function getVideoUrlAttribute(): ?string
+    {
+        if ($this->video_path) {
+            return asset('storage/' . $this->video_path);
+        }
+        return null;
+    }
+
+    /**
+     * Check if this is a video announcement
+     */
+    public function isVideo(): bool
+    {
+        return $this->media_type === 'video' && $this->video_path;
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

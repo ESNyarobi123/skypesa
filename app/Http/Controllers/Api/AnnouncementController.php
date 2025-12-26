@@ -31,6 +31,10 @@ class AnnouncementController extends Controller
                 'type' => $announcement->type,
                 'icon' => $announcement->getTypeIcon(),
                 'color' => $announcement->getTypeBadgeColor(),
+                'media_type' => $announcement->media_type ?? 'text',
+                'is_video' => $announcement->isVideo(),
+                'video_url' => $announcement->video_url,
+                'video_duration' => $announcement->video_duration,
                 'created_at' => $announcement->created_at->toISOString(),
             ];
             
@@ -97,6 +101,10 @@ class AnnouncementController extends Controller
                     'type' => $announcement->type,
                     'icon' => $announcement->getTypeIcon(),
                     'color' => $announcement->getTypeBadgeColor(),
+                    'media_type' => $announcement->media_type ?? 'text',
+                    'is_video' => $announcement->isVideo(),
+                    'video_url' => $announcement->video_url,
+                    'video_duration' => $announcement->video_duration,
                     'created_at' => $announcement->created_at->toISOString(),
                     'is_read' => $read !== null,
                     'view_count' => $read?->view_count ?? 0,

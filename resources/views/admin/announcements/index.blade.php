@@ -35,6 +35,7 @@
             <thead>
                 <tr>
                     <th>Title</th>
+                    <th>Media</th>
                     <th>Type</th>
                     <th>Popup</th>
                     <th>Views</th>
@@ -48,12 +49,23 @@
                 @foreach($announcements as $announcement)
                 <tr>
                     <td>
-                        <div style="max-width: 280px;">
+                        <div style="max-width: 250px;">
                             <div style="font-weight: 600; color: white; margin-bottom: 0.25rem;">{{ $announcement->title }}</div>
                             <div style="font-size: 0.7rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                {{ Str::limit($announcement->body, 50) }}
+                                {{ Str::limit($announcement->body, 40) }}
                             </div>
                         </div>
+                    </td>
+                    <td>
+                        @if($announcement->isVideo())
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
+                                🎬 Video
+                            </span>
+                        @else
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: rgba(59, 130, 246, 0.15); color: #3b82f6;">
+                                📝 Text
+                            </span>
+                        @endif
                     </td>
                     <td>
                         <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: {{ $announcement->getTypeBadgeColor() }}20; color: {{ $announcement->getTypeBadgeColor() }};">

@@ -34,9 +34,10 @@ class AdminAnnouncementController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
-            'body' => 'required|string|max:5000',
+            'body' => 'nullable|string|max:5000',
+            'media_type' => 'required|in:text,video',
             'type' => 'required|in:info,success,warning,urgent',
             'icon' => 'nullable|string|max:50',
             'is_active' => 'nullable',
@@ -44,11 +45,35 @@ class AdminAnnouncementController extends Controller
             'max_popup_views' => 'required|integer|min:1|max:10',
             'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after_or_equal:starts_at',
-        ]);
+        ];
+
+        // Add video validation if media_type is video
+        if ($request->input('media_type') === 'video') {
+            $rules['video'] = 'required|file|mimes:mp4|max:15360'; // 15MB max
+            $rules['body'] = 'nullable|string|max:5000'; // Body optional for video
+        } else {
+            $rules['body'] = 'required|string|max:5000';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Handle video upload
+        $videoPath = null;
+        $videoDuration = null;
+        if ($request->hasFile('video') && $request->input('media_type') === 'video') {
+            $video = $request->file('video');
+            $videoPath = $video->store('announcements/videos', 'public');
+            
+            // Get video duration if possible (use ffprobe or default to client-provided)
+            $videoDuration = $request->input('video_duration', 15);
+        }
 
         $announcement = Announcement::create([
             'title' => $validated['title'],
-            'body' => $validated['body'],
+            'body' => $validated['body'] ?? '',
+            'media_type' => $validated['media_type'],
+            'video_path' => $videoPath,
+            'video_duration' => $videoDuration,
             'type' => $validated['type'],
             'icon' => $validated['icon'] ?? null,
             'is_active' => $request->has('is_active'),
@@ -59,9 +84,10 @@ class AdminAnnouncementController extends Controller
             'created_by' => auth()->id(),
         ]);
 
+        $typeLabel = $announcement->isVideo() ? '🎬 Video' : '📝 Text';
         return redirect()
             ->route('admin.announcements.index')
-            ->with('success', 'Tangazo limetumwa! "' . $announcement->title . '"');
+            ->with('success', "Tangazo limetumwa! {$typeLabel} \"{$announcement->title}\"");
     }
 
     /**
@@ -77,9 +103,10 @@ class AdminAnnouncementController extends Controller
      */
     public function update(Request $request, Announcement $announcement)
     {
-        $validated = $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
-            'body' => 'required|string|max:5000',
+            'body' => 'nullable|string|max:5000',
+            'media_type' => 'required|in:text,video',
             'type' => 'required|in:info,success,warning,urgent',
             'icon' => 'nullable|string|max:50',
             'is_active' => 'nullable',
@@ -87,11 +114,53 @@ class AdminAnnouncementController extends Controller
             'max_popup_views' => 'required|integer|min:1|max:10',
             'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after_or_equal:starts_at',
-        ]);
+        ];
+
+        // Add video validation if media_type is video and new video is uploaded
+        if ($request->input('media_type') === 'video') {
+            if ($request->hasFile('video')) {
+                $rules['video'] = 'required|file|mimes:mp4|max:15360'; // 15MB max
+            } elseif (!$announcement->video_path) {
+                // If switching to video but no existing video and no new upload
+                $rules['video'] = 'required|file|mimes:mp4|max:15360';
+            }
+            $rules['body'] = 'nullable|string|max:5000';
+        } else {
+            $rules['body'] = 'required|string|max:5000';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Handle video upload
+        $videoPath = $announcement->video_path;
+        $videoDuration = $announcement->video_duration;
+        
+        if ($request->input('media_type') === 'video') {
+            if ($request->hasFile('video')) {
+                // Delete old video if exists
+                if ($announcement->video_path) {
+                    \Storage::disk('public')->delete($announcement->video_path);
+                }
+                
+                $video = $request->file('video');
+                $videoPath = $video->store('announcements/videos', 'public');
+                $videoDuration = $request->input('video_duration', 15);
+            }
+        } else {
+            // Switching to text - remove video
+            if ($announcement->video_path) {
+                \Storage::disk('public')->delete($announcement->video_path);
+            }
+            $videoPath = null;
+            $videoDuration = null;
+        }
 
         $announcement->update([
             'title' => $validated['title'],
-            'body' => $validated['body'],
+            'body' => $validated['body'] ?? '',
+            'media_type' => $validated['media_type'],
+            'video_path' => $videoPath,
+            'video_duration' => $videoDuration,
             'type' => $validated['type'],
             'icon' => $validated['icon'] ?? null,
             'is_active' => $request->has('is_active'),
