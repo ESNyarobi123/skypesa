@@ -40,6 +40,12 @@ Route::get('/language/{locale}', [LanguageController::class, 'switch'])
     ->where('locale', 'en|sw')
     ->name('language.switch');
 
+// Public Pages (FAQ, Contact, Terms, Privacy)
+Route::get('/faq', [App\Http\Controllers\PageController::class, 'faq'])->name('pages.faq');
+Route::get('/contact', [App\Http\Controllers\PageController::class, 'contact'])->name('pages.contact');
+Route::get('/terms', [App\Http\Controllers\PageController::class, 'terms'])->name('pages.terms');
+Route::get('/privacy', [App\Http\Controllers\PageController::class, 'privacy'])->name('pages.privacy');
+
 /*
 |--------------------------------------------------------------------------
 | Task Redirect Routes (Click Tracking)

@@ -1614,10 +1614,10 @@
                 <div class="footer-links">
                     <h4>{{ __('messages.welcome.support_title') }}</h4>
                     <ul>
-                        <li><a href="#">{{ __('messages.welcome.faq') }}</a></li>
-                        <li><a href="#">{{ __('messages.welcome.contact') }}</a></li>
-                        <li><a href="#">{{ __('messages.welcome.terms') }}</a></li>
-                        <li><a href="#">{{ __('messages.welcome.privacy') }}</a></li>
+                        <li><a href="{{ route('pages.faq') }}">{{ __('messages.welcome.faq') }}</a></li>
+                        <li><a href="{{ route('pages.contact') }}">{{ __('messages.welcome.contact') }}</a></li>
+                        <li><a href="{{ route('pages.terms') }}">{{ __('messages.welcome.terms') }}</a></li>
+                        <li><a href="{{ route('pages.privacy') }}">{{ __('messages.welcome.privacy') }}</a></li>
                     </ul>
                 </div>
 

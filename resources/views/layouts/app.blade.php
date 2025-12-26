@@ -508,6 +508,32 @@
             }
         }, { once: true });
     </script>
+
+    {{-- Footer Links --}}
+    <footer style="padding: 1.5rem 1rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.5rem; margin-bottom: 1rem;">
+            <a href="{{ route('pages.faq') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem; transition: color 0.2s;">
+                <i data-lucide="help-circle" style="width: 12px; height: 12px; display: inline;"></i> FAQ
+            </a>
+            <a href="{{ route('pages.contact') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem; transition: color 0.2s;">
+                <i data-lucide="mail" style="width: 12px; height: 12px; display: inline;"></i> Wasiliana
+            </a>
+            <a href="{{ route('pages.terms') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem; transition: color 0.2s;">
+                <i data-lucide="file-text" style="width: 12px; height: 12px; display: inline;"></i> Masharti
+            </a>
+            <a href="{{ route('pages.privacy') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem; transition: color 0.2s;">
+                <i data-lucide="shield" style="width: 12px; height: 12px; display: inline;"></i> Faragha
+            </a>
+        </div>
+        <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">
+            © {{ date('Y') }} SKYpesa. Haki zote zimehifadhiwa.
+        </p>
+    </footer>
+    <script>
+        // Re-init icons for footer
+        lucide.createIcons();
+    </script>
+
     {{-- WhatsApp Floating Button --}}
     @php
         $whatsappNumber = \App\Models\Setting::get('whatsapp_support_number', '255700000000');
