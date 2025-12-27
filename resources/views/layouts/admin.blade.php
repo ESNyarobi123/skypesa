@@ -630,6 +630,40 @@
             color: var(--warning);
         }
         
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+        
+        .status-badge.danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+        
+        .status-badge.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-icon:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
         .action-btns {
             display: flex;
             gap: 0.5rem;
@@ -1076,6 +1110,19 @@
                                 @endphp
                                 @if($unreadAdminSupport > 0)
                                     <span class="nav-badge">{{ $unreadAdminSupport }}</span>
+                                @endif
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
+                            <a href="{{ route('admin.blocked-users.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.blocked-users.*') ? 'active' : '' }}">
+                                <i data-lucide="shield-x" class="nav-icon"></i>
+                                Blocked Users
+                                @php 
+                                    $unreviewedFlags = \App\Models\UserClickFlag::where('is_reviewed', false)->count();
+                                    $blockedUsersCount = \App\Models\User::where('role', 'user')->where('is_blocked', true)->count();
+                                @endphp
+                                @if($unreviewedFlags > 0 || $blockedUsersCount > 0)
+                                    <span class="nav-badge" style="background: linear-gradient(135deg, #ef4444, #dc2626);">{{ $blockedUsersCount ?: $unreviewedFlags }}</span>
                                 @endif
                             </a>
                         </li>

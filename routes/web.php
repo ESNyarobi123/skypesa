@@ -101,6 +101,53 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
     Route::post('/tasks/cancel', [TaskController::class, 'cancel'])->name('tasks.cancel');
     
+    // Click Fraud Detection (Web)
+    Route::post('/tasks/{task}/report-click', function (\App\Models\Task $task, \Illuminate\Http\Request $request) {
+        $user = auth()->user();
+        
+        // Check if user is blocked
+        if ($user->isBlocked()) {
+            return response()->json([
+                'status' => 'blocked',
+                'message' => 'Akaunti yako imezuiwa. Wasiliana na admin.',
+                'is_blocked' => true,
+            ], 403);
+        }
+        
+        // Record the click flag
+        $flag = \App\Models\UserClickFlag::recordClick(
+            user: $user,
+            task: $task,
+            completion: null,
+            clickCount: $request->input('click_count', 1),
+            data: [
+                'ip_address' => $request->ip(),
+                'device_info' => $request->input('device_info', $request->userAgent()),
+                'click_coordinates' => $request->input('click_coordinates'),
+                'notes' => $request->input('notes', 'Web click'),
+            ]
+        );
+        
+        // Refresh to check if auto-blocked
+        $user->refresh();
+        
+        if ($user->isBlocked()) {
+            return response()->json([
+                'status' => 'blocked',
+                'message' => 'Akaunti yako imezuiwa kwa sababu ya shughuli za tuhuma.',
+                'is_blocked' => true,
+            ], 403);
+        }
+        
+        return response()->json([
+            'status' => 'recorded',
+            'flag_id' => $flag->id,
+            'total_flagged_clicks' => $user->total_flagged_clicks,
+            'threshold' => \App\Models\UserClickFlag::AUTO_BLOCK_THRESHOLD,
+            'remaining_before_block' => max(0, \App\Models\UserClickFlag::AUTO_BLOCK_THRESHOLD - $user->total_flagged_clicks),
+        ]);
+    })->name('tasks.report-click');
+    
     // Wallet
     Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
     
@@ -252,7 +299,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/support/{id}/reply', [App\Http\Controllers\Admin\AdminSupportController::class, 'reply'])->name('support.reply');
         Route::patch('/support/{id}/close', [App\Http\Controllers\Admin\AdminSupportController::class, 'close'])->name('support.close');
 
+        // Blocked Users & Fraud Detection
+        Route::get('/blocked-users', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'index'])->name('blocked-users.index');
+        Route::get('/blocked-users/{user}', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'show'])->name('blocked-users.show');
+        Route::post('/blocked-users/{user}/block', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'block'])->name('blocked-users.block');
+        Route::post('/blocked-users/{user}/unblock', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'unblock'])->name('blocked-users.unblock');
+        Route::post('/blocked-users/{user}/reset-clicks', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'resetClickCount'])->name('blocked-users.reset-clicks');
+        Route::post('/blocked-users/{user}/review-all', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'reviewAllFlags'])->name('blocked-users.review-all');
+        Route::post('/blocked-users/flags/{flag}/review', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'reviewFlag'])->name('blocked-users.review-flag');
+        Route::get('/blocked-users-api/recent-flags', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'recentFlags'])->name('blocked-users.recent-flags');
+
     });
+
+    // User Blocked Page (shown when user is blocked)
+    Route::get('/blocked', function () {
+        $user = auth()->user();
+        if (!$user->isBlocked()) {
+            return redirect()->route('dashboard');
+        }
+        return view('user.blocked', compact('user'));
+    })->name('user.blocked');
 
     // Notifications
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');

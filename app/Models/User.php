@@ -42,6 +42,12 @@ class User extends Authenticatable
         'referral_bonus_paid',
         // Language preference
         'locale',
+        // Blocking fields
+        'is_blocked',
+        'blocked_reason',
+        'blocked_at',
+        'blocked_by',
+        'total_flagged_clicks',
     ];
 
     protected $hidden = [
@@ -57,6 +63,8 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'is_verified' => 'boolean',
             'is_suspicious' => 'boolean',
+            'is_blocked' => 'boolean',
+            'blocked_at' => 'datetime',
             'last_login_at' => 'datetime',
             'last_fraud_check' => 'datetime',
             // Gamification casts
@@ -250,5 +258,111 @@ class User extends Authenticatable
             'last_login_at' => now(),
             'last_login_ip' => $ip,
         ]);
+    }
+
+    // ==========================================
+    // Click Flag Tracking (Fraud Detection)
+    // ==========================================
+
+    /**
+     * Get all click flags for this user
+     */
+    public function clickFlags()
+    {
+        return $this->hasMany(UserClickFlag::class);
+    }
+
+    /**
+     * Get the admin who blocked this user
+     */
+    public function blockedByAdmin()
+    {
+        return $this->belongsTo(User::class, 'blocked_by');
+    }
+
+    /**
+     * Check if user is blocked
+     */
+    public function isBlocked(): bool
+    {
+        return $this->is_blocked ?? false;
+    }
+
+    /**
+     * Block this user
+     * 
+     * @param string $reason Reason for blocking
+     * @param User|null $blockedBy Admin who blocked (null = system auto-block)
+     */
+    public function blockUser(string $reason, ?User $blockedBy = null): void
+    {
+        $this->update([
+            'is_blocked' => true,
+            'blocked_reason' => $reason,
+            'blocked_at' => now(),
+            'blocked_by' => $blockedBy?->id,
+        ]);
+    }
+
+    /**
+     * Unblock this user
+     * 
+     * @param bool $resetClickCount Whether to reset the flagged click counter
+     */
+    public function unblockUser(bool $resetClickCount = false): void
+    {
+        $updateData = [
+            'is_blocked' => false,
+            'blocked_reason' => null,
+            'blocked_at' => null,
+            'blocked_by' => null,
+        ];
+
+        if ($resetClickCount) {
+            $updateData['total_flagged_clicks'] = 0;
+        }
+
+        $this->update($updateData);
+    }
+
+    /**
+     * Get blocking info
+     */
+    public function getBlockingInfo(): array
+    {
+        return [
+            'is_blocked' => $this->is_blocked,
+            'blocked_reason' => $this->blocked_reason,
+            'blocked_at' => $this->blocked_at?->toISOString(),
+            'blocked_by' => $this->blockedByAdmin?->name ?? 'System (Auto-block)',
+            'total_flagged_clicks' => $this->total_flagged_clicks ?? 0,
+            'auto_block_threshold' => UserClickFlag::AUTO_BLOCK_THRESHOLD,
+        ];
+    }
+
+    /**
+     * Scope for blocked users
+     */
+    public function scopeBlocked($query)
+    {
+        return $query->where('is_blocked', true);
+    }
+
+    /**
+     * Scope for not blocked users
+     */
+    public function scopeNotBlocked($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('is_blocked', false)->orWhereNull('is_blocked');
+        });
+    }
+
+    /**
+     * Scope for users with flagged clicks
+     */
+    public function scopeWithFlaggedClicks($query)
+    {
+        return $query->where('total_flagged_clicks', '>', 0);
     }
 }

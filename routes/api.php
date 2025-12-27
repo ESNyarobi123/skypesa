@@ -158,6 +158,23 @@ Route::prefix('v1')->group(function () {
             
             // Get Task History
             Route::get('/history/completed', [TaskController::class, 'history']);
+            
+            // Report suspicious click/tap on webview (fraud detection)
+            Route::post('/{task}/report-click', [\App\Http\Controllers\Api\ClickFlagController::class, 'reportClick']);
+        });
+        
+        /*
+        |--------------------------------------------------------------------------
+        | Click/Tap Fraud Detection
+        |--------------------------------------------------------------------------
+        */
+        
+        Route::prefix('user')->group(function () {
+            // Get user's click flag status
+            Route::get('/click-status', [\App\Http\Controllers\Api\ClickFlagController::class, 'getStatus']);
+            
+            // Get blocked info (for showing blocked page in app)
+            Route::get('/blocked-info', [\App\Http\Controllers\Api\ClickFlagController::class, 'getBlockedInfo']);
         });
         
         /*

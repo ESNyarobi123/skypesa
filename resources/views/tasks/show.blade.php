@@ -350,8 +350,8 @@
         </div>
     </div>
     
-    <!-- Iframe Container -->
-    <div class="task-iframe-container">
+    <!-- Iframe Container with Click Detection -->
+    <div class="task-iframe-container" id="iframeContainer">
         <div id="warningOverlay" class="warning-overlay">
             ⚠️ {{ __('messages.tasks.dont_leave') }}
         </div>
@@ -360,6 +360,9 @@
             <div class="spinner"></div>
             <p>{{ __('messages.tasks.loading_ad') }}</p>
         </div>
+        
+        <!-- Click Detection Overlay - tracks clicks on ad area -->
+        <div id="clickDetectionOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5; cursor: pointer;" onclick="handleAdClick(event)"></div>
         
         <iframe id="taskIframe" class="task-iframe" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" allowfullscreen></iframe>
     </div>
@@ -434,7 +437,14 @@
     const defaultTaskUrl = "{{ $task->url }}"; // Fallback URL
     const startUrl = "{{ route('tasks.start', $task) }}";
     const completeUrl = "{{ route('tasks.complete', $task) }}";
+    const reportClickUrl = "{{ route('tasks.report-click', $task) }}"; // Web route for click fraud detection
     const csrfToken = "{{ csrf_token() }}";
+    
+    // Click fraud tracking
+    let clickCount = 0;
+    let clickCoordinates = [];
+    let clickReportTimeout = null;
+    let completionId = null; // Will be set after task starts
     
     // Translation strings for JavaScript
     const translations = {
@@ -531,6 +541,136 @@
     
     // Note: Users always start fresh - old tasks are cancelled when they return
     
+    // ==========================================
+    // CLICK FRAUD DETECTION
+    // ==========================================
+    
+    /**
+     * Handle click on ad area overlay - record for fraud detection
+     * This catches clicks before overlay hides (first 3 seconds)
+     */
+    function handleAdClick(event) {
+        if (!taskStarted) return;
+        
+        // Record click with coordinates
+        recordSuspiciousClick('overlay_click', {
+            x: Math.round(event.clientX),
+            y: Math.round(event.clientY)
+        });
+        
+        // Hide overlay after first click to let user interact with iframe
+        const overlay = document.getElementById('clickDetectionOverlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+    
+    /**
+     * Record a suspicious click/interaction
+     * Called by overlay click OR window blur (iframe focus)
+     */
+    function recordSuspiciousClick(source, coords = null) {
+        if (!taskStarted) return;
+        
+        clickCount++;
+        
+        // Record click info
+        clickCoordinates.push({
+            x: coords?.x || 0,
+            y: coords?.y || 0,
+            source: source,
+            timestamp: Date.now()
+        });
+        
+        console.log('Suspicious interaction detected:', source, '- Total:', clickCount);
+        
+        // Debounce - report clicks after 2 seconds of no activity
+        clearTimeout(clickReportTimeout);
+        clickReportTimeout = setTimeout(() => {
+            reportClickToServer();
+        }, 2000);
+    }
+    
+    /**
+     * Detect when user clicks INSIDE the iframe
+     * When user clicks in iframe, the main window loses focus (blur event)
+     * This is the ONLY reliable way to detect iframe interactions due to cross-origin security
+     */
+    let iframeFocusDetectionEnabled = false;
+    let lastIframeInteraction = 0;
+    
+    function enableIframeFocusDetection() {
+        if (iframeFocusDetectionEnabled) return;
+        iframeFocusDetectionEnabled = true;
+        
+        // When main window loses focus while task is active...
+        window.addEventListener('blur', function() {
+            if (!taskStarted || countdown <= 0) return;
+            
+            // Check if iframe is likely focused (within 100ms of blur)
+            // This indicates user clicked inside the iframe
+            const now = Date.now();
+            
+            // Prevent duplicate detections within 500ms
+            if (now - lastIframeInteraction < 500) return;
+            lastIframeInteraction = now;
+            
+            // Check if the iframe is the active element or its window has focus
+            const iframe = document.getElementById('taskIframe');
+            if (iframe && document.activeElement === iframe) {
+                console.log('User clicked inside iframe (detected via blur)');
+                recordSuspiciousClick('iframe_interaction', null);
+            }
+        });
+        
+        console.log('Iframe focus detection enabled');
+    }
+    
+    /**
+     * Report suspicious clicks to server for fraud detection
+     */
+    function reportClickToServer() {
+        if (clickCount === 0) return;
+        
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+        };
+        
+        // Send report to server
+        fetch(reportClickUrl, {
+            method: 'POST',
+            headers: headers,
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                click_count: clickCount,
+                task_completion_id: completionId,
+                click_coordinates: clickCoordinates.slice(-20), // Last 20 interactions
+                device_info: navigator.userAgent,
+                notes: 'Web - ' + clickCoordinates.map(c => c.source).filter((v,i,a) => a.indexOf(v) === i).join(', ')
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Click report response:', data);
+            
+            // Check if user was blocked
+            if (data.status === 'blocked' || data.is_blocked) {
+                clearInterval(timerInterval);
+                taskStarted = false;
+                alert(data.message || 'Akaunti yako imezuiwa kwa sababu ya shughuli za tuhuma. Wasiliana na admin.');
+                window.location.href = '/blocked';
+            }
+        })
+        .catch(error => {
+            console.error('Click report error:', error);
+            // Silent fail - don't disrupt user experience
+        });
+        
+        // Reset click tracking for next batch
+        clickCount = 0;
+        clickCoordinates = [];
+    }
+    
     function startTask() {
         const startBtn = document.getElementById('startButton');
         startBtn.disabled = true;
@@ -605,6 +745,16 @@
         // Hide loading when iframe loads
         iframe.onload = function() {
             document.getElementById('iframeLoading').style.display = 'none';
+            
+            // Enable iframe focus detection (detects when user clicks inside iframe)
+            enableIframeFocusDetection();
+            
+            // Hide click overlay after 3 seconds to let user interact with ad
+            // But still track if they click the overlay area first
+            setTimeout(() => {
+                const overlay = document.getElementById('clickDetectionOverlay');
+                if (overlay) overlay.style.display = 'none';
+            }, 3000);
         };
         
         // Start timer

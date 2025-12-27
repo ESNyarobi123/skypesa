@@ -711,6 +711,136 @@ All responses follow this structure:
 
 ---
 
+# 🛡️ CLICK FLAG / FRAUD DETECTION
+
+> These endpoints are used to report suspicious clicks/taps on the webview and check if user is blocked.
+
+## 1. Report Suspicious Click
+
+**Endpoint:** `POST /tasks/{task_id}/report-click`  
+**Auth Required:** ✅ Yes
+
+> Call this when user clicks/taps on the webview during ad display (especially "verify if you are human" area).
+
+### Request Body
+```json
+{
+  "click_count": 1,
+  "task_completion_id": 123,  // Optional
+  "click_coordinates": [      // Optional
+    { "x": 150, "y": 300 },
+    { "x": 160, "y": 310 }
+  ],
+  "device_info": "Samsung Galaxy S21",  // Optional
+  "notes": "Clicked on verify button"   // Optional
+}
+```
+
+### Success Response (200)
+```json
+{
+  "status": "recorded",
+  "message": "Click recorded for review",
+  "flag_id": 45,
+  "total_flagged_clicks": 5,
+  "threshold": 20,
+  "remaining_before_block": 15
+}
+```
+
+### Error: User Blocked (403)
+```json
+{
+  "status": "blocked",
+  "message": "Akaunti yako imezuiwa kwa sababu ya shughuli za tuhuma. Wasiliana na admin kupitia WhatsApp ili kuomba kufunguliwa.",
+  "is_blocked": true,
+  "blocking_info": {
+    "is_blocked": true,
+    "blocked_reason": "Auto-blocked: Exceeded suspicious click threshold (20 tasks)",
+    "blocked_at": "2024-12-27T10:00:00.000Z",
+    "blocked_by": "System (Auto-block)",
+    "total_flagged_clicks": 20,
+    "auto_block_threshold": 20
+  }
+}
+```
+
+---
+
+## 2. Get Click Status
+
+**Endpoint:** `GET /user/click-status`  
+**Auth Required:** ✅ Yes
+
+### Success Response (200)
+```json
+{
+  "status": "success",
+  "is_blocked": false,
+  "blocking_info": {
+    "is_blocked": false,
+    "blocked_reason": null,
+    "blocked_at": null,
+    "blocked_by": null,
+    "total_flagged_clicks": 5,
+    "auto_block_threshold": 20
+  },
+  "click_stats": {
+    "total_flags": 5,
+    "total_clicks": 8,
+    "unreviewed_flags": 3,
+    "today_flags": 2,
+    "threshold": 20,
+    "remaining_before_block": 15
+  }
+}
+```
+
+---
+
+## 3. Get Blocked Info
+
+**Endpoint:** `GET /user/blocked-info`  
+**Auth Required:** ✅ Yes
+
+> Use this to show blocked page in app with admin WhatsApp contact.
+
+### Response - User Not Blocked (200)
+```json
+{
+  "status": "success",
+  "is_blocked": false,
+  "message": "Akaunti yako haijazuiwa."
+}
+```
+
+### Response - User Blocked (200)
+```json
+{
+  "status": "blocked",
+  "is_blocked": true,
+  "blocking_info": {
+    "is_blocked": true,
+    "blocked_reason": "Auto-blocked: Exceeded suspicious click threshold (20 tasks)",
+    "blocked_at": "2024-12-27T10:00:00.000Z",
+    "blocked_by": "System (Auto-block)",
+    "total_flagged_clicks": 20,
+    "auto_block_threshold": 20
+  },
+  "support": {
+    "whatsapp": "+255700000000",
+    "whatsapp_url": "https://wa.me/255700000000",
+    "message": "Habari Admin, naomba msaada. Akaunti yangu imezuiwa. Jina: John Doe, Email: john@example.com"
+  },
+  "instructions": {
+    "sw": "Akaunti yako imezuiwa kwa sababu ya shughuli za tuhuma. Tafadhali wasiliana na admin kupitia WhatsApp ili kuomba kufunguliwa.",
+    "en": "Your account has been blocked due to suspicious activity. Please contact admin via WhatsApp to request unblocking."
+  }
+}
+```
+
+---
+
 # 💰 WALLET & TRANSACTIONS
 
 ## 1. Get Wallet Info

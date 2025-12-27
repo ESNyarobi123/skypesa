@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Contact Information
+    |--------------------------------------------------------------------------
+    |
+    | Contact information for admin support. Used for blocked users to
+    | contact admin for account unblocking requests.
+    |
+    */
+
+    'admin_whatsapp' => env('ADMIN_WHATSAPP', '+255700000000'),
+    'admin_email' => env('ADMIN_EMAIL', 'admin@skypesa.com'),
+
 ];
