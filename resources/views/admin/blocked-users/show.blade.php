@@ -156,7 +156,7 @@
                 <tr>
                     <th>Tarehe</th>
                     <th>Task</th>
-                    <th>Clicks</th>
+                    <th>Fraud Type</th>
                     <th>IP</th>
                     <th>Device</th>
                     <th>Status</th>
@@ -174,8 +174,8 @@
                     </td>
                     <td>
                         @if($flag->task)
-                            <div style="max-width: 200px;">
-                                <div style="font-weight: 500;">{{ Str::limit($flag->task->title, 30) }}</div>
+                            <div style="max-width: 150px;">
+                                <div style="font-weight: 500;">{{ Str::limit($flag->task->title, 25) }}</div>
                                 <div style="font-size: 0.7rem; color: var(--text-muted);">ID: {{ $flag->task_id }}</div>
                             </div>
                         @else
@@ -183,14 +183,40 @@
                         @endif
                     </td>
                     <td>
-                        <span style="font-weight: 600; color: var(--error);">{{ $flag->click_count }}</span>
+                        @php
+                            $notes = $flag->notes ?? '';
+                            $isNoClickFraud = str_contains($notes, 'NO-CLICK');
+                        @endphp
+                        @if($isNoClickFraud)
+                            <div>
+                                <span class="status-badge danger" style="white-space: nowrap;">
+                                    <i data-lucide="eye-off" style="width: 12px; height: 12px;"></i>
+                                    HAKUBOFYA
+                                </span>
+                                <div style="font-size: 0.65rem; color: var(--error); margin-top: 4px; max-width: 120px;">
+                                    Hakuclick kwenye ad (bot/cheat)
+                                </div>
+                            </div>
+                        @else
+                            <div>
+                                <span class="status-badge warning" style="white-space: nowrap;">
+                                    <i data-lucide="mouse-pointer-click" style="width: 12px; height: 12px;"></i>
+                                    {{ $flag->click_count }} clicks
+                                </span>
+                                @if($notes)
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; max-width: 120px;">
+                                        {{ Str::limit($notes, 30) }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                     </td>
                     <td>
                         <code style="font-size: 0.75rem;">{{ $flag->ip_address ?? 'N/A' }}</code>
                     </td>
                     <td>
-                        <div style="max-width: 150px; font-size: 0.7rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            {{ Str::limit($flag->device_info, 40) }}
+                        <div style="max-width: 120px; font-size: 0.7rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ Str::limit($flag->device_info, 30) }}
                         </div>
                     </td>
                     <td>

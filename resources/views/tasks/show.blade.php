@@ -350,7 +350,7 @@
         </div>
     </div>
     
-    <!-- Iframe Container with Click Detection -->
+    <!-- Iframe Container - Click detection via window blur event -->
     <div class="task-iframe-container" id="iframeContainer">
         <div id="warningOverlay" class="warning-overlay">
             ⚠️ {{ __('messages.tasks.dont_leave') }}
@@ -361,8 +361,7 @@
             <p>{{ __('messages.tasks.loading_ad') }}</p>
         </div>
         
-        <!-- Click Detection Overlay - tracks clicks on ad area -->
-        <div id="clickDetectionOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5; cursor: pointer;" onclick="handleAdClick(event)"></div>
+        <!-- No overlay needed - iframe interactions detected via window blur event -->
         
         <iframe id="taskIframe" class="task-iframe" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" allowfullscreen></iframe>
     </div>
@@ -440,11 +439,8 @@
     const reportClickUrl = "{{ route('tasks.report-click', $task) }}"; // Web route for click fraud detection
     const csrfToken = "{{ csrf_token() }}";
     
-    // Click fraud tracking
-    let clickCount = 0;
-    let clickCoordinates = [];
-    let clickReportTimeout = null;
-    let completionId = null; // Will be set after task starts
+    // Task completion ID (set when task starts)
+    let completionId = null;
     
     // Translation strings for JavaScript
     const translations = {
@@ -542,51 +538,108 @@
     // Note: Users always start fresh - old tasks are cancelled when they return
     
     // ==========================================
-    // CLICK FRAUD DETECTION
+    // CLICK FRAUD DETECTION (Reversed Logic)
     // ==========================================
+    // 
+    // LOGIC:
+    // - User akibofya ndani ya iframe (hata mara 1) = NORMAL = Ali-verify na akaona ads ✅
+    // - User HAKUBOFYA ndani ya iframe = CHEATER = Hakuverify, hakuona ads ❌
+    //
+    // Kwa hiyo: NO CLICK = FLAG, HAS CLICK = OK
+    //
+    
+    // Track if user has clicked inside iframe during this task
+    let userClickedInsideIframe = false;
+    let iframeClickCount = 0;
     
     /**
-     * Handle click on ad area overlay - record for fraud detection
-     * This catches clicks before overlay hides (first 3 seconds)
+     * Handle click on ad area overlay - just hide it
+     * Overlay clicks don't count - we only care about clicks INSIDE the iframe
      */
     function handleAdClick(event) {
         if (!taskStarted) return;
         
-        // Record click with coordinates
-        recordSuspiciousClick('overlay_click', {
-            x: Math.round(event.clientX),
-            y: Math.round(event.clientY)
-        });
+        console.log('Overlay click - hiding overlay to let user interact with actual ad');
         
-        // Hide overlay after first click to let user interact with iframe
+        // Just hide overlay, don't record anything
         const overlay = document.getElementById('clickDetectionOverlay');
         if (overlay) overlay.style.display = 'none';
     }
     
     /**
-     * Record a suspicious click/interaction
-     * Called by overlay click OR window blur (iframe focus)
+     * Record that user clicked inside iframe - this is GOOD behavior!
+     * Means they're verifying as human and watching the ad properly
      */
-    function recordSuspiciousClick(source, coords = null) {
+    function recordIframeInteraction() {
         if (!taskStarted) return;
         
-        clickCount++;
+        userClickedInsideIframe = true;
+        iframeClickCount++;
         
-        // Record click info
-        clickCoordinates.push({
-            x: coords?.x || 0,
-            y: coords?.y || 0,
-            source: source,
-            timestamp: Date.now()
+        console.log('✅ User clicked inside iframe! This is GOOD - they verified. Total clicks:', iframeClickCount);
+    }
+    
+    /**
+     * Check if user completed task WITHOUT clicking - this is SUSPICIOUS
+     * Called when task is about to complete
+     */
+    function checkForNoClickFraud() {
+        if (!taskStarted) return { isSuspicious: false };
+        
+        if (!userClickedInsideIframe) {
+            console.log('⚠️ FRAUD DETECTED: User completed task WITHOUT clicking inside iframe!');
+            console.log('   They never verified as human - likely using bot or bypass');
+            return { 
+                isSuspicious: true, 
+                reason: 'User completed task without clicking/verifying inside ad iframe'
+            };
+        }
+        
+        console.log('✅ User behavior is normal - they clicked', iframeClickCount, 'times inside iframe');
+        return { isSuspicious: false };
+    }
+    
+    /**
+     * Report fraud to server - called when user tries to complete WITHOUT clicking
+     */
+    function reportNoClickFraud(reason) {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+        };
+        
+        fetch(reportClickUrl, {
+            method: 'POST',
+            headers: headers,
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                click_count: 1, // 1 flag for no-click fraud
+                task_completion_id: completionId,
+                click_coordinates: [],
+                device_info: navigator.userAgent,
+                notes: 'NO-CLICK FRAUD: ' + reason
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fraud report response:', data);
+            
+            if (data.status === 'blocked' || data.is_blocked) {
+                alert(data.message || 'Akaunti yako imezuiwa kwa sababu ya shughuli za tuhuma.');
+                window.location.href = '/blocked';
+            }
+        })
+        .catch(error => {
+            console.error('Fraud report error:', error);
         });
-        
-        console.log('Suspicious interaction detected:', source, '- Total:', clickCount);
-        
-        // Debounce - report clicks after 2 seconds of no activity
-        clearTimeout(clickReportTimeout);
-        clickReportTimeout = setTimeout(() => {
-            reportClickToServer();
-        }, 2000);
+    }
+    
+    // Legacy function - not used in new logic
+    function recordSuspiciousClick(source, coords = null) {
+        if (source === 'iframe_interaction') {
+            recordIframeInteraction();
+        }
     }
     
     /**
@@ -605,71 +658,25 @@
         window.addEventListener('blur', function() {
             if (!taskStarted || countdown <= 0) return;
             
-            // Check if iframe is likely focused (within 100ms of blur)
-            // This indicates user clicked inside the iframe
             const now = Date.now();
             
             // Prevent duplicate detections within 500ms
             if (now - lastIframeInteraction < 500) return;
             lastIframeInteraction = now;
             
-            // Check if the iframe is the active element or its window has focus
+            // Check if the iframe is the active element
             const iframe = document.getElementById('taskIframe');
             if (iframe && document.activeElement === iframe) {
                 console.log('User clicked inside iframe (detected via blur)');
-                recordSuspiciousClick('iframe_interaction', null);
+                recordIframeInteraction();
             }
         });
         
         console.log('Iframe focus detection enabled');
     }
     
-    /**
-     * Report suspicious clicks to server for fraud detection
-     */
-    function reportClickToServer() {
-        if (clickCount === 0) return;
-        
-        const headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-        };
-        
-        // Send report to server
-        fetch(reportClickUrl, {
-            method: 'POST',
-            headers: headers,
-            credentials: 'same-origin',
-            body: JSON.stringify({
-                click_count: clickCount,
-                task_completion_id: completionId,
-                click_coordinates: clickCoordinates.slice(-20), // Last 20 interactions
-                device_info: navigator.userAgent,
-                notes: 'Web - ' + clickCoordinates.map(c => c.source).filter((v,i,a) => a.indexOf(v) === i).join(', ')
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Click report response:', data);
-            
-            // Check if user was blocked
-            if (data.status === 'blocked' || data.is_blocked) {
-                clearInterval(timerInterval);
-                taskStarted = false;
-                alert(data.message || 'Akaunti yako imezuiwa kwa sababu ya shughuli za tuhuma. Wasiliana na admin.');
-                window.location.href = '/blocked';
-            }
-        })
-        .catch(error => {
-            console.error('Click report error:', error);
-            // Silent fail - don't disrupt user experience
-        });
-        
-        // Reset click tracking for next batch
-        clickCount = 0;
-        clickCoordinates = [];
-    }
+    // Note: Old reportClickToServer function removed - now using reportNoClickFraud
+    
     
     function startTask() {
         const startBtn = document.getElementById('startButton');
@@ -748,13 +755,6 @@
             
             // Enable iframe focus detection (detects when user clicks inside iframe)
             enableIframeFocusDetection();
-            
-            // Hide click overlay after 3 seconds to let user interact with ad
-            // But still track if they click the overlay area first
-            setTimeout(() => {
-                const overlay = document.getElementById('clickDetectionOverlay');
-                if (overlay) overlay.style.display = 'none';
-            }, 3000);
         };
         
         // Start timer
@@ -838,6 +838,16 @@
         completeBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> ' + translations.processing;
         lucide.createIcons();
         
+        // CHECK FOR FRAUD: Did user click inside iframe?
+        const fraudCheck = checkForNoClickFraud();
+        
+        if (fraudCheck.isSuspicious) {
+            console.log('⚠️ Reporting fraud before completing task...');
+            // Report fraud first, then still allow completion (but flag the user)
+            reportNoClickFraud(fraudCheck.reason);
+        }
+        
+        // Proceed with task completion (fraud has been reported if applicable)
         fetch(completeUrl, {
             method: 'POST',
             headers: {
