@@ -76,6 +76,19 @@ class TaskLockService
     {
         $ip = request()->ip();
         
+        // SECURITY: Check if user is blocked (final defense layer)
+        if ($user->isBlocked()) {
+            Log::warning('Blocked user attempted to start task', [
+                'user_id' => $user->id,
+                'task_id' => $task->id,
+            ]);
+            return [
+                'success' => false,
+                'message' => 'Akaunti yako imezuiwa. Wasiliana na admin kupitia WhatsApp.',
+                'error_code' => 'USER_BLOCKED',
+            ];
+        }
+        
         // Check if user already has an active task
         if ($this->hasActiveTask($user)) {
             $activeTask = $this->getActiveTask($user);
@@ -240,6 +253,19 @@ class TaskLockService
      */
     public function completeTask(User $user, Task $task, string $lockToken): array
     {
+        // SECURITY: Check if user is blocked (final defense layer)
+        if ($user->isBlocked()) {
+            Log::warning('Blocked user attempted to complete task', [
+                'user_id' => $user->id,
+                'task_id' => $task->id,
+            ]);
+            return [
+                'success' => false,
+                'message' => 'Akaunti yako imezuiwa. Wasiliana na admin kupitia WhatsApp.',
+                'error_code' => 'USER_BLOCKED',
+            ];
+        }
+        
         // Find the locked task
         $completion = TaskCompletion::where('user_id', $user->id)
             ->where('task_id', $task->id)

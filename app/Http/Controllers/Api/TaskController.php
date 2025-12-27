@@ -87,6 +87,17 @@ class TaskController extends Controller
     {
         $user = $request->user();
 
+        // SECURITY: Check if user is blocked (defense-in-depth)
+        if ($user->isBlocked()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akaunti yako imezuiwa. Wasiliana na admin kupitia WhatsApp.',
+                'error_code' => 'USER_BLOCKED',
+                'is_blocked' => true,
+                'blocking_info' => $user->getBlockingInfo(),
+            ], 403);
+        }
+
         // Validate
         if (!$task->canUserComplete($user)) {
             return response()->json([
@@ -189,6 +200,17 @@ class TaskController extends Controller
     public function complete(Request $request, Task $task)
     {
         $user = $request->user();
+
+        // SECURITY: Check if user is blocked (defense-in-depth)
+        if ($user->isBlocked()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akaunti yako imezuiwa. Wasiliana na admin kupitia WhatsApp.',
+                'error_code' => 'USER_BLOCKED',
+                'is_blocked' => true,
+                'blocking_info' => $user->getBlockingInfo(),
+            ], 403);
+        }
 
         $validator = Validator::make($request->all(), [
             'lock_token' => 'required|string|size:64',

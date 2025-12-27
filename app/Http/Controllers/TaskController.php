@@ -106,6 +106,16 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         
+        // SECURITY: Check if user is blocked
+        if ($user->isBlocked()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akaunti yako imezuiwa. Wasiliana na admin kupitia WhatsApp.',
+                'error_code' => 'USER_BLOCKED',
+                'is_blocked' => true,
+            ], 403);
+        }
+        
         // Validate user can start this task
         if (!$task->canUserComplete($user) || !$user->canCompleteMoreTasks()) {
             return response()->json([
@@ -184,6 +194,16 @@ class TaskController extends Controller
     public function complete(Request $request, Task $task)
     {
         $user = auth()->user();
+        
+        // SECURITY: Check if user is blocked
+        if ($user->isBlocked()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akaunti yako imezuiwa. Wasiliana na admin kupitia WhatsApp.',
+                'error_code' => 'USER_BLOCKED',
+                'is_blocked' => true,
+            ], 403);
+        }
         
         $request->validate([
             'lock_token' => 'required|string|size:64',

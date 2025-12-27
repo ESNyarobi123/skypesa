@@ -702,6 +702,13 @@
             
             const data = await response.json();
             
+            // Check if user is blocked
+            if (response.status === 403 && (data.is_blocked || data.error_code === 'USER_BLOCKED')) {
+                alert(data.message || 'Akaunti yako imezuiwa. Wasiliana na admin.');
+                window.location.href = '/blocked';
+                throw new Error('User blocked');
+            }
+            
             if (response.status === 423) {
                 alert(data.message);
                 window.location.href = "{{ route('tasks.index') }}";
@@ -727,7 +734,8 @@
         })
         .catch(error => {
             console.error('Start task error:', error);
-            if (error.message !== 'Task locked') {
+            // Don't show alert or re-enable button if user is blocked or task was locked
+            if (error.message !== 'Task locked' && error.message !== 'User blocked') {
                 alert(error.message || translations.problem_try_again);
                 startBtn.disabled = false;
                 startBtn.innerHTML = '<i data-lucide="play"></i> ' + translations.start_task;
@@ -864,9 +872,19 @@
             if (!contentType || !contentType.includes('application/json')) {
                 throw new Error('Server error');
             }
-            return response.json();
+            
+            const data = await response.json();
+            
+            // Check if user is blocked
+            if (response.status === 403 && (data.is_blocked || data.error_code === 'USER_BLOCKED')) {
+                alert(data.message || 'Akaunti yako imezuiwa. Wasiliana na admin.');
+                window.location.href = '/blocked';
+                throw new Error('User blocked');
+            }
+            
+            return { data, ok: response.ok };
         })
-        .then(data => {
+        .then(({ data, ok }) => {
             if (data.success) {
                 taskStarted = false;
                 showSuccessModal(data.new_balance, data.daily_goal);
@@ -876,10 +894,13 @@
         })
         .catch(error => {
             console.error('Complete task error:', error);
-            alert(error.message || translations.problem_try_again);
-            completeBtn.disabled = false;
-            completeBtn.innerHTML = '<i data-lucide="check"></i> ' + translations.get_payment;
-            lucide.createIcons();
+            // Don't show alert or re-enable button if user is blocked
+            if (error.message !== 'User blocked') {
+                alert(error.message || translations.problem_try_again);
+                completeBtn.disabled = false;
+                completeBtn.innerHTML = '<i data-lucide="check"></i> ' + translations.get_payment;
+                lucide.createIcons();
+            }
         });
     }
     

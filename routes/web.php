@@ -87,8 +87,8 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Protected routes
-Route::middleware(['auth'])->group(function () {
+// Protected routes - requires auth AND not blocked
+Route::middleware(['auth', 'check.blocked'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
@@ -311,16 +311,17 @@ Route::middleware(['auth'])->group(function () {
 
     });
 
-    // User Blocked Page (shown when user is blocked)
-    Route::get('/blocked', function () {
-        $user = auth()->user();
-        if (!$user->isBlocked()) {
-            return redirect()->route('dashboard');
-        }
-        return view('user.blocked', compact('user'));
-    })->name('user.blocked');
-
     // Notifications
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
+
+// User Blocked Page (shown when user is blocked)
+// IMPORTANT: This must be OUTSIDE the check.blocked middleware!
+Route::middleware(['auth'])->get('/blocked', function () {
+    $user = auth()->user();
+    if (!$user->isBlocked()) {
+        return redirect()->route('dashboard');
+    }
+    return view('user.blocked', compact('user'));
+})->name('user.blocked');
