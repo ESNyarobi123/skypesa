@@ -336,7 +336,7 @@ class User extends Authenticatable
             'blocked_at' => $this->blocked_at?->toISOString(),
             'blocked_by' => $this->blockedByAdmin?->name ?? 'System (Auto-block)',
             'total_flagged_clicks' => $this->total_flagged_clicks ?? 0,
-            'auto_block_threshold' => UserClickFlag::AUTO_BLOCK_THRESHOLD,
+            'auto_block_threshold' => UserClickFlag::getAutoBlockThreshold(),
         ];
     }
 

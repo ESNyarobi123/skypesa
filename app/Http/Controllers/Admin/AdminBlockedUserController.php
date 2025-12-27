@@ -32,8 +32,9 @@ class AdminBlockedUserController extends Controller
                 break;
             case 'at_risk':
                 // Users close to auto-block threshold (>= 15 flags)
-                $query->where('total_flagged_clicks', '>=', 15)
-                      ->where('total_flagged_clicks', '<', UserClickFlag::AUTO_BLOCK_THRESHOLD)
+                $threshold = UserClickFlag::getAutoBlockThreshold();
+                $query->where('total_flagged_clicks', '>=', max(1, $threshold - 5))
+                      ->where('total_flagged_clicks', '<', $threshold)
                       ->notBlocked();
                 break;
             case 'auto_blocked':
@@ -68,8 +69,8 @@ class AdminBlockedUserController extends Controller
             'admin_blocked' => User::where('role', 'user')->blocked()->whereNotNull('blocked_by')->count(),
             'flagged_users' => User::where('role', 'user')->withFlaggedClicks()->count(),
             'at_risk' => User::where('role', 'user')
-                ->where('total_flagged_clicks', '>=', 15)
-                ->where('total_flagged_clicks', '<', UserClickFlag::AUTO_BLOCK_THRESHOLD)
+                ->where('total_flagged_clicks', '>=', max(1, UserClickFlag::getAutoBlockThreshold() - 5))
+                ->where('total_flagged_clicks', '<', UserClickFlag::getAutoBlockThreshold())
                 ->notBlocked()
                 ->count(),
             'total_flags_today' => UserClickFlag::today()->count(),

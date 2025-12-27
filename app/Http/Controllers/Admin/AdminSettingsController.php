@@ -20,6 +20,7 @@ class AdminSettingsController extends Controller
             'referral' => Setting::getByGroup('referral'),
             'withdrawal' => Setting::getByGroup('withdrawal'),
             'task' => Setting::getByGroup('task'),
+            'fraud' => Setting::getByGroup('fraud'),
             'profit' => Setting::getByGroup('profit'),
             'support' => Setting::getByGroup('support'),
         ];
@@ -57,6 +58,9 @@ class AdminSettingsController extends Controller
             'task_ip_daily_limit' => 'nullable|integer|min:1',
             'task_allow_skip' => 'nullable',
             
+            // Fraud Detection
+            'fraud_auto_block_threshold' => 'nullable|integer|min:5|max:100',
+            
             // Profit
             'ad_revenue_per_view' => 'nullable|integer|min:0',
             'platform_profit_percent' => 'nullable|integer|min:0|max:100',
@@ -83,6 +87,7 @@ class AdminSettingsController extends Controller
             'task_default_duration' => 'task',
             'task_ip_daily_limit' => 'task',
             'task_allow_skip' => 'task',
+            'fraud_auto_block_threshold' => 'fraud',
             'ad_revenue_per_view' => 'profit',
             'platform_profit_percent' => 'profit',
             'whatsapp_support_number' => 'support',

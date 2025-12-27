@@ -11,9 +11,17 @@ class UserClickFlag extends Model
     use HasFactory;
 
     /**
-     * Auto-block threshold - if user has this many flagged tasks, auto-block them
+     * Default auto-block threshold (fallback if setting not configured)
      */
-    public const AUTO_BLOCK_THRESHOLD = 20;
+    public const DEFAULT_AUTO_BLOCK_THRESHOLD = 20;
+
+    /**
+     * Get the current auto-block threshold from settings
+     */
+    public static function getAutoBlockThreshold(): int
+    {
+        return (int) Setting::get('fraud_auto_block_threshold', self::DEFAULT_AUTO_BLOCK_THRESHOLD);
+    }
 
     protected $fillable = [
         'user_id',
@@ -136,9 +144,10 @@ class UserClickFlag extends Model
         $user->increment('total_flagged_clicks');
 
         // Check for auto-block threshold
-        if ($user->fresh()->total_flagged_clicks >= self::AUTO_BLOCK_THRESHOLD) {
+        $threshold = self::getAutoBlockThreshold();
+        if ($user->fresh()->total_flagged_clicks >= $threshold) {
             $user->blockUser(
-                reason: 'Auto-blocked: Exceeded suspicious click threshold (' . self::AUTO_BLOCK_THRESHOLD . ' tasks)',
+                reason: 'Auto-blocked: Exceeded suspicious click threshold (' . $threshold . ' tasks)',
                 blockedBy: null // null = system auto-block
             );
         }
@@ -158,8 +167,8 @@ class UserClickFlag extends Model
             'total_clicks' => $flags->sum('click_count'),
             'unreviewed_flags' => $flags->unreviewed()->count(),
             'today_flags' => self::where('user_id', $user->id)->today()->count(),
-            'threshold' => self::AUTO_BLOCK_THRESHOLD,
-            'remaining_before_block' => max(0, self::AUTO_BLOCK_THRESHOLD - $user->total_flagged_clicks),
+            'threshold' => self::getAutoBlockThreshold(),
+            'remaining_before_block' => max(0, self::getAutoBlockThreshold() - $user->total_flagged_clicks),
         ];
     }
 }

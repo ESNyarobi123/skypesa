@@ -245,6 +245,52 @@
             </div>
         </div>
 
+        <!-- Fraud Detection Settings -->
+        <div class="chart-card" style="margin-bottom: 1.5rem;">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">
+                        <i data-lucide="shield-alert" style="width: 20px; height: 20px; display: inline; color: var(--error);"></i>
+                        Fraud Detection Settings
+                    </div>
+                    <div class="chart-subtitle">Configure anti-cheat and auto-blocking</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; gap: 1.25rem;">
+                <div class="form-group-modern" style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                    <label class="form-label-modern" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="shield-off" style="width: 16px; height: 16px; color: var(--error);"></i>
+                        Auto-Block Threshold (Flagged Tasks)
+                    </label>
+                    <input type="number" name="fraud_auto_block_threshold" class="form-input-modern" 
+                           value="{{ $settings['fraud']['fraud_auto_block_threshold'] ?? 20 }}" 
+                           min="5" max="100" placeholder="20" style="max-width: 150px;">
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">
+                        <strong>⚠️ Auto-Block:</strong> User will be automatically blocked after completing this many tasks 
+                        <strong>without clicking</strong> inside the ad iframe. This prevents bot/script usage.
+                    </p>
+                    <p style="font-size: 0.7rem; color: var(--warning); margin-top: 0.25rem;">
+                        <i data-lucide="info" style="width: 12px; height: 12px; display: inline;"></i>
+                        Lower value = stricter security (more false positives), Higher value = more lenient
+                    </p>
+                </div>
+                
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                    <h4 style="color: white; font-size: 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="info" style="width: 16px; height: 16px; color: var(--info);"></i>
+                        How It Works
+                    </h4>
+                    <ul style="font-size: 0.75rem; color: var(--text-muted); margin: 0; padding-left: 1.25rem; line-height: 1.8;">
+                        <li>When user completes a task, system checks if they clicked inside the ad</li>
+                        <li>If NO click detected = suspicious activity = +1 flag</li>
+                        <li>When flags reach threshold = user is automatically blocked</li>
+                        <li>Blocked users can be reviewed in the <a href="{{ route('admin.blocked-users.index') }}" style="color: var(--info);">Blocked Users</a> page</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- Profit Settings -->
         <div class="chart-card" style="margin-bottom: 1.5rem;">
             <div class="chart-header">

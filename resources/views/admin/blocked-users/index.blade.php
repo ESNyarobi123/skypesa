@@ -156,7 +156,7 @@
                 <td>
                     @php
                         $clickCount = $user->total_flagged_clicks ?? 0;
-                        $threshold = \App\Models\UserClickFlag::AUTO_BLOCK_THRESHOLD;
+                        $threshold = \App\Models\UserClickFlag::getAutoBlockThreshold();
                         $percentage = min(100, ($clickCount / $threshold) * 100);
                         
                         if ($percentage >= 100) {

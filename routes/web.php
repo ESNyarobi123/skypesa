@@ -143,8 +143,8 @@ Route::middleware(['auth', 'check.blocked'])->group(function () {
             'status' => 'recorded',
             'flag_id' => $flag->id,
             'total_flagged_clicks' => $user->total_flagged_clicks,
-            'threshold' => \App\Models\UserClickFlag::AUTO_BLOCK_THRESHOLD,
-            'remaining_before_block' => max(0, \App\Models\UserClickFlag::AUTO_BLOCK_THRESHOLD - $user->total_flagged_clicks),
+            'threshold' => \App\Models\UserClickFlag::getAutoBlockThreshold(),
+            'remaining_before_block' => max(0, \App\Models\UserClickFlag::getAutoBlockThreshold() - $user->total_flagged_clicks),
         ]);
     })->name('tasks.report-click');
     

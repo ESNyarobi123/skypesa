@@ -96,8 +96,8 @@ class ClickFlagController extends Controller
             'message' => 'Click recorded for review',
             'flag_id' => $flag->id,
             'total_flagged_clicks' => $user->total_flagged_clicks,
-            'threshold' => UserClickFlag::AUTO_BLOCK_THRESHOLD,
-            'remaining_before_block' => max(0, UserClickFlag::AUTO_BLOCK_THRESHOLD - $user->total_flagged_clicks),
+            'threshold' => UserClickFlag::getAutoBlockThreshold(),
+            'remaining_before_block' => max(0, UserClickFlag::getAutoBlockThreshold() - $user->total_flagged_clicks),
         ]);
     }
 
