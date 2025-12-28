@@ -241,7 +241,13 @@ Route::prefix('v1')->group(function () {
             
             // Get Subscription History
             Route::get('/history', [SubscriptionController::class, 'history']);
+            
+            // Get Payment History
+            Route::get('/payments', [SubscriptionController::class, 'payments']);
         });
+        
+        // Plans (also accessible here for convenience)
+        Route::get('/plans/{slug}', [SubscriptionController::class, 'show']);
         
         /*
         |--------------------------------------------------------------------------
