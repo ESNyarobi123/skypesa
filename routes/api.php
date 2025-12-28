@@ -316,6 +316,9 @@ Route::prefix('v1')->group(function () {
             // Get FAQs
             Route::get('/faq', [SupportController::class, 'faq']);
             
+            // Get Support Stats
+            Route::get('/stats', [SupportController::class, 'stats']);
+            
             // Get User's Tickets
             Route::get('/tickets', [SupportController::class, 'tickets']);
             
@@ -327,6 +330,12 @@ Route::prefix('v1')->group(function () {
             
             // Reply to Ticket
             Route::post('/tickets/{ticketNumber}/reply', [SupportController::class, 'replyTicket']);
+            
+            // Close Ticket
+            Route::post('/tickets/{ticketNumber}/close', [SupportController::class, 'closeTicket']);
+            
+            // Reopen Ticket
+            Route::post('/tickets/{ticketNumber}/reopen', [SupportController::class, 'reopenTicket']);
             
             // Report Bug
             Route::post('/bug-report', [SupportController::class, 'bugReport']);
