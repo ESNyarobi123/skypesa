@@ -422,6 +422,7 @@ class UserController extends Controller
         $request->user()->update([
             'fcm_token' => $request->fcm_token,
             'device_type' => $request->device_type ?? 'android',
+            'fcm_token_updated_at' => now(),
         ]);
 
         return response()->json([

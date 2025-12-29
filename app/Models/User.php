@@ -48,6 +48,10 @@ class User extends Authenticatable
         'blocked_at',
         'blocked_by',
         'total_flagged_clicks',
+        // FCM Push Notifications
+        'fcm_token',
+        'device_type',
+        'fcm_token_updated_at',
     ];
 
     protected $hidden = [
@@ -74,6 +78,8 @@ class User extends Authenticatable
             'last_daily_goal_date' => 'date',
             'daily_goal_claimed' => 'boolean',
             'referral_bonus_paid' => 'boolean',
+            // FCM token
+            'fcm_token_updated_at' => 'datetime',
         ];
     }
 

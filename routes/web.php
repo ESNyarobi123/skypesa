@@ -318,6 +318,17 @@ Route::middleware(['auth', 'check.blocked'])->group(function () {
         Route::post('/blocked-users/flags/{flag}/review', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'reviewFlag'])->name('blocked-users.review-flag');
         Route::get('/blocked-users-api/recent-flags', [App\Http\Controllers\Admin\AdminBlockedUserController::class, 'recentFlags'])->name('blocked-users.recent-flags');
 
+        // Push Notifications (Firebase FCM)
+        Route::get('/push-notifications', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'index'])->name('push-notifications.index');
+        Route::get('/push-notifications/create', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'create'])->name('push-notifications.create');
+        Route::post('/push-notifications', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'store'])->name('push-notifications.store');
+        Route::get('/push-notifications/tokens', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'tokens'])->name('push-notifications.tokens');
+        Route::get('/push-notifications/{pushNotification}', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'show'])->name('push-notifications.show');
+        Route::post('/push-notifications/{pushNotification}/resend', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'resend'])->name('push-notifications.resend');
+        Route::delete('/push-notifications/{pushNotification}', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'destroy'])->name('push-notifications.destroy');
+        Route::post('/push-notifications/test/{user}', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'sendTest'])->name('push-notifications.send-test');
+        Route::delete('/push-notifications/token/{user}', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'removeToken'])->name('push-notifications.remove-token');
+
     });
 
     // Notifications

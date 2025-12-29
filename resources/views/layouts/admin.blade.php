@@ -1130,7 +1130,18 @@
                             <a href="{{ route('admin.announcements.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
                                 <i data-lucide="megaphone" class="nav-icon"></i>
                                 Announcements
-                                <span style="margin-left: auto; font-size: 0.65rem; padding: 0.15rem 0.4rem; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 4px; color: white; font-weight: 600;">NEW</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
+                            <a href="{{ route('admin.push-notifications.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.push-notifications.*') ? 'active' : '' }}">
+                                <i data-lucide="bell-ring" class="nav-icon"></i>
+                                Push Notifications
+                                @php 
+                                    $fcmTokenCount = \App\Models\User::whereNotNull('fcm_token')->where('fcm_token', '!=', '')->count();
+                                @endphp
+                                @if($fcmTokenCount > 0)
+                                    <span style="margin-left: auto; font-size: 0.65rem; padding: 0.15rem 0.4rem; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 4px; color: white; font-weight: 600;">{{ $fcmTokenCount }}</span>
+                                @endif
                             </a>
                         </li>
                         <li class="sidebar-nav-item">

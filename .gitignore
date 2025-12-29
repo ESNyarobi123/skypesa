@@ -28,3 +28,8 @@ netlogo.rar
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Firebase credentials (contains private key - NEVER commit!)
+sky-pesa-firebase-adminsdk-*.json
+firebase-adminsdk*.json
+*-firebase-adminsdk-*.json
