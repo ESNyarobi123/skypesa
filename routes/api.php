@@ -289,14 +289,46 @@ Route::prefix('v1')->group(function () {
             // Get Unread Count
             Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
             
-            // Mark as Read
-            Route::put('/{notification}/read', [NotificationController::class, 'markAsRead']);
+            // Get Notification Types Summary
+            Route::get('/types', [NotificationController::class, 'types']);
             
             // Mark All as Read
             Route::put('/read-all', [NotificationController::class, 'markAllAsRead']);
             
+            // Clear All Notifications
+            Route::delete('/clear-all', [NotificationController::class, 'clearAll']);
+            
+            // Get Single Notification
+            Route::get('/{notification}', [NotificationController::class, 'show']);
+            
+            // Mark as Read
+            Route::put('/{notification}/read', [NotificationController::class, 'markAsRead']);
+            
             // Delete Notification
             Route::delete('/{notification}', [NotificationController::class, 'destroy']);
+        });
+        
+        /*
+        |--------------------------------------------------------------------------
+        | Announcements (Popup/Broadcast Messages)
+        |--------------------------------------------------------------------------
+        */
+        
+        Route::prefix('announcements')->group(function () {
+            // Get Active Announcements (popup + all)
+            Route::get('/', [\App\Http\Controllers\Api\AnnouncementController::class, 'index']);
+            
+            // Get Announcement History with read status
+            Route::get('/history', [\App\Http\Controllers\Api\AnnouncementController::class, 'history']);
+            
+            // Mark all as read
+            Route::post('/read-all', [\App\Http\Controllers\Api\AnnouncementController::class, 'readAll']);
+            
+            // Get Single Announcement
+            Route::get('/{announcement}', [\App\Http\Controllers\Api\AnnouncementController::class, 'show']);
+            
+            // Dismiss/View Announcement (record that user saw popup)
+            Route::post('/{announcement}/dismiss', [\App\Http\Controllers\Api\AnnouncementController::class, 'dismiss']);
         });
         
         /*
