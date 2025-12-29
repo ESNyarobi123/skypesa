@@ -106,10 +106,34 @@ class AuthController extends Controller
 
         // Check if active
         if (!$user->is_active) {
+            Auth::logout();
             return response()->json([
                 'success' => false,
-                'message' => 'Akaunti yako imezuiwa. Wasiliana na msaada.',
+                'message' => 'Akaunti yako imefungwa. Wasiliana na msaada.',
+                'is_deactivated' => true,
             ], 403);
+        }
+
+        // Check if blocked (fraud detection)
+        if ($user->isBlocked()) {
+            // Still give token but mark as blocked so app can show blocked screen
+            $token = $user->createToken($request->device_name ?? 'auth_token')->plainTextToken;
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Akaunti yako imezuiwa.',
+                'is_blocked' => true,
+                'data' => [
+                    'user' => $this->userResource($user),
+                    'token' => $token,
+                    'token_type' => 'Bearer',
+                    'blocking_info' => $user->getBlockingInfo(),
+                    'support' => [
+                        'whatsapp' => \App\Models\Setting::get('whatsapp_support_number', '255700000000'),
+                        'whatsapp_url' => 'https://wa.me/' . preg_replace('/[^0-9]/', '', \App\Models\Setting::get('whatsapp_support_number', '255700000000')),
+                    ],
+                ],
+            ]);
         }
 
         // Update last login
@@ -124,6 +148,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Karibu tena!',
+            'is_blocked' => false,
             'data' => [
                 'user' => $this->userResource($user),
                 'token' => $token,
@@ -355,6 +380,9 @@ class AuthController extends Controller
             'role' => $user->role,
             'referral_code' => $user->referral_code,
             'is_verified' => $user->is_verified,
+            'is_blocked' => $user->isBlocked(),
+            'total_flagged_clicks' => $user->total_flagged_clicks ?? 0,
+            'auto_block_threshold' => \App\Models\UserClickFlag::getAutoBlockThreshold(),
             'wallet' => [
                 'balance' => $user->wallet?->balance ?? 0,
             ],

@@ -130,6 +130,7 @@ All responses follow this structure:
 {
   "success": true,
   "message": "Karibu tena!",
+  "is_blocked": false,
   "data": {
     "user": {
       "id": 1,
@@ -140,6 +141,9 @@ All responses follow this structure:
       "role": "user",
       "referral_code": "XYZ98765",
       "is_verified": true,
+      "is_blocked": false,
+      "total_flagged_clicks": 5,
+      "auto_block_threshold": 20,
       "wallet": {
         "balance": 15000
       },
@@ -155,6 +159,40 @@ All responses follow this structure:
 }
 ```
 
+### Success Response - User Blocked (200)
+> **IMPORTANT:** When user is blocked, login still succeeds but with `is_blocked: true`. App should show blocked screen.
+
+```json
+{
+  "success": true,
+  "message": "Akaunti yako imezuiwa.",
+  "is_blocked": true,
+  "data": {
+    "user": {
+      "id": 1,
+      "name": "John Doe",
+      "is_blocked": true,
+      "total_flagged_clicks": 20,
+      "auto_block_threshold": 20
+    },
+    "token": "2|xyz789...",
+    "token_type": "Bearer",
+    "blocking_info": {
+      "is_blocked": true,
+      "blocked_reason": "Auto-blocked: Exceeded suspicious click threshold (20 tasks)",
+      "blocked_at": "2024-12-27T10:00:00.000Z",
+      "blocked_by": "System (Auto-block)",
+      "total_flagged_clicks": 20,
+      "auto_block_threshold": 20
+    },
+    "support": {
+      "whatsapp": "255700000000",
+      "whatsapp_url": "https://wa.me/255700000000"
+    }
+  }
+}
+```
+
 ### Error: Wrong Credentials (401)
 ```json
 {
@@ -163,11 +201,12 @@ All responses follow this structure:
 }
 ```
 
-### Error: Account Blocked (403)
+### Error: Account Deactivated (403)
 ```json
 {
   "success": false,
-  "message": "Akaunti yako imezuiwa. Wasiliana na msaada."
+  "message": "Akaunti yako imefungwa. Wasiliana na msaada.",
+  "is_deactivated": true
 }
 ```
 
