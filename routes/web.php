@@ -178,6 +178,15 @@ Route::middleware(['auth', 'check.blocked'])->group(function () {
     Route::get('/support/{id}', [SupportController::class, 'show'])->name('support.show');
     Route::post('/support/{id}/reply', [SupportController::class, 'reply'])->name('support.reply');
 
+    // Profile routes
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [App\Http\Controllers\ProfileController::class, 'index'])->name('index');
+        Route::put('/', [App\Http\Controllers\ProfileController::class, 'update'])->name('update');
+        Route::post('/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('avatar');
+        Route::delete('/avatar', [App\Http\Controllers\ProfileController::class, 'removeAvatar'])->name('avatar.remove');
+        Route::put('/password', [App\Http\Controllers\ProfileController::class, 'changePassword'])->name('password');
+    });
+
     // Announcements (dismiss popup)
     Route::post('/announcements/{announcement}/dismiss', function (\App\Models\Announcement $announcement) {
         $user = auth()->user();

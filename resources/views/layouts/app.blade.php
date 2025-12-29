@@ -210,21 +210,28 @@
         <!-- User Info at Bottom -->
         <div style="margin-top: auto; padding-top: 1.5rem;">
             <div class="card" style="padding: 1rem;">
-                <div class="flex items-center gap-4">
+                <a href="{{ route('profile.index') }}" class="flex items-center gap-4" style="text-decoration: none; color: inherit;">
                     <img src="{{ auth()->user()->getAvatarUrl() }}" alt="{{ auth()->user()->name }}" 
-                         style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                         style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-weight: 600; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ auth()->user()->name }}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);">{{ auth()->user()->getPlanName() }}</div>
                     </div>
+                    <i data-lucide="settings" style="width: 18px; height: 18px; color: var(--text-muted);"></i>
+                </a>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                    <a href="{{ route('profile.index') }}" class="btn btn-secondary btn-sm" style="flex: 1; text-align: center;">
+                        <i data-lucide="user" style="width: 14px; height: 14px;"></i>
+                        Akaunti
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST" style="flex: 1;">
+                        @csrf
+                        <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%;">
+                            <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
+                            Toka
+                        </button>
+                    </form>
                 </div>
-                <form action="{{ route('logout') }}" method="POST" style="margin-top: 0.75rem;">
-                    @csrf
-                    <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%;">
-                        <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
-                        Toka
-                    </button>
-                </form>
             </div>
         </div>
     </aside>

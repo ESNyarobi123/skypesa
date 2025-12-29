@@ -112,6 +112,9 @@ Route::prefix('v1')->group(function () {
             // Update Avatar
             Route::post('/avatar', [UserController::class, 'updateAvatar']);
             
+            // Remove Avatar
+            Route::delete('/avatar', [UserController::class, 'removeAvatar']);
+            
             // Change Password
             Route::put('/password', [UserController::class, 'changePassword']);
             
@@ -126,6 +129,10 @@ Route::prefix('v1')->group(function () {
             
             // FCM Token for Push Notifications
             Route::post('/fcm-token', [UserController::class, 'updateFcmToken']);
+            
+            // Settings
+            Route::get('/settings', [UserController::class, 'settings']);
+            Route::put('/settings', [UserController::class, 'updateSettings']);
         });
         
         /*
