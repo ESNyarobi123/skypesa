@@ -1102,6 +1102,12 @@
                     <div class="menu-section-title">System</div>
                     <ul class="sidebar-nav">
                         <li class="sidebar-nav-item">
+                            <a href="{{ route('admin.app-versions.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.app-versions.*') ? 'active' : '' }}">
+                                <i data-lucide="smartphone" class="nav-icon"></i>
+                                App Versions
+                            </a>
+                        </li>
+                        <li class="sidebar-nav-item">
                             <a href="{{ route('admin.support.index') }}" class="sidebar-nav-link {{ request()->routeIs('admin.support.*') ? 'active' : '' }}">
                                 <i data-lucide="message-circle" class="nav-icon"></i>
                                 Support Center

@@ -2020,5 +2020,218 @@
         }
     </style>
 
+    @if(isset($latestAppVersion) && $latestAppVersion)
+    <!-- App Version Popup -->
+    <div id="appVersionPopup" class="app-popup-overlay" style="display: none;">
+        <div class="app-popup">
+            <button class="app-popup-close" onclick="closeAppPopup()">&times;</button>
+            <div class="app-popup-content">
+                <div class="app-popup-header">
+                    <div class="app-icon-wrapper">
+                        <div class="logo-icon">
+                            <i data-lucide="zap" style="width: 32px; height: 32px; color: white;"></i>
+                        </div>
+                    </div>
+                    <div class="app-info">
+                        <h3>SKYpesa App</h3>
+                        <p>Version {{ $latestAppVersion->version_code }} Available!</p>
+                    </div>
+                </div>
+                
+                <div class="app-popup-body">
+                    @if($latestAppVersion->screenshots && count($latestAppVersion->screenshots) > 0)
+                    <div class="app-screenshots">
+                        @foreach($latestAppVersion->screenshots as $screenshot)
+                            <img src="{{ Storage::url($screenshot) }}" alt="App Screenshot">
+                        @endforeach
+                    </div>
+                    @endif
+                    
+                    @if($latestAppVersion->features)
+                    <div class="app-features">
+                        <h4>What's New:</h4>
+                        <ul>
+                            @foreach($latestAppVersion->features as $feature)
+                                <li><i data-lucide="check" style="width: 14px; height: 14px;"></i> {{ $feature }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                    
+                    <div class="app-actions">
+                        <a href="{{ Storage::url($latestAppVersion->apk_path) }}" class="btn btn-primary btn-lg w-100" download>
+                            <i data-lucide="download"></i> Download App Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .app-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .app-popup {
+            background: #1e293b;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease;
+            overflow: hidden;
+        }
+        
+        .app-popup-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-popup-header {
+            padding: 2rem 2rem 1rem;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(16, 185, 129, 0.1), transparent);
+        }
+        
+        .app-icon-wrapper {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .app-info h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+            color: white;
+        }
+        
+        .app-info p {
+            color: #10b981;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .app-popup-body {
+            padding: 1.5rem 2rem 2rem;
+        }
+        
+        .app-screenshots {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            scrollbar-width: none;
+        }
+        
+        .app-screenshots::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .app-screenshots img {
+            height: 200px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-features {
+            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.03);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        
+        .app-features h4 {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .app-features ul {
+            list-style: none;
+        }
+        
+        .app-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-features li i {
+            color: #10b981;
+        }
+        
+        .w-100 {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if popup has been shown recently (e.g., in the last hour)
+            const lastShown = localStorage.getItem('app_popup_shown_v{{ $latestAppVersion->version_code }}');
+            const now = new Date().getTime();
+            
+            // Show if never shown or shown more than 24 hours ago
+            if (!lastShown || (now - lastShown > 24 * 60 * 60 * 1000)) {
+                setTimeout(() => {
+                    document.getElementById('appVersionPopup').style.display = 'flex';
+                }, 2000); // Delay 2 seconds
+            }
+        });
+        
+        function closeAppPopup() {
+            document.getElementById('appVersionPopup').style.display = 'none';
+            localStorage.setItem('app_popup_shown_v{{ $latestAppVersion->version_code }}', new Date().getTime());
+        }
+    </script>
+    @endif
+
 </body>
 </html>

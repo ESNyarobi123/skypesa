@@ -32,7 +32,8 @@ Route::get('/', function () {
     $plans = \App\Models\SubscriptionPlan::where('is_active', true)
         ->orderBy('sort_order')
         ->get();
-    return view('welcome', compact('plans'));
+    $latestAppVersion = \App\Models\AppVersion::where('is_active', true)->latest()->first();
+    return view('welcome', compact('plans', 'latestAppVersion'));
 })->name('home');
 
 // Language switching route (accessible to all users)
@@ -328,6 +329,10 @@ Route::middleware(['auth', 'check.blocked'])->group(function () {
         Route::delete('/push-notifications/{pushNotification}', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'destroy'])->name('push-notifications.destroy');
         Route::post('/push-notifications/test/{user}', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'sendTest'])->name('push-notifications.send-test');
         Route::delete('/push-notifications/token/{user}', [App\Http\Controllers\Admin\AdminPushNotificationController::class, 'removeToken'])->name('push-notifications.remove-token');
+
+        // App Versions Management
+        Route::resource('app-versions', \App\Http\Controllers\Admin\AdminAppVersionController::class);
+        Route::patch('/app-versions/{appVersion}/toggle-status', [\App\Http\Controllers\Admin\AdminAppVersionController::class, 'toggleStatus'])->name('app-versions.toggle-status');
 
     });
 
