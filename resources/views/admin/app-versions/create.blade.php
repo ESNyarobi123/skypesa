@@ -21,9 +21,15 @@
             </div>
 
             <div class="form-group-modern">
-                <label class="form-label-modern">APK File</label>
-                <input type="file" name="apk_file" class="form-input-modern" accept=".apk,.zip" required>
-                <small class="text-muted">Max size: 100MB</small>
+                <label class="form-label-modern">APK File (Upload)</label>
+                <input type="file" name="apk_file" class="form-input-modern" accept=".apk,.zip">
+                <small class="text-muted">Max size: 100MB. If upload fails, use the manual option below.</small>
+            </div>
+
+            <div class="form-group-modern">
+                <label class="form-label-modern">OR Manual Filename (if uploaded via FTP/cPanel)</label>
+                <input type="text" name="manual_file_name" class="form-input-modern" placeholder="e.g. app-release.apk" value="{{ old('manual_file_name') }}">
+                <small class="text-muted">Upload file to <code>public/storage/apks/</code> and enter name here.</small>
             </div>
 
             <div class="form-group-modern">

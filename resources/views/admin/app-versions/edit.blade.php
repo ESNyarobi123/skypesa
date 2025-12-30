@@ -30,6 +30,12 @@
             </div>
 
             <div class="form-group-modern">
+                <label class="form-label-modern">OR Manual Filename (Update manually)</label>
+                <input type="text" name="manual_file_name" class="form-input-modern" placeholder="e.g. app-release.apk" value="{{ old('manual_file_name') }}">
+                <small class="text-muted">Upload file to <code>public/storage/apks/</code> and enter name here to update.</small>
+            </div>
+
+            <div class="form-group-modern">
                 <label class="form-label-modern">Description</label>
                 <textarea name="description" class="form-input-modern" rows="4">{{ old('description', $appVersion->description) }}</textarea>
             </div>
