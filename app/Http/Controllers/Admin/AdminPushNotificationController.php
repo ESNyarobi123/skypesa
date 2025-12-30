@@ -100,7 +100,7 @@ class AdminPushNotificationController extends Controller
             'target_type' => 'required|in:all,specific,segment',
             'target_users' => 'required_if:target_type,specific|array',
             'target_users.*' => 'exists:users,id',
-            'segment' => 'required_if:target_type,segment|in:premium,free,inactive,active,new',
+            'segment' => 'required_if:target_type,segment|in:premium,free,inactive,active,new,all',
             'image_url' => 'nullable|url',
             'action_url' => 'nullable|string|max:255',
             'send_in_app' => 'boolean',
